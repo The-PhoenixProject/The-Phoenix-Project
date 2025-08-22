@@ -1,4 +1,4 @@
-![Image](https://github.com/user-attachments/assets/e2376485-f89a-4190-8958-e82ff7896ff1)
+![Image](https://github.com/user-attachments/assets/1e46e4d8-5562-4db1-ba72-dc0964041acf)
 # 🚀 The Phoenix Project
 
 > *Rising from the ashes of waste, creating value through sustainability*
