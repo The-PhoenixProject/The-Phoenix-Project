@@ -13,11 +13,11 @@
 
 ## 📋 Table of Contents
 
-- [About](#🌟-about)
-- [Objectives](#objectives)
-- [Tech Stack](#tech-stack)
-- [Features](#features)
-- [Contributing](#contributing)
+- [About](#-about)
+- [Objectives](#-objectives)
+- [Tech Stack](#-tech-stack)
+- [Features](#-features)
+- [Contributing](#-contributing)
 
 ## 🌟 About
 
