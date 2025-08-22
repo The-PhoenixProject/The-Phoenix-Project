@@ -18,6 +18,7 @@
 - [Tech Stack](#-tech-stack)
 - [Features](#-features)
 - [Contributing](#-contributing)
+- [License](#-license)
 
 ## 🌟 About
 
@@ -124,6 +125,10 @@ We welcome contributions from the community! Please read our contributing guidel
 - **Component Library** - React component documentation
 - **User Guide** - Platform usage instructions
 - **Developer Guide** - Technical implementation details
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 📞 Contact
 
