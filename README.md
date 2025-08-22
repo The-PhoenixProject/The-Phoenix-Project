@@ -13,7 +13,7 @@
 
 ## 📋 Table of Contents
 
-- [About](#about)
+- [About](#🌟-about)
 - [Objectives](#objectives)
 - [Tech Stack](#tech-stack)
 - [Features](#features)
