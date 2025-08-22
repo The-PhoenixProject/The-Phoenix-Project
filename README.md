@@ -118,7 +118,7 @@ We welcome contributions from the community! Please read our contributing guidel
 
 ## 📞 Contact
 
-- **Project Lead** - [Your Name](mailto:thephoenixproject0@gmail.com)
+- **Project Lead** - [Eyad Sharkawy](mailto:thephoenixproject0@gmail.com)
 - **GitHub Issues** - [Report Bugs](https://github.com/The-PhoenixProject/the-phoenix-project/issues)
 - **Discussions** - [Join the Conversation](https://github.com/your-The-PhoenixProject/the-phoenix-project/discussions)
 
