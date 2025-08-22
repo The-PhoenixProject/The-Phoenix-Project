@@ -8,12 +8,7 @@
 - [Objectives](#objectives)
 - [Tech Stack](#tech-stack)
 - [Features](#features)
-- [Getting Started](#getting-started)
-- [Development Guidelines](#development-guidelines)
-- [Testing](#testing)
-- [Deployment](#deployment)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## 🌟 About
 
@@ -47,12 +42,11 @@ The Phoenix Project is a sustainable marketplace platform that promotes recyclin
 ### Frontend
 - **React** - Modern UI library for building interactive user interfaces
 - **TypeScript** - Type-safe JavaScript for better development experience
-- **HTML5** - Semantic markup and modern web standards
-- **CSS3** - Advanced styling with modern design principles
+- **HTML** - Semantic markup and modern web standards
+- **CSS** - Advanced styling with modern design principles
 
 ### Backend
 - **Node.js** - JavaScript runtime for server-side development
-- **Express.js** - Fast, unopinionated web framework for Node.js
 
 ### Development & Testing
 - **Git & GitHub** - Version control and collaboration
@@ -73,64 +67,6 @@ The Phoenix Project is a sustainable marketplace platform that promotes recyclin
 - **Review & Rating System** - Community-driven quality assurance
 - **Mobile Responsive Design** - Optimized for all devices
 - **Admin Dashboard** - Comprehensive management tools
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn package manager
-- Git
-- Docker (for containerized development)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/the-phoenix-project.git
-   cd the-phoenix-project
-   ```
-
-2. **Install dependencies**
-   ```bash
-   # Install backend dependencies
-   cd backend
-   npm install
-   
-   # Install frontend dependencies
-   cd ../frontend
-   npm install
-   ```
-
-3. **Environment Setup**
-   ```bash
-   # Backend environment variables
-   cp backend/.env.example backend/.env
-   
-   # Frontend environment variables
-   cp frontend/.env.example frontend/.env
-   ```
-
-4. **Database Setup**
-   ```bash
-   # Start database (if using Docker)
-   docker-compose up -d
-   
-   # Run migrations
-   cd backend
-   npm run migrate
-   ```
-
-5. **Start Development Servers**
-   ```bash
-   # Start backend server
-   cd backend
-   npm run dev
-   
-   # Start frontend server (in new terminal)
-   cd frontend
-   npm start
-   ```
 
 ## 📚 Development Guidelines
 
@@ -157,51 +93,6 @@ The Phoenix Project is a sustainable marketplace platform that promotes recyclin
 - **Accessibility** - WCAG compliance and inclusive design
 - **Performance** - Optimized CSS and minimal bundle size
 
-## 🧪 Testing
-
-### Unit Testing
-- **Jest** - JavaScript testing framework
-- **React Testing Library** - Component testing utilities
-- **Test Coverage** - Maintain >80% code coverage
-
-### Integration Testing
-- **API Testing** - Endpoint validation
-- **Database Testing** - Data integrity verification
-- **E2E Testing** - User journey validation
-
-### Running Tests
-```bash
-# Run all tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
-```
-
-## 🐳 Docker & Deployment
-
-### Development with Docker
-```bash
-# Build and run development environment
-docker-compose up --build
-
-# Run specific services
-docker-compose up backend frontend
-```
-
-### Production Deployment
-```bash
-# Build production images
-docker build -t phoenix-backend ./backend
-docker build -t phoenix-frontend ./frontend
-
-# Deploy with docker-compose
-docker-compose -f docker-compose.prod.yml up -d
-```
-
 ## 🤝 Contributing
 
 We welcome contributions from the community! Please read our contributing guidelines:
@@ -215,7 +106,6 @@ We welcome contributions from the community! Please read our contributing guidel
 ### Contribution Areas
 - **Frontend Development** - React components and UI improvements
 - **Backend Development** - API endpoints and business logic
-- **Testing** - Unit and integration tests
 - **Documentation** - Code comments and user guides
 - **Design** - UI/UX improvements and accessibility
 
@@ -226,21 +116,11 @@ We welcome contributions from the community! Please read our contributing guidel
 - **User Guide** - Platform usage instructions
 - **Developer Guide** - Technical implementation details
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Sustainability Community** - For inspiration and feedback
-- **Open Source Contributors** - For the amazing tools and libraries
-- **Eco-conscious Users** - For believing in a sustainable future
-
 ## 📞 Contact
 
-- **Project Lead** - [Your Name](mailto:your.email@example.com)
-- **GitHub Issues** - [Report Bugs](https://github.com/your-username/the-phoenix-project/issues)
-- **Discussions** - [Join the Conversation](https://github.com/your-username/the-phoenix-project/discussions)
+- **Project Lead** - [Your Name](mailto:thephoenixproject0@gmail.com)
+- **GitHub Issues** - [Report Bugs](https://github.com/The-PhoenixProject/the-phoenix-project/issues)
+- **Discussions** - [Join the Conversation](https://github.com/your-The-PhoenixProject/the-phoenix-project/discussions)
 
 ---
 
