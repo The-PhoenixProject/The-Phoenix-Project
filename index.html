@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Phoenix Project</title>
+    <meta name="description" content="The Phoenix Project: a sustainable marketplace platform that promotes recycling, upcycling, and reuse. It connects eco-conscious consumers with sellers offering pre-loved items, upcycled products, and sustainable crafts, fostering a circular economy while supporting affordable living.">
+    <meta name="theme-color" content="#0f0f10">
+    <meta name="color-scheme" content="light dark">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <header role="banner">
+        <h1>🐦‍🔥 The Phoenix Project</h1>
+        <p>Rising from the ashes of waste, creating value through sustainability</p>
+    </header>
+
+    <nav role="navigation" aria-label="Primary">
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#benefits">Benefits</a></li>
+            <li><a href="#materials">What to Recycle</a></li>
+            <li><a href="#how">How to Recycle</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main id="main" role="main">
+    <section id="home" class="hero" aria-labelledby="home-heading">
+        <div class="container">
+            <h3 id="home-heading">Welcome to The Phoenix Project</h3>
+            <p>Recycling is one of the most effective ways to reduce waste, conserve natural resources, and protect our planet for future generations. Join us in making a positive impact on the environment.</p>
+            <button class="cta-button" onclick="scrollToSection('materials')">Learn What to Recycle</button>
+        </div>
+    </section>
+
+    <section id="benefits" aria-labelledby="benefits-heading">
+        <div class="container">
+            <h2 id="benefits-heading">Why Recycling Matters</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h3>🌍 Protects the Environment</h3>
+                    <p>Recycling reduces pollution, conserves natural habitats, and helps combat climate change by reducing greenhouse gas emissions.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>💰 Saves Resources</h3>
+                    <p>Recycling conserves valuable natural resources like timber, water, and minerals, reducing the need for raw material extraction.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>⚡ Saves Energy</h3>
+                    <p>Manufacturing products from recycled materials uses significantly less energy than producing them from raw materials.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>👥 Creates Jobs</h3>
+                    <p>The recycling industry creates jobs in collection, processing, and manufacturing, contributing to the economy.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="materials" aria-labelledby="materials-heading">
+        <div class="container">
+            <h2 id="materials-heading">What Can Be Recycled?</h2>
+            <div class="materials-grid">
+                <div class="material-item">
+                    <h3>📄 Paper & Cardboard</h3>
+                    <p>Newspapers, magazines, cardboard boxes, office paper, and paperboard packaging.</p>
+                </div>
+                <div class="material-item">
+                    <h3>🥤 Plastics</h3>
+                    <p>Bottles, containers, and packaging marked with recycling symbols #1-#7 (check local guidelines).</p>
+                </div>
+                <div class="material-item">
+                    <h3>🥫 Metal</h3>
+                    <p>Aluminum cans, tin cans, metal lids, and clean aluminum foil.</p>
+                </div>
+                <div class="material-item">
+                    <h3>🍾 Glass</h3>
+                    <p>Bottles and jars (clear, green, and brown glass).</p>
+                </div>
+                <div class="material-item">
+                    <h3>💻 Electronics</h3>
+                    <p>Computers, phones, batteries, and appliances (requires special recycling centers).</p>
+                </div>
+                <div class="material-item">
+                    <h3>👕 Textiles</h3>
+                    <p>Clothing, shoes, linens, and fabric scraps can be donated or recycled.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how" aria-labelledby="how-heading">
+        <div class="container">
+            <h2 id="how-heading">How to Recycle Properly</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Clean Your Items</h3>
+                        <p>Rinse containers to remove food residue. Dirty items can contaminate entire batches of recyclables.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Check Local Guidelines</h3>
+                        <p>Recycling rules vary by location. Check with your local recycling program for specific requirements.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Sort Materials</h3>
+                        <p>Separate different types of materials (paper, plastic, glass, metal) if required by your program.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Don't Bag Recyclables</h3>
+                        <p>Place items loose in your recycling bin. Plastic bags can jam sorting equipment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-heading">
+        <div class="container">
+            <h2 id="contact-heading">Get in Touch</h2>
+            <div class="contact-content">
+                <p>Have questions about recycling? Want to learn more about our programs? We're here to help!</p>
+                <form class="contact-form" onsubmit="handleSubmit(event)">
+                    <input type="text" placeholder="Your Name" aria-label="Your Name" required>
+                    <input type="email" placeholder="Your Email" aria-label="Your Email" required>
+                    <textarea placeholder="Your Message" aria-label="Your Message" rows="5" required></textarea>
+                    <button type="submit" class="submit-button">Send Message</button>
+                </form>
+                <div id="form-message" role="status" aria-live="polite"></div>
+            </div>
+        </div>
+    </section>
+    </main>
+
+    <footer role="contentinfo">
+        <div class="container">
+            <p>&copy; <span id="current-year"></span> RecycleRight. Making the world a cleaner place, one item at a time.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js" defer></script>
+</body>
+</html>

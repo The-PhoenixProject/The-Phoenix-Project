@@ -1,0 +1,12 @@
+{
+  "name": "Landing Page",
+  "version": "1.0.0",
+  "description": "",
+  "main": "js/script.js",
+  "scripts": {
+    "start": "npx --yes serve . --listen 5500 --single",
+    "preview": "python -m http.server 5500",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true
+}
