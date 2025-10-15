@@ -24,6 +24,12 @@
 
 The Phoenix Project is a sustainable marketplace platform that promotes recycling, upcycling, and reuse. It connects eco-conscious consumers with sellers offering pre-loved items, upcycled products, and sustainable crafts, fostering a circular economy while supporting affordable living.
 
+## 🎨 UI Design Preview
+
+Figma design link:https://www.figma.com/design/lzh0aK7gc75waaEP5dhe57/Untitled?node-id=0-1&p=f&t=HVEtfTOT9vvyZrvz-0
+
+*Built using Figma and embedded with brand colors (#EC744A, #007D6E, #5EB47C).*
+
 ## 🎯 Objectives
 
 ### 1. **Promote Sustainability**
