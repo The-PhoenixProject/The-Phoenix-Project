@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import Swal from "sweetalert2";
 import {
   Container,
   Col,
@@ -10,20 +11,18 @@ import {
   Form,
   InputGroup,
   Badge,
-  Alert,
   Spinner,
   Row,
   ProgressBar,
-  Nav,
 } from "react-bootstrap";
 
 export default function ProfilePhoenixComponent() {
-  // استخدام التدرج اللوني المطلوب
-  const greenGradient = "linear-gradient(135deg, #007D6E 0%, #5EB47C 100%)";
+
+  const greenGradient = " #007D6E";
   const buttonColor = "#EC744A";
   const lightGreen = "rgba(94, 180, 124, 0.1)";
   const followColor = "#4A90E2";
-  const friendsColor = "#9B59B6";
+  const friendsColor = "#4A90E2";
 
   const accentStyle = {
     backgroundColor: buttonColor,
@@ -64,7 +63,7 @@ export default function ProfilePhoenixComponent() {
   const friendsHoverStyle = {
     ...friendsStyle,
     transform: "translateY(-2px)",
-    boxShadow: "0 4px 12px rgba(155, 89, 182, 0.3)",
+    boxShadow: "0 4px 12px rgba(236, 116, 74, 0.3)",
   };
 
   const outlineAccent = {
@@ -72,7 +71,7 @@ export default function ProfilePhoenixComponent() {
     boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
   };
 
-  // تحميل البيانات من localStorage عند التحميل الأول
+  // تحميل البيانات من localStorage 
   const loadUserData = () => {
     const savedUser = localStorage.getItem("phoenixUser");
     const savedPosts = localStorage.getItem("phoenixPosts");
@@ -86,8 +85,8 @@ export default function ProfilePhoenixComponent() {
       user: savedUser
         ? JSON.parse(savedUser)
         : {
-            name: "Sarah Johnson",
-            email: "sarah.johnson@email.com",
+            name: "Username", // تغيير من Sarah Johnson إلى Username
+            email: "username@email.com",
             bio: "Creative designer passionate about UI/UX and digital art.",
             image: null,
           },
@@ -126,7 +125,6 @@ export default function ProfilePhoenixComponent() {
     text: "",
   });
   const [buttonHover, setButtonHover] = useState({});
-  const [alert, setAlert] = useState({ show: false, message: "", type: "" });
   const [showFriendsModal, setShowFriendsModal] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -134,7 +132,7 @@ export default function ProfilePhoenixComponent() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // حفظ البيانات في localStorage عند التغيير
+  // حفظ البيانات في localStorage 
   useEffect(() => {
     localStorage.setItem("phoenixUser", JSON.stringify(user));
   }, [user]);
@@ -163,7 +161,7 @@ export default function ProfilePhoenixComponent() {
     localStorage.setItem("phoenixFriends", JSON.stringify(friends));
   }, [friends]);
 
-  // تحديث صورة المستخدم في جميع المنشورات عند تغيير الصورة
+  // تحديث صورة اليوزر في جميع المنشورات عند تغيير الصورة
   useEffect(() => {
     setPosts((prevPosts) =>
       prevPosts.map((post) => ({
@@ -178,10 +176,22 @@ export default function ProfilePhoenixComponent() {
     setIsFollowing(followers.length > 0);
   }, [followers]);
 
-  // إظهار التنبيهات
+  // إظهار التنبيهات باستخدام SweetAlert
   const showAlert = (message, type = "success") => {
-    setAlert({ show: true, message, type });
-    setTimeout(() => setAlert({ show: false, message: "", type: "" }), 3000);
+    Swal.fire({
+      title:
+        type === "success"
+          ? "Success!"
+          : type === "error"
+          ? "Error!"
+          : "Warning!",
+      text: message,
+      icon: type,
+      timer: 3000,
+      showConfirmButton: false,
+      toast: true,
+      position: "top-end",
+    });
   };
 
   // Follow/Unfollow functionality
@@ -214,8 +224,20 @@ export default function ProfilePhoenixComponent() {
   };
 
   const removeFriend = (friendId) => {
-    setFriends(friends.filter((friend) => friend.id !== friendId));
-    showAlert("Friend removed successfully!");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to remove this friend?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, remove!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setFriends(friends.filter((friend) => friend.id !== friendId));
+        showAlert("Friend removed successfully!");
+      }
+    });
   };
 
   // تشغيل الكاميرا
@@ -230,7 +252,7 @@ export default function ProfilePhoenixComponent() {
       }
     } catch (err) {
       console.error("Error accessing camera:", err);
-      showAlert("Cannot access camera. Please check permissions.", "danger");
+      showAlert("Cannot access camera. Please check permissions.", "error");
       setCameraActive(false);
     }
   };
@@ -316,7 +338,7 @@ export default function ProfilePhoenixComponent() {
 
   function saveEdit() {
     if (!editForm.name.trim() || !editForm.email.trim()) {
-      showAlert("Please fill in all required fields", "danger");
+      showAlert("Please fill in all required fields", "error");
       return;
     }
     setUser({ ...user, ...editForm });
@@ -378,8 +400,20 @@ export default function ProfilePhoenixComponent() {
   }
 
   function deletePost(id) {
-    setPosts(posts.filter((p) => p.id !== id));
-    showAlert("Post deleted successfully!");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setPosts(posts.filter((p) => p.id !== id));
+        showAlert("Post deleted successfully!");
+      }
+    });
   }
 
   // حفظ المنشور
@@ -430,14 +464,26 @@ export default function ProfilePhoenixComponent() {
   }
 
   function deleteComment(postId, index) {
-    setPosts(
-      posts.map((p) =>
-        p.id === postId
-          ? { ...p, comments: p.comments.filter((_, i) => i !== index) }
-          : p
-      )
-    );
-    showAlert("Comment deleted!");
+    Swal.fire({
+      title: "Delete Comment?",
+      text: "Are you sure you want to delete this comment?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setPosts(
+          posts.map((p) =>
+            p.id === postId
+              ? { ...p, comments: p.comments.filter((_, i) => i !== index) }
+              : p
+          )
+        );
+        showAlert("Comment deleted!");
+      }
+    });
   }
 
   function startEditComment(postId, index, text) {
@@ -716,15 +762,7 @@ export default function ProfilePhoenixComponent() {
                   <Button
                     variant="outline-danger"
                     size="sm"
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "Are you sure you want to delete this post?"
-                        )
-                      ) {
-                        deletePost(post.id);
-                      }
-                    }}
+                    onClick={() => deletePost(post.id)}
                     style={{ borderRadius: "20px" }}
                   >
                     <i className="bi bi-trash"></i>
@@ -895,13 +933,7 @@ export default function ProfilePhoenixComponent() {
                                 <Button
                                   variant="outline-danger"
                                   size="sm"
-                                  onClick={() => {
-                                    if (
-                                      window.confirm("Delete this comment?")
-                                    ) {
-                                      deleteComment(post.id, i);
-                                    }
-                                  }}
+                                  onClick={() => deleteComment(post.id, i)}
                                 >
                                   <i className="bi bi-trash"></i>
                                 </Button>
@@ -1089,19 +1121,6 @@ export default function ProfilePhoenixComponent() {
   return (
     <Container className="py-5 d-flex justify-content-center">
       <Col md={12} lg={10}>
-        {/* Alert Component */}
-        {alert.show && (
-          <Alert
-            variant={alert.type}
-            className="position-fixed top-0 start-50 translate-middle-x mt-3"
-            style={{ zIndex: 9999, minWidth: "300px" }}
-            dismissible
-            onClose={() => setAlert({ show: false, message: "", type: "" })}
-          >
-            {alert.message}
-          </Alert>
-        )}
-
         {/* Navigation Tabs */}
         <Card
           className="mb-4"
@@ -1212,17 +1231,103 @@ export default function ProfilePhoenixComponent() {
               </div>
 
               <Card.Body
-                className="pt-5 text-center"
+                className="pt-5"
                 style={{ backgroundColor: lightGreen }}
               >
-                {/* User Name and Echo Points */}
-                <div className="d-flex justify-content-center align-items-center mb-3">
-                  <h4 style={{ fontWeight: 700, color: "#007D6E", margin: 0 }}>
+                {/* User Name - Centered under profile picture */}
+                <div className="text-center mb-4">
+                  <h4
+                    style={{
+                      fontWeight: 700,
+                      color: "#007D6E",
+                      margin: 0,
+                      marginBottom: "20px",
+                    }}
+                  >
                     {user.name}
                   </h4>
+                </div>
+
+                {/* Follow and Friends Section - Centered with proper spacing */}
+                <div className="d-flex justify-content-center align-items-center mb-4">
+                  {/* Follow Section */}
+                  <div className="d-flex flex-column align-items-center me-5">
+                    <Button
+                      style={
+                        buttonHover.follow ? followHoverStyle : followStyle
+                      }
+                      onMouseEnter={() =>
+                        setButtonHover({ ...buttonHover, follow: true })
+                      }
+                      onMouseLeave={() =>
+                        setButtonHover({ ...buttonHover, follow: false })
+                      }
+                      onClick={toggleFollow}
+                      className="px-3 mb-2"
+                      size="sm"
+                    >
+                      <i
+                        className={`bi bi-${
+                          isFollowing ? "person-check" : "person-plus"
+                        } me-1`}
+                      ></i>
+                      {isFollowing ? "Following" : "Follow"}
+                    </Button>
+                    <div className="d-flex flex-column align-items-center">
+                      <span
+                        style={{
+                          fontSize: "1.2rem",
+                          fontWeight: "700",
+                          color: followColor,
+                        }}
+                      >
+                        {followersCount}
+                      </span>
+                      <span className="small" style={{ color: followColor }}>
+                        Followers
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Friends Section */}
+                  <div className="d-flex flex-column align-items-center ms-5">
+                    <Button
+                      style={
+                        buttonHover.friends ? friendsHoverStyle : friendsStyle
+                      }
+                      onMouseEnter={() =>
+                        setButtonHover({ ...buttonHover, friends: true })
+                      }
+                      onMouseLeave={() =>
+                        setButtonHover({ ...buttonHover, friends: false })
+                      }
+                      onClick={openFriendsModal}
+                      className="px-3 mb-2"
+                      size="sm"
+                    >
+                      <i className="bi bi-people me-1"></i>Friends
+                    </Button>
+                    <div className="d-flex flex-column align-items-center">
+                      <span
+                        style={{
+                          fontSize: "1.2rem",
+                          fontWeight: "700",
+                          color: friendsColor,
+                        }}
+                      >
+                        {friendsCount}
+                      </span>
+                      <span className="small" style={{ color: friendsColor }}>
+                        Friends
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* User Info and Echo Points */}
+                <div className="text-center mb-4">
                   <Badge
                     bg="warning"
-                    className="ms-3"
                     style={{
                       fontSize: "14px",
                       fontWeight: "700",
@@ -1235,52 +1340,15 @@ export default function ProfilePhoenixComponent() {
                   </Badge>
                 </div>
 
-                <div className="text-muted small mb-2">
+                <div className="text-center text-muted small mb-2">
                   <i className="bi bi-envelope me-2"></i>
                   {user.email}
                 </div>
-                <p className="mb-4" style={{ color: "#5a5a5a" }}>
+                <p className="text-center mb-4" style={{ color: "#5a5a5a" }}>
                   {user.bio}
                 </p>
 
-                {/* Follow and Friends Buttons - First Row */}
-                <div className="d-flex justify-content-center gap-3 mb-3 flex-wrap">
-                  <Button
-                    style={buttonHover.follow ? followHoverStyle : followStyle}
-                    onMouseEnter={() =>
-                      setButtonHover({ ...buttonHover, follow: true })
-                    }
-                    onMouseLeave={() =>
-                      setButtonHover({ ...buttonHover, follow: false })
-                    }
-                    onClick={toggleFollow}
-                    className="px-4"
-                  >
-                    <i
-                      className={`bi bi-${
-                        isFollowing ? "person-check" : "person-plus"
-                      } me-2`}
-                    ></i>
-                    {isFollowing ? "Following" : "Follow"}
-                  </Button>
-                  <Button
-                    style={
-                      buttonHover.friends ? friendsHoverStyle : friendsStyle
-                    }
-                    onMouseEnter={() =>
-                      setButtonHover({ ...buttonHover, friends: true })
-                    }
-                    onMouseLeave={() =>
-                      setButtonHover({ ...buttonHover, friends: false })
-                    }
-                    onClick={openFriendsModal}
-                    className="px-4"
-                  >
-                    <i className="bi bi-people me-2"></i>Friends
-                  </Button>
-                </div>
-
-                {/* Edit, Products, Saved Buttons - Second Row */}
+                {/* Edit, Products, Saved Buttons - Centered */}
                 <div className="d-flex justify-content-center gap-3 mb-4 flex-wrap">
                   <Button
                     style={buttonHover.edit ? hoverStyle : accentStyle}
@@ -1323,23 +1391,17 @@ export default function ProfilePhoenixComponent() {
                   </Button>
                 </div>
 
-                {/* Stats Section - Updated Design */}
+                {/* Stats Section - Without Boxes */}
                 <Row className="mb-4 text-center">
                   {/* Posts Counter */}
                   <Col>
-                    <div
-                      className="p-3 rounded d-flex flex-column align-items-center justify-content-center"
-                      style={{
-                        backgroundColor: "white",
-                        border: "2px solid #EC744A",
-                        minHeight: "80px",
-                      }}
-                    >
+                    <div className="p-3">
                       <h5
                         style={{
                           color: "#EC744A",
                           fontWeight: "700",
                           margin: 0,
+                          fontSize: "1.8rem",
                         }}
                       >
                         {postCount}
@@ -1352,19 +1414,13 @@ export default function ProfilePhoenixComponent() {
 
                   {/* Products Counter */}
                   <Col>
-                    <div
-                      className="p-3 rounded d-flex flex-column align-items-center justify-content-center"
-                      style={{
-                        backgroundColor: "white",
-                        border: "2px solid #EC744A",
-                        minHeight: "80px",
-                      }}
-                    >
+                    <div className="p-3">
                       <h5
                         style={{
                           color: "#EC744A",
                           fontWeight: "700",
                           margin: 0,
+                          fontSize: "1.8rem",
                         }}
                       >
                         {productCount}
@@ -1377,78 +1433,19 @@ export default function ProfilePhoenixComponent() {
 
                   {/* Saved Counter */}
                   <Col>
-                    <div
-                      className="p-3 rounded d-flex flex-column align-items-center justify-content-center"
-                      style={{
-                        backgroundColor: "white",
-                        border: "2px solid #EC744A",
-                        minHeight: "80px",
-                      }}
-                    >
+                    <div className="p-3">
                       <h5
                         style={{
                           color: "#EC744A",
                           fontWeight: "700",
                           margin: 0,
+                          fontSize: "1.8rem",
                         }}
                       >
                         {savedPostsCount}
                       </h5>
                       <div className="small" style={{ color: "#EC744A" }}>
                         Saved
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-
-                {/* Followers and Friends Counters - New Row with Different Colors */}
-                <Row className="text-center">
-                  {/* Followers Counter */}
-                  <Col>
-                    <div
-                      className="p-3 rounded d-flex flex-column align-items-center justify-content-center"
-                      style={{
-                        backgroundColor: "white",
-                        border: "2px solid #4A90E2",
-                        minHeight: "80px",
-                      }}
-                    >
-                      <h5
-                        style={{
-                          color: "#4A90E2",
-                          fontWeight: "700",
-                          margin: 0,
-                        }}
-                      >
-                        {followersCount}
-                      </h5>
-                      <div className="small" style={{ color: "#4A90E2" }}>
-                        Followers
-                      </div>
-                    </div>
-                  </Col>
-
-                  {/* Friends Counter */}
-                  <Col>
-                    <div
-                      className="p-3 rounded d-flex flex-column align-items-center justify-content-center"
-                      style={{
-                        backgroundColor: "white",
-                        border: "2px solid #9B59B6",
-                        minHeight: "80px",
-                      }}
-                    >
-                      <h5
-                        style={{
-                          color: "#9B59B6",
-                          fontWeight: "700",
-                          margin: 0,
-                        }}
-                      >
-                        {friendsCount}
-                      </h5>
-                      <div className="small" style={{ color: "#9B59B6" }}>
-                        Friends
                       </div>
                     </div>
                   </Col>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import {
   Container,
   Row,
@@ -7,28 +7,78 @@ import {
   Button,
   Form,
   Accordion,
+  Alert,
+  Spinner,
 } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import emailjs from "@emailjs/browser";
 
 export default function ContactUs() {
-  // Removed unused chatActive state
+  const form = useRef();
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState({ show: false, message: "", type: "" });
 
-  //   const handleLiveChat = () => {
-  //     // In a real application, this would integrate with a live chat service
-  //     alert(
-  //       "Live chat will start now! (In a real app, this would connect to a chat service)"
-  //     );
-  //   };
+  // EmailJS configuration - Replace these with your actual IDs
+  const emailjsConfig = {
+    serviceId: "service_wer4648",
+    templateId: "template_58h48mn",
+    publicKey: "Hd_yCLwEWoYN5OHmq",
+  };
 
-  //   const handleFeedback = () => {
-  //     // In a real application, this would open a feedback form
-  //     alert(
-  //       "Feedback form will open! (In a real app, this would open a feedback system)"
-  //     );
-  //   };
+  // Show alert messages
+  const showAlert = (message, type = "success") => {
+    setAlert({ show: true, message, type });
+    setTimeout(() => setAlert({ show: false, message: "", type: "" }), 5000);
+  };
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    emailjs
+      .sendForm(
+        emailjsConfig.serviceId,
+        emailjsConfig.templateId,
+        form.current,
+        {
+          publicKey: emailjsConfig.publicKey,
+        }
+      )
+      .then(
+        () => {
+          setLoading(false);
+          showAlert(
+            "Message sent successfully! We'll get back to you soon.",
+            "success"
+          );
+          form.current.reset(); // Reset the form after successful sending
+        },
+        (error) => {
+          setLoading(false);
+          console.log("FAILED...", error.text);
+          showAlert(
+            "Failed to send message. Please try again later.",
+            "danger"
+          );
+        }
+      );
+  };
 
   return (
     <div className="bg-light text-dark min-vh-100">
+      {/* Alert Component */}
+      {alert.show && (
+        <Alert
+          variant={alert.type}
+          className="position-fixed top-0 start-50 translate-middle-x mt-3"
+          style={{ zIndex: 1050, minWidth: "300px" }}
+          dismissible
+          onClose={() => setAlert({ show: false, message: "", type: "" })}
+        >
+          {alert.message}
+        </Alert>
+      )}
+
       {/* Header with green transparent background */}
       <section
         className="text-center py-5"
@@ -48,24 +98,37 @@ export default function ContactUs() {
             <Card className="shadow-sm border-0 rounded-4">
               <Card.Body>
                 <h4 className="fw-semibold mb-4">Send us a Message</h4>
-                <Form>
+                <Form ref={form} onSubmit={sendEmail}>
                   <Form.Group className="mb-3">
                     <Form.Label>Name</Form.Label>
-                    <Form.Control type="text" placeholder="Your Name" />
+                    <Form.Control
+                      type="text"
+                      name="user_name"
+                      placeholder="Your Name"
+                      required
+                    />
                   </Form.Group>
                   <Form.Group className="mb-3">
                     <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" placeholder="your@email.com" />
+                    <Form.Control
+                      type="email"
+                      name="user_email"
+                      placeholder="your@email.com"
+                      required
+                    />
                   </Form.Group>
                   <Form.Group className="mb-3">
                     <Form.Label>Message</Form.Label>
                     <Form.Control
                       as="textarea"
                       rows={4}
+                      name="message"
                       placeholder="Tell us how we can help you..."
+                      required
                     />
                   </Form.Group>
                   <Button
+                    type="submit"
                     className="w-100 rounded-pill border-0"
                     style={{ backgroundColor: "#EC744A" }}
                     onMouseOver={(e) =>
@@ -74,8 +137,23 @@ export default function ContactUs() {
                     onMouseOut={(e) =>
                       (e.target.style.backgroundColor = "#EC744A")
                     }
+                    disabled={loading}
                   >
-                    Send Message
+                    {loading ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"
+                        />
+                        Sending...
+                      </>
+                    ) : (
+                      "Send Message"
+                    )}
                   </Button>
                 </Form>
               </Card.Body>
@@ -112,7 +190,7 @@ export default function ContactUs() {
             </Card>
 
             {/* Social Media */}
-            <Card className="shadow-sm border-0 rounded-4 ">
+            <Card className="shadow-sm border-0 rounded-4">
               <Card.Body>
                 <h5 className="fw-semibold mb-3">Follow Us</h5>
                 <div className="d-flex gap-3 fs-4">
@@ -148,8 +226,7 @@ export default function ContactUs() {
 
         {/* Map */}
         <section className="my-5">
-          {/* Header with green transparent background */}
-          <section
+          <div
             className="text-center py-5"
             style={{ backgroundColor: "rgba(0, 125, 110, 0.1)" }}
           >
@@ -163,48 +240,10 @@ export default function ContactUs() {
               loading="lazy"
               title="Company Location in Cairo, Egypt"
             ></iframe>
-          </section>
+          </div>
         </section>
 
-        {/* Support & Feedback */}
-        {/* <Row className="g-4">
-          <Col md={6}>
-            <Card className="border-start border-success border-4 shadow-sm rounded-4">
-              <Card.Body>
-                <h5 className="fw-semibold mb-2">Customer Support</h5>
-                <p className="text-muted mb-3">
-                  Need immediate assistance? Our support team is here to help.
-                </p>
-                <Button
-                  variant="success"
-                  className="rounded-pill"
-                  onClick={handleLiveChat}
-                >
-                  Start Live Chat
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={6}>
-            <Card className="border-start border-warning border-4 shadow-sm rounded-4">
-              <Card.Body>
-                <h5 className="fw-semibold mb-2">Feedback & Issues</h5>
-                <p className="text-muted mb-3">
-                  Help us improve by sharing your feedback or reporting issues.
-                </p>
-                <Button
-                  variant="warning"
-                  className="rounded-pill text-white"
-                  onClick={handleFeedback}
-                >
-                  Give Feedback
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
- */}
-        {/* FAQ */}
+        {/* FAQ Section - Remaining the same */}
         <section className="my-5">
           <h4 className="fw-semibold mb-4 text-center">
             Frequently Asked Questions
