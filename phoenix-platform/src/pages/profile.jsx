@@ -17,7 +17,7 @@ import {
 } from "react-bootstrap";
 
 export default function ProfilePhoenixComponent() {
-
+  // استخدام التدرج اللوني المطلوب
   const greenGradient = " #007D6E";
   const buttonColor = "#EC744A";
   const lightGreen = "rgba(94, 180, 124, 0.1)";
@@ -71,7 +71,7 @@ export default function ProfilePhoenixComponent() {
     boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
   };
 
-  // تحميل البيانات من localStorage 
+  // تحميل البيانات من localStorage عند التحميل الأول
   const loadUserData = () => {
     const savedUser = localStorage.getItem("phoenixUser");
     const savedPosts = localStorage.getItem("phoenixPosts");
@@ -85,7 +85,7 @@ export default function ProfilePhoenixComponent() {
       user: savedUser
         ? JSON.parse(savedUser)
         : {
-            name: "Username", // تغيير من Sarah Johnson إلى Username
+            name: "Username",
             email: "username@email.com",
             bio: "Creative designer passionate about UI/UX and digital art.",
             image: null,
@@ -132,7 +132,7 @@ export default function ProfilePhoenixComponent() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // حفظ البيانات في localStorage 
+  // حفظ البيانات في localStorage عند التغيير
   useEffect(() => {
     localStorage.setItem("phoenixUser", JSON.stringify(user));
   }, [user]);
@@ -161,7 +161,7 @@ export default function ProfilePhoenixComponent() {
     localStorage.setItem("phoenixFriends", JSON.stringify(friends));
   }, [friends]);
 
-  // تحديث صورة اليوزر في جميع المنشورات عند تغيير الصورة
+  // تحديث صورة المستخدم في جميع المنشورات عند تغيير الصورة
   useEffect(() => {
     setPosts((prevPosts) =>
       prevPosts.map((post) => ({
@@ -510,14 +510,6 @@ export default function ProfilePhoenixComponent() {
     showAlert("Comment updated successfully!");
   }
 
-  const postCount = posts.length;
-  const productCount = products.length;
-  const savedPostsCount = savedPosts.length;
-  const followersCount = followers.length;
-  const friendsCount = friends.length;
-  const badgeVariant =
-    postCount > 5 ? "success" : postCount > 0 ? "warning" : "secondary";
-
   // Get recent posts (first 4)
   const recentPosts = posts.slice(0, 4);
 
@@ -579,7 +571,7 @@ export default function ProfilePhoenixComponent() {
       {savedPosts.length > 0 ? (
         <div className="text-start">
           <h5 className="mb-3" style={{ color: "#007D6E", fontWeight: "600" }}>
-            Saved Posts <Badge bg="success">{savedPostsCount}</Badge>
+            Saved Posts
           </h5>
           {savedPosts.map((post) => (
             <Card
@@ -701,7 +693,7 @@ export default function ProfilePhoenixComponent() {
   const RecentPostsSection = () => (
     <div className="text-start">
       <h5 className="mb-3" style={{ color: "#007D6E", fontWeight: "600" }}>
-        Recent Posts <Badge bg={badgeVariant}>{postCount}</Badge>
+        Recent Posts
       </h5>
       {recentPosts.length > 0 ? (
         recentPosts.map((post) => (
@@ -986,7 +978,7 @@ export default function ProfilePhoenixComponent() {
   const SavedPostsSection = () => (
     <div className="text-start">
       <h5 className="mb-3" style={{ color: "#007D6E", fontWeight: "600" }}>
-        Saved Posts <Badge bg="success">{savedPostsCount}</Badge>
+        Saved Posts
       </h5>
       {recentSavedPosts.length > 0 ? (
         recentSavedPosts.map((post) => (
@@ -1121,50 +1113,6 @@ export default function ProfilePhoenixComponent() {
   return (
     <Container className="py-5 d-flex justify-content-center">
       <Col md={12} lg={10}>
-        {/* Navigation Tabs */}
-        <Card
-          className="mb-4"
-          style={{ borderRadius: "16px", ...outlineAccent }}
-        >
-          {/* <Card.Body className="p-0">
-            <Nav variant="pills" className="justify-content-center">
-              <Nav.Item>
-                <Nav.Link
-                  active={activeTab === "profile"}
-                  onClick={() => setActiveTab("profile")}
-                  style={activeTab === "profile" ? accentStyle : {}}
-                  className="mx-2 rounded-pill"
-                >
-                  <i className="bi bi-person me-2"></i>
-                  Profile
-                </Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Nav.Link
-                  active={activeTab === "products"}
-                  onClick={() => setActiveTab("products")}
-                  style={activeTab === "products" ? accentStyle : {}}
-                  className="mx-2 rounded-pill"
-                >
-                  <i className="bi bi-cart me-2"></i>
-                  Products
-                </Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Nav.Link
-                  active={activeTab === "saved"}
-                  onClick={() => setActiveTab("saved")}
-                  style={activeTab === "saved" ? accentStyle : {}}
-                  className="mx-2 rounded-pill"
-                >
-                  <i className="bi bi-bookmark me-2"></i>
-                  Saved Posts
-                </Nav.Link>
-              </Nav.Item>
-            </Nav>
-          </Card.Body> */}
-        </Card>
-
         {activeTab === "products" ? (
           <ProductsPage />
         ) : activeTab === "saved" ? (
@@ -1281,7 +1229,7 @@ export default function ProfilePhoenixComponent() {
                           color: followColor,
                         }}
                       >
-                        {followersCount}
+                        {followers.length}
                       </span>
                       <span className="small" style={{ color: followColor }}>
                         Followers
@@ -1315,7 +1263,7 @@ export default function ProfilePhoenixComponent() {
                           color: friendsColor,
                         }}
                       >
-                        {friendsCount}
+                        {friends.length}
                       </span>
                       <span className="small" style={{ color: friendsColor }}>
                         Friends
@@ -1391,65 +1339,7 @@ export default function ProfilePhoenixComponent() {
                   </Button>
                 </div>
 
-                {/* Stats Section - Without Boxes */}
-                <Row className="mb-4 text-center">
-                  {/* Posts Counter */}
-                  <Col>
-                    <div className="p-3">
-                      <h5
-                        style={{
-                          color: "#EC744A",
-                          fontWeight: "700",
-                          margin: 0,
-                          fontSize: "1.8rem",
-                        }}
-                      >
-                        {postCount}
-                      </h5>
-                      <div className="small" style={{ color: "#EC744A" }}>
-                        Posts
-                      </div>
-                    </div>
-                  </Col>
-
-                  {/* Products Counter */}
-                  <Col>
-                    <div className="p-3">
-                      <h5
-                        style={{
-                          color: "#EC744A",
-                          fontWeight: "700",
-                          margin: 0,
-                          fontSize: "1.8rem",
-                        }}
-                      >
-                        {productCount}
-                      </h5>
-                      <div className="small" style={{ color: "#EC744A" }}>
-                        Products
-                      </div>
-                    </div>
-                  </Col>
-
-                  {/* Saved Counter */}
-                  <Col>
-                    <div className="p-3">
-                      <h5
-                        style={{
-                          color: "#EC744A",
-                          fontWeight: "700",
-                          margin: 0,
-                          fontSize: "1.8rem",
-                        }}
-                      >
-                        {savedPostsCount}
-                      </h5>
-                      <div className="small" style={{ color: "#EC744A" }}>
-                        Saved
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
+                {/* تم إزالة قسم الإحصائيات بالكامل */}
               </Card.Body>
             </Card>
 
