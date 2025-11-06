@@ -1,42 +1,66 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+:root {
+  --green-light: #68DCA8;
+  --green-dark: #38765A;
+  --orange: #EC744A;
+  --dark: #1F2937;
+  --home-bg: #F8F6F1;
+  --gradient: linear-gradient(90deg #38765A ,#1F2937 );
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background-color: white;
+  font-family: 'Poppins', sans-serif;
+}
+.gradient{
+  background: linear-gradient(90deg, var(--green-light), var(--green-dark)) !important;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.linksHover:hover{
+  color: var(--orange) !important;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.orangebtn{
+  background-color: var(--orange) !important;
+  border: 1px solid var(--orange) !important;
+  color: white;
+}
+.orangebtn:hover{
+  background-color: white !important;
+  color: var(--orange) !important;
+  border: 1px solid white !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.btn-gradient {
+  background: linear-gradient(90deg, var(--green-light), var(--green-dark));
+  border: none;
+  color: white;
 }
 
-.card {
-  padding: 2em;
+.btn-gradient:hover {
+  background: linear-gradient(90deg, var(--green-dark), var(--green-light));
 }
 
-.read-the-docs {
-  color: #888;
+.orangebtnWithoutBg{
+  background-color: transparent !important;
+  border: 1px solid var(--orange) !important;
+  color: var(--orange) !important;
+}
+.orangebtnWithoutBg:hover{
+  background-color: var(--orange) !important;
+  color: white !important;
+  border: 1px solid var(--orange) !important;
+}
+
+.orangeText{
+  color: var(--orange) !important;
+}
+
+footer {
+  background-color: var(--dark);
+  color: #fff;
+  padding: 40px 0;
 }
