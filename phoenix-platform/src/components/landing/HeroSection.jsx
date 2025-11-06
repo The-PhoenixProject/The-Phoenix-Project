@@ -19,7 +19,7 @@ export default function HeroSection({ onLearnMoreClick }) {
             <Button className="orangebtnWithoutBg">Get Started</Button>
           </div>
           <div className="col">
-            <img src="/src/assets/logo big (1).png" alt="Hero" className="img-fluid mt-4 biglogo" />
+            <img src="/src/assets/landingImgs/logo big (1).png" alt="Hero" className="img-fluid mt-4 biglogo" />
           </div>  
       </div>
       

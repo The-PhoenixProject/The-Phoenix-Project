@@ -6,6 +6,8 @@ import './App.css';
 import './styles/Landing/HeroSection.css';
 import './styles/Landing/AboutSection.css';
 import './styles/Landing/FeaturesSection.css';
+import './styles/Landing/TestimonialsSection.css';
+
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "@popperjs/core/dist/umd/popper.js"

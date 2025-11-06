@@ -23,7 +23,7 @@ export default function AboutSection() {
           </Col>
           <Col lg={6}>
             <img
-              src="/src/assets/aboutImageresiezed.png"
+              src="/src/assets/landingImgs/aboutImageresiezed.png"
               alt="about"
               className="img-fluid"
             />

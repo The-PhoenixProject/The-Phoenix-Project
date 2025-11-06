@@ -27,7 +27,7 @@ export default function CustomNavbar() {
     <Navbar expand="lg"  className="shadow py-1 gradient" >
       <Container>
         <div>
-          <img src="/src/assets/logo-icon.png" alt="Phoenix Logo"  width="60" className="me-2" />
+          <img src="/src/assets/landingImgs/logo-icon.png" alt="Phoenix Logo"  width="60" className="me-2" />
         <Navbar.Brand as={Link} to="/" className="fw-bold  ">
           Phoenix
         </Navbar.Brand>
