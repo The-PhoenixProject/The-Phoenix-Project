@@ -10,12 +10,12 @@
 
 .FeatureCard{
     width: 220px;
-        min-Width: 200px;
-        padding: 2rem;
-        background: rgba(255,255,255,0.9);
-        border-radius: 20;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        text-align: center;
-        cursor: grab;
-        backdrop-filter: blur(10px);
+    min-Width: 200px;
+    padding: 2rem;
+    background: rgba(255,255,255,0.9);
+    border-radius: 20;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    text-align: center;
+    cursor: grab;
+    backdrop-filter: blur(10px);
 }

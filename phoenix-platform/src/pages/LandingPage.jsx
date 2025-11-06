@@ -4,7 +4,8 @@ import AboutSection from "../components/landing/AboutSection";
 import Footer from "../components/shared/Footer";
 import LearnMore from "../components/landing/LearnMore";
 import FeaturesSection from "../components/landing/FeaturesSection";
-import FeatureCard from "../components/landing/FeaturesCard";
+// import FeatureCard from "../components/landing/FeaturesCard";
+import MarketPlace from "../components/landing/MarketPlaceSection";
 export default function LandingPage() {
   const [showPopup, setShowPopup] = useState(false);
   return (
@@ -17,6 +18,7 @@ export default function LandingPage() {
 
       <AboutSection />
       <FeaturesSection />
+      <MarketPlace />
       <Footer />
     </>
   );
