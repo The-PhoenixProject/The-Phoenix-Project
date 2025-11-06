@@ -1,0 +1,78 @@
+{
+  "repairRequests": [
+    {
+      "id": 1,
+      "itemName": "Antique Wooden Chair Restoration",
+      "category": "Furniture",
+      "description": "Popularize methods, and soon in restorations. Original wood finish worth restoration.",
+      "budget": "$40 - $80",
+      "postedBy": "Sam M.",
+      "status": "Pending",
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": 2,
+      "itemName": "Vintage Radio Repair",
+      "category": "Electronics",
+      "description": "Demonstrating handling in vintage electrical diagnosis, and component replacement.",
+      "budget": "$20 - $100",
+      "postedBy": "Sam M.",
+      "status": "In Progress",
+      "image": "https://via.placeholder.com/150"
+    },
+    {
+      "id": 3,
+      "itemName": "Leather Jacket Tear Repair",
+      "category": "Clothing",
+      "description": "Device for professional isolation, professional leather repair, standing door. In certain...",
+      "budget": "$50 - $80",
+      "postedBy": "Susan L.",
+      "status": "New",
+      "image": "https://via.placeholder.com/150"
+    }
+  ],
+  "serviceProviders": [
+    {
+      "id": 1,
+      "name": "Wood Furniture Restoration",
+      "rating": 5,
+      "reviews": 160,
+      "description": "Over 10 years of experience in vintage furniture restoration. Specializing in restored furniture and after quality tests.",
+      "startingPrice": "$25/hour",
+      "image": "https://via.placeholder.com/80"
+    },
+    {
+      "id": 2,
+      "name": "Electronics & Appliance Repair",
+      "rating": 5,
+      "reviews": 155,
+      "description": "Over 15 years of experience in vintage electronics, tables, and small appliances. Pledged and determined to serve.",
+      "startingPrice": "$25/hour",
+      "image": "https://via.placeholder.com/80"
+    }
+  ],
+  "myRequests": [
+    {
+      "id": 1,
+      "item": "Vintage Lamp",
+      "category": "Electronics",
+      "budget": "$40 - $80",
+      "status": "Pending"
+    },
+    {
+      "id": 2,
+      "item": "Old Table",
+      "category": "Furniture",
+      "budget": "$200 - $250",
+      "status": "Accepted"
+    },
+    {
+      "id": 3,
+      "item": "Watch Repair",
+      "category": "Accessories",
+      "budget": "$40 - $80",
+      "status": "Completed"
+    }
+  ],
+  "myOffers": []
+}
