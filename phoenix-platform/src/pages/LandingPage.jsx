@@ -6,6 +6,7 @@ import LearnMore from "../components/landing/LearnMore";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import MarketPlace from "../components/landing/MarketPlaceSection";
 import Testimonials from "../components/landing/TestimonialsSection";
+import CallToAction from "../components/landing/CallToActionSection";
 export default function LandingPage() {
   const [showPopup, setShowPopup] = useState(false);
   return (
@@ -20,6 +21,7 @@ export default function LandingPage() {
       <FeaturesSection />
       <MarketPlace />
       <Testimonials />
+      <CallToAction />
       <Footer />
     </>
   );

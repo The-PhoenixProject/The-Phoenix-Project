@@ -170,14 +170,12 @@ export default function FeaturesSection() {
   });
   let TheCards= [...cards, ...cards ]
   return (
-    <>
+    <div id="features">
     <div className="d-flex  justify-content-center mt-5 p-2">
        <h2>Platform Features</h2>
     </div>
     <div className="d-flex  justify-content-center mb-4">
-    <div className="featuresSection"
-     
-    >
+    <div className="featuresSection">
       <motion.div
         drag="x"
         dragConstraints={{ left: -200, right: 200 }}
@@ -202,6 +200,6 @@ export default function FeaturesSection() {
       </motion.div>
     </div>
     </div>
-    </>
+    </div>
   );
 }

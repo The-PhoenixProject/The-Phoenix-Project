@@ -8,7 +8,7 @@ const sectionCustom={
 function MarketPlace() {
     return ( 
         <>
-            <section className=" d-flex align-items-center justify-content-center pt-5 " >
+            <section className=" d-flex align-items-center justify-content-center pt-5 " id='marketplace'>
               <div   className="bg-light py-5" style={sectionCustom}>
                 <h2 className=" text-center ">Marketplace</h2>
                 <div className="row py-4 d-flex flex-wrap gap-4 justify-content-center">
