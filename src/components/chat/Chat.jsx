@@ -631,13 +631,7 @@ function Chat() {
   if (loading) {
     return (
       <div className="chat-container">
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          width: '100%', 
-          height: '100vh' 
-        }}>
+        <div className="loading-container">
           <p>Loading conversations...</p>
         </div>
       </div>
@@ -647,29 +641,14 @@ function Chat() {
   if (error) {
     return (
       <div className="chat-container">
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          width: '100%', 
-          height: '100vh',
-          flexDirection: 'column',
-          gap: '16px'
-        }}>
-          <p style={{ color: '#dc3545' }}>Error: {error}</p>
-          <p style={{ fontSize: '14px', color: '#666' }}>
+        <div className="error-container">
+          <p className="error-message">Error: {error}</p>
+          <p className="error-hint">
             Make sure the JSON server is running: <code>npm run server</code>
           </p>
           <button 
+            className="btn-retry"
             onClick={fetchConversations}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#EC744A',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
           >
             Retry
           </button>
