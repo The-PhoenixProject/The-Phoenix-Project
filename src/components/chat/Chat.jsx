@@ -76,7 +76,7 @@ function Chat() {
    */
   const fetchPinnedChats = async () => {
     try {
-      // Check localStorage first (primary storage)
+      // Check localStorage (primary and only storage)
       const localData = localStorage.getItem('pinnedChats')
       if (localData) {
         try {
@@ -89,30 +89,7 @@ function Chat() {
         }
       }
       
-      // Fallback to server if localStorage is empty
-      try {
-        const response = await fetch(`${API_URL}/pinnedChats`)
-        if (response.ok) {
-          const data = await response.json()
-          let pinnedArray = []
-          if (Array.isArray(data)) {
-            pinnedArray = data
-          } else if (data && Array.isArray(data.pinnedChats)) {
-            pinnedArray = data.pinnedChats
-          }
-          
-          if (pinnedArray.length > 0) {
-            // Sync to localStorage for future use
-            localStorage.setItem('pinnedChats', JSON.stringify(pinnedArray))
-            setPinnedChats(pinnedArray.map(id => String(id)))
-            return
-          }
-        }
-      } catch (serverErr) {
-        console.log('Server fetch failed, using empty array')
-      }
-      
-      // No data found anywhere
+      // No data found - use empty array
       setPinnedChats([])
     } catch (err) {
       console.error('Error fetching pinned chats:', err)
@@ -126,30 +103,9 @@ function Chat() {
    */
   const updatePinnedChats = async (newPinnedChats) => {
     try {
-      // Store in localStorage (primary storage)
       localStorage.setItem('pinnedChats', JSON.stringify(newPinnedChats))
-      
-      // Try to update server as well (may not work with standard json-server)
-      try {
-        await fetch(`${API_URL}/pinnedChats`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newPinnedChats)
-        })
-      } catch (serverErr) {
-        // Server update not supported - that's okay, we have localStorage
-        // This is expected with standard json-server
-      }
     } catch (err) {
       console.error('Error updating pinned chats:', err)
-      // Ensure localStorage is updated even if server fails
-      try {
-        localStorage.setItem('pinnedChats', JSON.stringify(newPinnedChats))
-      } catch (localErr) {
-        console.error('Failed to update localStorage:', localErr)
-      }
     }
   }
 
@@ -184,7 +140,8 @@ function Chat() {
           const conversationsWithMessages = sortedData.map(conv => ({
             ...conv,
             messages: conv.messages || [],
-            pinnedMessages: conv.pinnedMessages || []
+            pinnedMessages: conv.pinnedMessages || [],
+            deletedForMeMessages: conv.deletedForMeMessages || []
           }))
           
           // Preserve selected chat if it still exists
@@ -217,7 +174,8 @@ function Chat() {
                 setSelectedChat({
                   ...updatedSelected,
                   isActive: true,
-                  pinnedMessages: updatedSelected.pinnedMessages || selectedChat.pinnedMessages || []
+                  pinnedMessages: updatedSelected.pinnedMessages || selectedChat.pinnedMessages || [],
+                  deletedForMeMessages: updatedSelected.deletedForMeMessages || selectedChat.deletedForMeMessages || []
                 })
               }
             }
@@ -316,14 +274,22 @@ function Chat() {
         return 0
       })
       
-      // Ensure each conversation has messages array and pinnedMessages for dynamic lastMessage calculation
+      // Ensure each conversation has messages array, pinnedMessages, and deletedForMeMessages
+      // Reset all isActive flags to false on refresh - no chat should be selected
+      // Also ensure deleted flag is false (deleted conversations are already filtered out)
       const conversationsWithMessages = sortedData.map(conv => ({
         ...conv,
         messages: conv.messages || [],
-        pinnedMessages: conv.pinnedMessages || []
+        pinnedMessages: conv.pinnedMessages || [],
+        deletedForMeMessages: conv.deletedForMeMessages || [],
+        isActive: false, // Reset isActive on refresh
+        deleted: false // Ensure deleted is false (deleted conversations are filtered out)
       }))
       
       setConversations(conversationsWithMessages)
+      
+      // Explicitly ensure no chat is selected on refresh
+      setSelectedChat(null)
       
       // Don't auto-select a chat - show "no selected chats" panel instead
       setLoading(false)
@@ -366,6 +332,7 @@ function Chat() {
           ...fullChatData,
           messages: updatedMessages,
           pinnedMessages: fullChatData.pinnedMessages || [],
+          deletedForMeMessages: fullChatData.deletedForMeMessages || [],
           unread: fullChatData.archived ? fullChatData.unread : 0
         }
         setSelectedChat(chatWithUnreadReset)
@@ -380,7 +347,8 @@ function Chat() {
               isActive: true,
               unread: 0,
               messages: updatedMessages,
-              pinnedMessages: fullChatData.pinnedMessages || []
+              pinnedMessages: fullChatData.pinnedMessages || [],
+              deletedForMeMessages: fullChatData.deletedForMeMessages || []
             }
           }
           return {
@@ -841,7 +809,7 @@ function Chat() {
                   // Also update in conversations list
                   setConversations(prev => prev.map(conv => 
                     String(conv.id) === String(updatedChat.id) 
-                      ? { ...conv, messages: updatedChat.messages }
+                      ? { ...conv, messages: updatedChat.messages, deletedForMeMessages: updatedChat.deletedForMeMessages || [] }
                       : conv
                   ))
                 }}
