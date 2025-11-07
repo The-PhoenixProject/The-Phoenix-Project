@@ -30,11 +30,14 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background 0.3s;
+  font-weight: 600;
+  transition: all 0.3s;
 }
 
 .btn-primary-orange:hover {
-  background: #e55a2b;
+  background: #e55a2a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .services-tabs {
@@ -155,28 +158,37 @@
 .btn-edit {
   background: #ffc107;
   color: #333;
+  font-weight: 500;
 }
 
 .btn-edit:hover {
   background: #e0a800;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-delete {
   background: #dc3545;
   color: white;
+  font-weight: 500;
 }
 
 .btn-delete:hover {
   background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-view {
   background: #ff6b35;
   color: white;
+  font-weight: 500;
 }
 
 .btn-view:hover {
-  background: #e55a2b;
+  background: #e55a2a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .no-services {
@@ -184,4 +196,24 @@
   color: #666;
   padding: 3rem;
   grid-column: 1 / -1;
+}
+
+.btn-home {
+  background: #6c757d;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s;
+}
+
+.btn-home:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

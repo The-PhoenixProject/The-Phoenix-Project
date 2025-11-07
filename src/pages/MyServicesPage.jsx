@@ -1,76 +1,68 @@
 import React, { useState, useEffect } from "react";
-import { loadData } from "../services/dataService";
+import { Link } from "react-router-dom";
+import { loadData, deleteServiceProvider } from "../services/dataService";
 import "./MyServicesPage.css";
 
 function MyServicesPage() {
   const [activeTab, setActiveTab] = useState("active");
-  const [services, setServices] = useState([]);
+  const [offers, setOffers] = useState([]);
 
   useEffect(() => {
-    loadData().then((data) => {
-      // Transform serviceProviders data to match the services layout
-      const transformedServices = data.serviceProviders
-        .filter((provider) => provider.postedBy === "You")
-        .map((provider) => ({
-          id: provider.id,
-          name: provider.name,
-          category: provider.category || "General",
-          basePrice: provider.startingPrice || "$50",
-          requestsCount: Math.floor(Math.random() * 15) + 1,
-          status: "active",
-        }));
-
-      // Add some mock services if none exist
-      if (transformedServices.length === 0) {
-        setServices([
-          {
-            id: 1,
-            name: "Phone Screen Repair",
-            category: "Electronics",
-            basePrice: "$45",
-            requestsCount: 12,
-            status: "active",
-          },
-          {
-            id: 2,
-            name: "Furniture Restoration",
-            category: "Furniture",
-            basePrice: "$80",
-            requestsCount: 7,
-            status: "active",
-          },
-          {
-            id: 3,
-            name: "Appliance Repair",
-            category: "Appliances",
-            basePrice: "$120",
-            requestsCount: 3,
-            status: "active",
-          },
-        ]);
-      } else {
-        setServices(transformedServices);
-      }
-    });
+    loadOffers();
   }, []);
 
-  const filteredServices =
+  const loadOffers = () => {
+    loadData().then((data) => {
+      // Transform myOffers data to match the offers layout
+      const transformedOffers = (data.myOffers || []).map((offer) => ({
+        id: offer.id,
+        name: offer.serviceName || offer.name || "Service",
+        category: offer.category || "General",
+        basePrice: offer.price || offer.startingPrice || "$50",
+        description: offer.description || "",
+        status: offer.status?.toLowerCase() || "active",
+      }));
+
+      setOffers(transformedOffers);
+    });
+  };
+
+  const handleDelete = async (offerId) => {
+    if (window.confirm("Are you sure you want to delete this offer?")) {
+      try {
+        await deleteServiceProvider(offerId);
+        loadOffers();
+      } catch (error) {
+        console.error("Error deleting offer:", error);
+        alert("Error deleting offer. Please try again.");
+      }
+    }
+  };
+
+  const filteredOffers =
     activeTab === "active"
-      ? services.filter((s) => s.status === "active")
+      ? offers.filter((o) => o.status === "active")
       : activeTab === "completed"
-      ? services.filter((s) => s.status === "completed")
-      : services;
+      ? offers.filter((o) => o.status === "completed")
+      : offers;
 
   return (
     <div className="my-services-page">
       <div className="page-header">
         <div>
-          <h1>My Services</h1>
+          <h1>My Offers</h1>
           <p className="page-subtitle">
-            Offer and manage the services you provide.
+            Manage the service offers you have posted.
           </p>
         </div>
-        <button className="btn btn-primary-orange">Add New Service</button>
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          <Link to="/" className="btn btn-home">
+            Home
+          </Link>
+          <Link to="/" className="btn btn-primary-orange">
+            Add New Offer
+          </Link>
+        </div>
       </div>
 
       <div className="services-tabs">
@@ -95,34 +87,45 @@ function MyServicesPage() {
       </div>
 
       <div className="services-grid">
-        {filteredServices.length > 0 ? (
-          filteredServices.map((service) => (
-            <div key={service.id} className="service-card">
+        {filteredOffers.length > 0 ? (
+          filteredOffers.map((offer) => (
+            <div key={offer.id} className="service-card">
               <div className="service-header">
-                <h3 className="service-name">{service.name}</h3>
-                <span className="service-category">{service.category}</span>
+                <h3 className="service-name">{offer.name}</h3>
+                <span className="service-category">{offer.category}</span>
               </div>
-              <div className="service-price">
-                Base Price: {service.basePrice}
-              </div>
+              {offer.description && (
+                <p
+                  className="service-description"
+                  style={{
+                    color: "#666",
+                    fontSize: "0.9rem",
+                    margin: "0.5rem 0",
+                  }}
+                >
+                  {offer.description}
+                </p>
+              )}
+              <div className="service-price">Price: {offer.basePrice}</div>
               <div className="service-stats">
-                <span className="service-requests">
-                  {service.requestsCount} Requests
-                </span>
-                <span className={`service-status ${service.status}`}>
-                  {service.status.charAt(0).toUpperCase() +
-                    service.status.slice(1)}
+                <span className={`service-status ${offer.status}`}>
+                  {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
                 </span>
               </div>
               <div className="service-actions">
                 <button className="btn btn-edit">Edit</button>
-                <button className="btn btn-delete">Delete</button>
+                <button
+                  className="btn btn-delete"
+                  onClick={() => handleDelete(offer.id)}
+                >
+                  Delete
+                </button>
                 <button className="btn btn-view">View</button>
               </div>
             </div>
           ))
         ) : (
-          <p className="no-services">No services found</p>
+          <p className="no-services">No offers found</p>
         )}
       </div>
     </div>

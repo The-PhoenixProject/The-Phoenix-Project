@@ -122,26 +122,6 @@ function ExploreServicesPage() {
 
   return (
     <div className="explore-services-page">
-      <nav className="explore-nav">
-        <Link to="/" className="nav-brand">
-          Fixit
-        </Link>
-        <div className="nav-links">
-          <Link to="/" className="nav-link">
-            Dashboard
-          </Link>
-          <Link to="/my-maintenance-requests" className="nav-link">
-            My Items
-          </Link>
-          <Link to="/explore-services" className="nav-link active">
-            Services
-          </Link>
-          <Link to="/community" className="nav-link">
-            Community
-          </Link>
-        </div>
-      </nav>
-
       <div className="page-content">
         <div className="page-header">
           <div>
@@ -150,6 +130,9 @@ function ExploreServicesPage() {
               Find trusted providers who can fix or restore your items.
             </p>
           </div>
+          <Link to="/" className="btn btn-home">
+            Home
+          </Link>
         </div>
 
         <div className="search-filters">

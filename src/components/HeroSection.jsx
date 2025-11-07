@@ -38,7 +38,7 @@ function HeroSection({ onRequestClick, onOfferClick }) {
             My Maintenance Requests
           </Link>
           <Link to="/my-services" className="hero-link">
-            My Services
+            My Offers
           </Link>
           <Link to="/explore-services" className="hero-link">
             Explore Services

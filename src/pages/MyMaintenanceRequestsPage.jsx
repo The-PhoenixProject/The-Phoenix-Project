@@ -50,6 +50,9 @@ function MyMaintenanceRequestsPage() {
           </p>
         </div>
         <div className="header-actions">
+          <Link to="/" className="btn btn-home">
+            Home
+          </Link>
           <Link to="/request" className="btn btn-primary-orange">
             New Request
           </Link>

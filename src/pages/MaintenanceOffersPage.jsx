@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { loadData } from "../services/dataService";
 import "./MaintenanceOffersPage.css";
 
@@ -193,6 +194,9 @@ function MaintenanceOffersPage() {
             items.
           </p>
         </div>
+        <Link to="/" className="btn btn-home">
+          Home
+        </Link>
       </div>
 
       <div className="offers-tabs">

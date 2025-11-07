@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { addServiceProvider, addMyOffer } from "../services/dataService";
+import { addMyOffer } from "../services/dataService";
 
 function ServiceOfferForm({ onOfferAdded }) {
   const [formData, setFormData] = useState({
@@ -34,20 +34,12 @@ function ServiceOfferForm({ onOfferAdded }) {
         return;
       }
 
-      // Add the service provider
-      await addServiceProvider({
-        name: formData.name,
-        description: formData.description,
-        startingPrice: formData.startingPrice,
-        rating: 5,
-        reviews: 0,
-      });
-
-      // Add to my offers
+      // Add to my offers only
       await addMyOffer({
         serviceName: formData.name,
         category: formData.category,
         price: formData.startingPrice,
+        description: formData.description,
         status: "Active",
       });
 

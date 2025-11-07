@@ -1,26 +1,57 @@
 // Data service to manage requests and offers
-// Uses localStorage to persist data and syncs with server.json
+// Uses json-server API - no localStorage
 
-const STORAGE_KEY = "repair_app_data";
+const API_BASE_URL = "http://localhost:3001";
 
-// Load initial data from server.json or localStorage
-export const loadData = async () => {
+// API helper function to make requests
+const apiRequest = async (endpoint, method = "GET", body = null) => {
   try {
-    // Try to load from localStorage first (user's saved data)
-    const savedData = localStorage.getItem(STORAGE_KEY);
-    if (savedData) {
-      return JSON.parse(savedData);
+    const options = {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    if (body) {
+      options.body = JSON.stringify(body);
     }
 
-    // Fallback to server.json
-    const response = await fetch("/server.json");
-    const data = await response.json();
-    // Save to localStorage for future use
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+
+    if (!response.ok) {
+      throw new Error(`API error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`API ${method} error:`, error);
+    throw error;
+  }
+};
+
+// Load data from json-server API
+export const loadData = async () => {
+  try {
+    // Fetch all data from json-server endpoints
+    const [repairRequests, serviceProviders, myRequests, myOffers] =
+      await Promise.all([
+        apiRequest("/repairRequests").catch(() => []),
+        apiRequest("/serviceProviders").catch(() => []),
+        apiRequest("/myRequests").catch(() => []),
+        apiRequest("/myOffers").catch(() => []),
+      ]);
+
+    const data = {
+      repairRequests,
+      serviceProviders,
+      myRequests,
+      myOffers,
+    };
+
     return data;
   } catch (error) {
-    console.error("Error loading data:", error);
-    // Return empty structure if both fail
+    console.error("Error loading data from API:", error);
     return {
       repairRequests: [],
       serviceProviders: [],
@@ -30,108 +61,95 @@ export const loadData = async () => {
   }
 };
 
-// Save data to localStorage
-const saveData = (data) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    return true;
-  } catch (error) {
-    console.error("Error saving data:", error);
-    return false;
-  }
-};
-
-// Add a new repair request
+// Add a new repair request - only adds to myRequests
 export const addRepairRequest = async (requestData) => {
-  const data = await loadData();
-  const newRequest = {
-    id: Date.now(), // Simple ID generation
-    ...requestData,
-    status: "New",
-    postedBy: "You", // You can customize this
-    image: requestData.image || "https://via.placeholder.com/150",
-  };
+  try {
+    const myRequest = {
+      item: requestData.itemName,
+      category: requestData.category,
+      budget: requestData.budget,
+      status: "New",
+    };
 
-  data.repairRequests.push(newRequest);
-  data.myRequests.push({
-    id: newRequest.id,
-    item: newRequest.itemName,
-    category: newRequest.category,
-    budget: newRequest.budget,
-    status: "New",
-  });
+    // POST to myRequests only
+    const createdRequest = await apiRequest("/myRequests", "POST", myRequest);
 
-  saveData(data);
-  return newRequest;
+    return createdRequest;
+  } catch (error) {
+    console.error("Error adding repair request:", error);
+    throw error;
+  }
 };
 
 // Add a new service provider/offer
 export const addServiceProvider = async (providerData) => {
-  const data = await loadData();
-  const providerId = Date.now();
-  const newProvider = {
-    id: providerId,
-    ...providerData,
-    rating: providerData.rating || 5,
-    reviews: providerData.reviews || 0,
-    image: providerData.image || "https://via.placeholder.com/80",
-    postedBy: "You", // Mark as user-added
-  };
+  try {
+    const newProvider = {
+      ...providerData,
+      rating: providerData.rating || 5,
+      reviews: providerData.reviews || 0,
+      image: providerData.image || "https://via.placeholder.com/80",
+      postedBy: "You",
+    };
 
-  data.serviceProviders.push(newProvider);
-  saveData(data);
-  return newProvider;
+    // POST to json-server API
+    const createdProvider = await apiRequest(
+      "/serviceProviders",
+      "POST",
+      newProvider
+    );
+
+    return createdProvider;
+  } catch (error) {
+    console.error("Error adding service provider:", error);
+    throw error;
+  }
 };
 
 // Add to my offers
 export const addMyOffer = async (offerData) => {
-  const data = await loadData();
-  const newOffer = {
-    id: Date.now(),
-    ...offerData,
-  };
+  try {
+    const newOffer = {
+      ...offerData,
+    };
 
-  if (!data.myOffers) {
-    data.myOffers = [];
+    // POST to json-server API
+    const createdOffer = await apiRequest("/myOffers", "POST", newOffer);
+
+    return createdOffer;
+  } catch (error) {
+    console.error("Error adding my offer:", error);
+    throw error;
   }
-  data.myOffers.push(newOffer);
-  saveData(data);
-  return newOffer;
 };
 
-// Delete a repair request (only user-added ones)
+// Delete a repair request - only deletes from myRequests
 export const deleteRepairRequest = async (requestId) => {
-  const data = await loadData();
+  try {
+    // DELETE from myRequests only
+    await apiRequest(`/myRequests/${requestId}`, "DELETE");
 
-  // Remove from repairRequests
-  data.repairRequests = data.repairRequests.filter((r) => r.id !== requestId);
-
-  // Remove from myRequests
-  data.myRequests = data.myRequests.filter((r) => r.id !== requestId);
-
-  saveData(data);
-  return data;
-};
-
-// Delete a service provider (only user-added ones)
-export const deleteServiceProvider = async (providerId) => {
-  const data = await loadData();
-
-  // Remove from serviceProviders
-  data.serviceProviders = data.serviceProviders.filter(
-    (p) => p.id !== providerId
-  );
-
-  // Remove from myOffers if exists
-  if (data.myOffers) {
-    data.myOffers = data.myOffers.filter((o) => o.id !== providerId);
+    return await loadData();
+  } catch (error) {
+    console.error("Error deleting repair request:", error);
+    throw error;
   }
-
-  saveData(data);
-  return data;
 };
 
-// Export data as JSON (for downloading server.json)
+// Delete a service provider/offer - only deletes from myOffers
+export const deleteServiceProvider = async (providerId) => {
+  try {
+    // DELETE from myOffers only
+    await apiRequest(`/myOffers/${providerId}`, "DELETE");
+
+    return await loadData();
+  } catch (error) {
+    console.error("Error deleting service provider:", error);
+    throw error;
+  }
+};
+
+// Export data as JSON (for downloading)
 export const exportData = async () => {
   const data = await loadData();
   const jsonString = JSON.stringify(data, null, 2);
@@ -144,8 +162,7 @@ export const exportData = async () => {
   URL.revokeObjectURL(url);
 };
 
-// Reset data to server.json (clear localStorage)
+// Reset data to server.json (reload from API)
 export const resetData = async () => {
-  localStorage.removeItem(STORAGE_KEY);
-  return await loadData();
+  return await loadData(); // Reload from API
 };
