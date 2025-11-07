@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import ChatList from './ChatList'
 import Conversation from './Conversation'
 import UserProfile from './UserProfile'
-import './Chat.css'
+import '../../styles/chat-page/Chat.css'
 
 const API_URL = 'http://localhost:3001'
 

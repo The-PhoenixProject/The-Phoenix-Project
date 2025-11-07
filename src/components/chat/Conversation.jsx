@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import './Conversation.css'
+import '../../styles/chat-page/Conversation.css'
 
 // API Configuration
 const API_URL = 'http://localhost:3001'

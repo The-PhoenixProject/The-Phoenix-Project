@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useTimeAgo } from '../../utils/useTimeAgo'
-import './ChatList.css'
+import '../../styles/chat-page/ChatList.css'
 
 /**
  * ConversationTime Component
