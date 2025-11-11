@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-const logoBig = "/assets/landingImgs/logo big (1).png";
+const logoBig = "/assets/landingImgs/logo%20big%20(1).png";
 
 
 export default function HeroSection({ onLearnMoreClick }) {
