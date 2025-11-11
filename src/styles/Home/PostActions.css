@@ -1,0 +1,69 @@
+/* PostActions.css - Post action buttons and stats */
+
+.post-actions-container {
+  margin-top: 0;
+}
+
+.action-buttons {
+  padding-bottom: 1rem;
+}
+
+.action-btn {
+  color: #666;
+  font-weight: 500;
+  font-size: 0.9rem;
+  background-color: transparent !important;
+  border: none;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
+}
+
+.action-btn:hover {
+  background-color: #f0f0f0 !important;
+  color: #68dca8;
+}
+
+.action-btn i {
+  color: #68dca8;
+  font-size: 1.1rem;
+}
+
+.action-btn.liked {
+  color: #ec744a;
+}
+
+.action-btn.liked i {
+  color: #ec744a;
+}
+
+.action-stats {
+  padding-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.action-stats span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.action-stats i {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 767px) {
+  .action-btn {
+    font-size: 0.8rem;
+    padding: 0.4rem;
+  }
+
+  .action-btn i {
+    font-size: 1rem;
+  }
+
+  .action-stats {
+    font-size: 0.8rem;
+  }
+}

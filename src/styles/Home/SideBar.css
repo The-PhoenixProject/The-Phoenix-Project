@@ -1,0 +1,122 @@
+.sidebar-custom {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+  /* background-color: var(--home-bg) !important; */
+  width: 90%;
+}
+
+.sidebar-section {
+  margin-bottom: 3rem;
+  background-color: var(--home-bg) !important;
+}
+
+.sidebar-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 1.5rem;
+}
+
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: var(--dark);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.menu-item:hover {
+  background-color: rgba(104, 220, 168, 0.1);
+  color: var(--green-dark);
+}
+
+.menu-item i {
+  font-size: 1.2rem;
+  color: var(--orange);
+}
+
+.hashtags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hashtag-item {
+  text-decoration: none;
+  color: var(--orange);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.hashtag-item:hover {
+  color: var(--green-dark);
+  text-decoration: underline;
+}
+
+/* Create Post Card */
+.create-post-card {
+  background-color: white;
+  border-radius: 0.75rem;
+}
+
+.user-avatar-create {
+  flex-shrink: 0;
+}
+
+.create-post-input {
+  font-size: 0.95rem;
+  color: var(--dark);
+  background-color: #f8f9fa;
+  border-radius: 1.5rem !important;
+  padding: 0.75rem 1rem !important;
+  resize: none;
+  transition: all 0.3s ease;
+}
+
+.create-post-input:focus {
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(104, 220, 168, 0.1);
+}
+
+.post-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.post-action-buttons .btn {
+  font-size: 0.9rem;
+  color: var(--dark);
+  background-color: #f8f9fa;
+  border: none;
+}
+
+.post-action-buttons .btn:hover {
+  background-color: #e9ecef;
+}
+
+
+/* Responsive Design */
+/* @media (max-width: 991px) {
+  .sidebar-custom,
+  .right-sidebar-container {
+    position: relative;
+    top: auto;
+  }
+
+  .sidebar-section {
+    margin-bottom: 2rem;
+  }
+} */

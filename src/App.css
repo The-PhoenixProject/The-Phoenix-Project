@@ -1,42 +1,107 @@
+:root {
+  --green-light: #68DCA8;
+  --green-dark: #38765A;
+  --orange: #EC744A;
+  --dark: #1F2937;
+  --home-bg: #F8F6F1;
+  --gradient: linear-gradient(90deg #38765A ,#1F2937 );
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background-color: white;
+  font-family: 'Poppins', sans-serif;
+}
 #root {
   width: 100%;
   height: 100vh;
   margin: 0;
   padding: 0;
 }
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.gradient{
+  background: linear-gradient(90deg, var(--green-light), var(--green-dark)) !important;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.linksHover:hover{
+  color: var(--orange) !important;
+}
+
+.orangebtn{
+  background-color: var(--orange) !important;
+  border: 1px solid var(--orange) !important;
+  color: white;
+}
+.orangebtn:hover{
+  background-color: white !important;
+  color: white !important;
+  border: 1px solid white !important;
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, var(--green-light), var(--green-dark));
+  border: none;
+  color: white;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(90deg, var(--green-dark), var(--green-light));
+}
+
+.orangebtnWithoutBg{
+  background-color: transparent !important;
+  border: 1px solid var(--orange) !important;
+  color: var(--orange) !important;
+}
+.orangebtnWithoutBg:hover{
+  background-color: var(--orange) !important;
+  color: white !important;
+  border: 1px solid var(--orange) !important;
+}
+
+.orangeText{
+  color: var(--orange) !important;
+}
+
+footer {
+  background-color: var(--dark);
+  color: #fff;
+  padding: 40px 0;
+}
+
+/* ===== HOME PAGE STYLES ===== */
+/* .homepage-container {
+
+  min-height: 100vh;
+  padding: 2rem 0;
+} */
+
+/* Sidebar Styles */
+
+/* Post Card */
+
+/* Right Sidebar */
+
+
+
+@media (max-width: 767px) {
+  .homepage-container {
+    padding: 1rem 0;
   }
-  to {
-    transform: rotate(360deg);
+
+  .create-post-input {
+    font-size: 0.85rem;
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  .post-action-buttons {
+    /* flex-direction: column; */
+    align-items: stretch;
   }
-}
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  .post-action-buttons .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 }

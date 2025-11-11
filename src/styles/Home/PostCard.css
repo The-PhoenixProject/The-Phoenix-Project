@@ -1,0 +1,139 @@
+/* PostCard.css - Individual post card styling */
+
+
+.post-card {
+  background-color: white;
+  border-radius: 0.75rem;
+}
+
+.post-card .card-body {
+  border-radius: 0.75rem;
+}
+
+.post-content {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--dark);
+}
+
+.post-image {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* .post-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+} */
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.post-tags .badge {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--green-light);
+  color: var(--green-dark) !important;
+  background-color: rgba(104, 220, 168, 0.1) !important;
+}
+
+.post-actions-footer {
+  margin-top: 1rem;
+}
+
+.action-btn {
+  font-size: 0.9rem;
+  color: var(--dark);
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background-color: rgba(104, 220, 168, 0.1);
+  color: var(--green-dark);
+}
+
+/* .action-btn.liked {
+  color: var(--orange);
+} */
+
+.action-btn.liked i {
+  color: var(--orange);
+}
+
+.post-card {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.post-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.post-card .card-body {
+  border-radius: 0.75rem;
+}
+
+.post-content {
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* .post-image {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+} */
+
+/* .post-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+} */
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.post-tags .badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #68dca8;
+}
+
+.post-tags .badge i {
+  margin-right: 0.3rem;
+}
+
+.post-actions-footer {
+  margin-top: 1rem;
+}
+
+@media (max-width: 767px) {
+  .post-content {
+    font-size: 0.9rem;
+  }
+
+  .post-tags {
+    gap: 0.35rem;
+  }
+
+  .post-tags .badge {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
