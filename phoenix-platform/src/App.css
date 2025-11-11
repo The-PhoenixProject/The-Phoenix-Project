@@ -30,7 +30,7 @@ body {
 }
 .orangebtn:hover{
   background-color: white !important;
-  color: var(--orange) !important;
+  color: white !important;
   border: 1px solid white !important;
 }
 
@@ -63,4 +63,39 @@ footer {
   background-color: var(--dark);
   color: #fff;
   padding: 40px 0;
+}
+
+/* ===== HOME PAGE STYLES ===== */
+/* .homepage-container {
+
+  min-height: 100vh;
+  padding: 2rem 0;
+} */
+
+/* Sidebar Styles */
+
+/* Post Card */
+
+/* Right Sidebar */
+
+
+
+@media (max-width: 767px) {
+  .homepage-container {
+    padding: 1rem 0;
+  }
+
+  .create-post-input {
+    font-size: 0.85rem;
+  }
+
+  .post-action-buttons {
+    /* flex-direction: column; */
+    align-items: stretch;
+  }
+
+  .post-action-buttons .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 }

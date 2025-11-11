@@ -1,31 +1,76 @@
-import React from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
-import Footer from "../components/shared/Footer";
+import React, { useState } from "react";
+import SideBar from "../components/home/SideBar";
+import CreatePost from "../components/home/post/CreatePost";
+import PostCard from "../components/home/post/PostCard";
+import FriendsList from "../components/home/FriendsList";
+import "../styles/Home/HomePage.css";
 
-export default function HomePage() {
+const HomePage = () => {
+  const currentUser = {
+    name: "Jane Doe",
+    avatar: "https://via.placeholder.com/48",
+    subtitle: "Online now",
+  };
+
+  const [posts] = useState([
+    {
+      id: 1,
+      author: {
+        name: "Alex Thompson",
+        avatar: "https://via.placeholder.com/48",
+      },
+      content:
+        "Just finished my DIY planter project using old plastic bottles! It's amazing how we can give new life to items that would otherwise end up in landfills.",
+      image: "https://via.placeholder.com/400x300?text=DIY+Planter",
+      tags: ["Recycled", "DIY", "#SustainableLiving"],
+      likes: 42,
+      comments: 7,
+      timestamp: "2 hours ago",
+    },
+    {
+      id: 2,
+      author: {
+        name: "Sarah Chen",
+        avatar: "https://via.placeholder.com/48",
+      },
+      content:
+        "Week 3 of my zero-waste challenge: Managing to fit all my waste in a single jar. The key is learning about packaging and bringing reusable containers everywhere.",
+      image: "https://via.placeholder.com/400x300?text=Zero+Waste",
+      tags: ["EcoFriendly", "#ZeroWaste", "Sustainability"],
+      likes: 65,
+      comments: 12,
+      timestamp: "4 hours ago",
+    },
+  ]);
+
   return (
-    <>
-      <Container className="py-5">
-        <Row>
-          <Col md={8}>
-            <Card className="mb-3 p-3 shadow-sm">
-              <h5>New Post</h5>
-              <p>Share your thoughts about sustainability...</p>
-            </Card>
-          </Col>
-          <Col md={4}>
-            <Card className="p-3 shadow-sm">
-              <h5>Trending Topics</h5>
-              <ul>
-                <li>Eco Projects</li>
-                <li>Recycling Tips</li>
-                <li>Green Startups</li>
-              </ul>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-      <Footer />
-    </>
+    <div className="homepage-container">
+      <div className="container-fluid">
+        <div className="row g-4">
+          {/* Left Sidebar */}
+          <div className="col-lg-3">
+            <SideBar />
+          </div>
+
+          {/* Main Content */}
+          <div className="col-lg-6">
+            <CreatePost currentUser={currentUser} />
+
+            <div className="posts-feed">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          </div>
+
+          {/* Right Sidebar - Friends & Trending */}
+          <div className="col-lg-3">
+            <FriendsList />
+          </div>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default HomePage;

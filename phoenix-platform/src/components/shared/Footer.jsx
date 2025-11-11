@@ -1,5 +1,3 @@
-import { color } from "framer-motion";
-import { li, link } from "framer-motion/client";
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { TbBrandLinkedin } from "react-icons/tb";
