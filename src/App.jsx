@@ -13,6 +13,8 @@ import MaintenanceOffersPage from "./pages/MaintenanceOffersPage";
 import MyMaintenanceRequestsPage from "./pages/MyMaintenanceRequestsPage";
 import MyServicesPage from "./pages/MyServicesPage";
 import ExploreServicesPage from "./pages/ExploreServicesPage";
+import ContactUs from "./pages/contact";
+import ProfilePhoenixComponent from "./pages/profile";
 import {
   loadData,
   deleteRepairRequest,
@@ -173,6 +175,8 @@ function App() {
         />
         <Route path="/my-services" element={<MyServicesPage />} />
         <Route path="/explore-services" element={<ExploreServicesPage />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/profile" element={<ProfilePhoenixComponent />} />
       </Routes>
     </Router>
   );
