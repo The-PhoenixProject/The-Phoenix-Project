@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useTimeAgo } from '../../utils/useTimeAgo'
-import './ChatList.css'
+import '../../styles/chat-page/ChatList.css'
 
 /**
  * ConversationTime Component
@@ -70,8 +70,10 @@ function ChatList({
     let filtered = conversations
 
     // Apply search filter if query exists
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim()
+    const trimmedQuery = searchQuery.trim()
+    
+    if (trimmedQuery) {
+      const query = trimmedQuery.toLowerCase()
       filtered = conversations.filter(conversation => {
         const nameMatch = conversation.name.toLowerCase().includes(query)
         const lastMsg = getLastMessage(conversation)
@@ -384,4 +386,3 @@ function ChatList({
 }
 
 export default ChatList
-

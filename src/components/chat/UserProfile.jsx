@@ -1,4 +1,4 @@
-import './UserProfile.css'
+import '../../styles/chat-page/UserProfile.css'
 
 /**
  * UserProfile Component

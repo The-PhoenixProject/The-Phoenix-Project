@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import './Conversation.css'
+import '../../styles/chat-page/Conversation.css'
 
 // API Configuration
 const API_URL = 'http://localhost:3001'
@@ -92,25 +92,19 @@ function Conversation({
   }, [chat.id])
 
   /**
-   * Load deleted messages from localStorage for current chat
-   * Messages deleted "for me" are stored per chat in localStorage
+   * Load deleted messages from database for current chat
+   * Messages deleted "for me" are stored in the conversation object in the database
    */
   useEffect(() => {
     if (chat?.id) {
-      const key = `deletedMessages_${chat.id}`
-      const stored = localStorage.getItem(key)
-      if (stored) {
-        try {
-          setDeletedMessages(JSON.parse(stored))
-        } catch (err) {
-          console.error('Error parsing deleted messages:', err)
-          setDeletedMessages([])
-        }
+      // Load from chat object (from database)
+      if (chat.deletedForMeMessages && Array.isArray(chat.deletedForMeMessages)) {
+        setDeletedMessages(chat.deletedForMeMessages.map(id => String(id)))
       } else {
         setDeletedMessages([])
       }
     }
-  }, [chat.id])
+  }, [chat.id, chat.deletedForMeMessages])
 
   // ==========================================
   // Message Deletion Helpers
@@ -141,7 +135,7 @@ function Conversation({
 
   /**
    * Delete message for me - hides message from current user only
-   * Stores deletion in localStorage, does not affect database
+   * Stores deletion in database, does not affect other users
    * @param {number|string} messageId - The message ID to delete
    */
   const handleDeleteForMe = async (messageId) => {
@@ -151,9 +145,31 @@ function Conversation({
     const newDeleted = [...deletedMessages, messageIdStr]
     setDeletedMessages(newDeleted)
     
-    // Persist to localStorage (per chat)
-    const key = `deletedMessages_${chat.id}`
-    localStorage.setItem(key, JSON.stringify(newDeleted))
+    // Update database
+    try {
+      await fetch(`${API_URL}/conversations/${chat.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          deletedForMeMessages: newDeleted
+        })
+      })
+      
+      // Update local chat state
+      const updatedChat = {
+        ...chat,
+        deletedForMeMessages: newDeleted
+      }
+      
+      // Notify parent component of update
+      if (onChatUpdate) {
+        onChatUpdate(updatedChat)
+      }
+    } catch (err) {
+      console.error('Error deleting message for me:', err)
+    }
     
     // Close menus
     setMessageContextMenu(null)
