@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../../../styles/Home/PostCard.css";
 import PostActions from "./PostActions";
-import logoIcon from "../../../assets/landingImgs/logo-icon.png";
+import logoIcon from "../../../assets/landingImgs/logo-icon.png?url";
 
 const PostCard = ({ post }) => {
   const [isLiked, setIsLiked] = useState(false);

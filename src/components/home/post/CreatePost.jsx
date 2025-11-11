@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../../../styles/Home/CreatePost.css";
-import logoIcon from "../../../assets/landingImgs/logo-icon.png";
+import logoIcon from "../../../assets/landingImgs/logo-icon.png?url";
 
 const CreatePost = ({ currentUser }) => {
   const [postContent, setPostContent] = useState("");

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import woodTable from "../../assets/landingImgs/woodTable.png";
-import bag from "../../assets/landingImgs/bag.png";
-import metalArt from "../../assets/landingImgs/metalArtSculpture.png";
+import woodTable from "../../assets/landingImgs/woodTable.png?url";
+import bag from "../../assets/landingImgs/bag.png?url";
+import metalArt from "../../assets/landingImgs/metalArtSculpture.png?url";
 
 
 const sectionCustom={
