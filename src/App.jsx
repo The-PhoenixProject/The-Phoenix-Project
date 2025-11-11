@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import CustomNavbar from "./components/shared/Navbar";
 import LandingPage from "./pages/LandingPage";
 import HomePage from "./pages/HomePage";
@@ -96,6 +96,36 @@ function MaintenanceHomePage() {
         onOfferClick={handleOfferClick}
       />
 
+      {/* Tabs Navigation */}
+      <div className="tabs-container">
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === "requests" ? "active" : ""}`}
+            onClick={() => setActiveTab("requests")}
+          >
+            Requests & Offers
+          </button>
+          <button
+            className={`tab ${activeTab === "offers" ? "active" : ""}`}
+            onClick={() => setActiveTab("offers")}
+          >
+            Offers Only
+          </button>
+          <button
+            className={`tab ${activeTab === "myRequests" ? "active" : ""}`}
+            onClick={() => setActiveTab("myRequests")}
+          >
+            My Requests
+          </button>
+          <button
+            className={`tab ${activeTab === "myOffers" ? "active" : ""}`}
+            onClick={() => setActiveTab("myOffers")}
+          >
+            My Offers
+          </button>
+        </div>
+      </div>
+
       <div className="main-content">
         {activeTab === "requests" && (
           <div className="content-row">
@@ -133,7 +163,7 @@ function MaintenanceHomePage() {
         {activeTab === "myRequests" && (
           <div className="content-row">
             <div className="full-panel">
-              <p>My Maintenance Requests content goes here</p>
+              <MyMaintenanceRequestsPage />
             </div>
           </div>
         )}
@@ -141,7 +171,7 @@ function MaintenanceHomePage() {
         {activeTab === "myOffers" && (
           <div className="content-row">
             <div className="full-panel">
-              <p>My Offers content goes here</p>
+              <MyServicesPage />
             </div>
           </div>
         )}
@@ -150,9 +180,9 @@ function MaintenanceHomePage() {
       <footer className="app-footer">
         <p>Together, we give waste a second chance.</p>
         <div className="footer-links">
-          <button>Teams</button>
-          <button>Privacy</button>
-          <button>Contact</button>
+          <Link to="/profile" className="text-decoration-none">Profile</Link>
+          <Link to="/contact" className="text-decoration-none">Contact</Link>
+          <Link to="/" className="text-decoration-none">Home</Link>
         </div>
       </footer>
     </div>

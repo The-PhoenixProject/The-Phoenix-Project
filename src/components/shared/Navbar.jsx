@@ -97,9 +97,8 @@ export default function CustomNavbar() {
     const iconLinks = [
         // Using inline SVGs
         { name: "Feed", path: "/home", icon: <IoMdHome /> },
-        { name: "MarketPlace", path: "/marketplace", icon: <FaShop /> },
-        { name: "Messages", path: "/messages", icon: <IoChatbubbleSharp /> },
-        { name: "Notifications", path: "/notifications", icon: <FaBell /> },
+        { name: "Explore Services", path: "/explore-services", icon: <FaShop /> },
+        { name: "Messages", path: "/chat", icon: <IoChatbubbleSharp /> },
         { name: "Maintenance", path: "/maintenance", icon: <GrVmMaintenance /> },
         { name: "ContactSupport", path: "/contact", icon: <MdContactSupport /> },
     ];

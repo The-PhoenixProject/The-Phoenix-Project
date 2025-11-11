@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 
 export default function HeroSection({ onLearnMoreClick }) {
@@ -16,7 +17,7 @@ export default function HeroSection({ onLearnMoreClick }) {
             <Button  className="btn-gradient me-2" onClick={onLearnMoreClick}
         >Learn More</Button>
             
-            <Button className="orangebtnWithoutBg">Get Started</Button>
+            <Link to="/home" className="orangebtnWithoutBg text-decoration-none"><Button className="orangebtnWithoutBg">Get Started</Button></Link>
           </div>
           <div className="col">
             <img src="/src/assets/landingImgs/logo big (1).png" alt="Hero" className="img-fluid mt-4 biglogo" />

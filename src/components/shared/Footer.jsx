@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { TbBrandLinkedin } from "react-icons/tb";
 
 const linkStyle ={
@@ -18,10 +19,11 @@ export default function Footer() {
           <Col md={2} lg={3}>
             <h5>Quick Links</h5>
             <ul className="list-unstyled ">
-              <li><a style={linkStyle }  className="text-secondary linksHover " href="/">Home</a></li>
-              <li><a style={linkStyle} className="text-secondary linksHover" href="#about">About</a></li>
-              <li><a style={linkStyle} className="text-secondary linksHover" href="#features">Features</a></li>
-              <li><a style={linkStyle} className="text-secondary linksHover" href="#marketplace">marketplace</a></li>
+              <li><Link style={linkStyle} className="text-secondary linksHover" to="/">Home</Link></li>
+              <li><Link style={linkStyle} className="text-secondary linksHover" to="/home">Feed</Link></li>
+              <li><Link style={linkStyle} className="text-secondary linksHover" to="/explore-services">Marketplace</Link></li>
+              <li><Link style={linkStyle} className="text-secondary linksHover" to="/maintenance">Maintenance</Link></li>
+              <li><Link style={linkStyle} className="text-secondary linksHover" to="/contact">Contact</Link></li>
             </ul>
           </Col>
           <Col md={5} lg={3}>
