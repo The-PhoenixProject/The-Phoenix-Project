@@ -38,7 +38,7 @@ function ExploreServicesPage() {
           rating: 4.8,
           reviews: 120,
           description: "Antique Furniture Restoration",
-          image: "https://via.placeholder.com/150",
+          image: "/assets/landingImgs/logo-icon.png",
         },
         {
           id: 101,
@@ -48,7 +48,7 @@ function ExploreServicesPage() {
           rating: 4.2,
           reviews: 85,
           description: "Phone Screen Repair",
-          image: "https://via.placeholder.com/150",
+          image: "/assets/landingImgs/logo-icon.png",
         },
         {
           id: 102,
@@ -58,7 +58,7 @@ function ExploreServicesPage() {
           rating: 5.0,
           reviews: 200,
           description: "Vintage Clothing Alterations",
-          image: "https://via.placeholder.com/150",
+          image: "/assets/landingImgs/logo-icon.png",
         },
         {
           id: 103,
@@ -68,7 +68,7 @@ function ExploreServicesPage() {
           rating: 4.7,
           reviews: 45,
           description: "Garden Tool Sharpening",
-          image: "https://via.placeholder.com/150",
+          image: "/assets/landingImgs/logo-icon.png",
         },
         {
           id: 104,
@@ -78,7 +78,7 @@ function ExploreServicesPage() {
           rating: 4.8,
           reviews: 150,
           description: "Laptop Repair & Upgrade",
-          image: "https://via.placeholder.com/150",
+          image: "/assets/landingImgs/logo-icon.png",
         },
         {
           id: 105,
@@ -88,7 +88,7 @@ function ExploreServicesPage() {
           rating: 4.3,
           reviews: 90,
           description: "Chair Reupholstering",
-          image: "https://via.placeholder.com/150",
+          image: "/assets/landingImgs/logo-icon.png",
         },
       ];
 

@@ -88,7 +88,7 @@ export const addServiceProvider = async (providerData) => {
       ...providerData,
       rating: providerData.rating || 5,
       reviews: providerData.reviews || 0,
-      image: providerData.image || "https://via.placeholder.com/80",
+      image: providerData.image || "/assets/landingImgs/logo-icon.png",
       postedBy: "You",
     };
 

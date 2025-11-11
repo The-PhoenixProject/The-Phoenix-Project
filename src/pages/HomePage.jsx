@@ -6,9 +6,11 @@ import FriendsList from "../components/home/FriendsList";
 import "../styles/Home/HomePage.css";
 
 const HomePage = () => {
+  const logoIcon = "/assets/landingImgs/logo-icon.png";
+  
   const currentUser = {
     name: "Jane Doe",
-    avatar: "https://via.placeholder.com/48",
+    avatar: logoIcon,
     subtitle: "Online now",
   };
 
@@ -17,11 +19,11 @@ const HomePage = () => {
       id: 1,
       author: {
         name: "Alex Thompson",
-        avatar: "https://via.placeholder.com/48",
+        avatar: logoIcon,
       },
       content:
         "Just finished my DIY planter project using old plastic bottles! It's amazing how we can give new life to items that would otherwise end up in landfills.",
-      image: "https://via.placeholder.com/400x300?text=DIY+Planter",
+      image: "/assets/landingImgs/glassPlantersSet.png",
       tags: ["Recycled", "DIY", "#SustainableLiving"],
       likes: 42,
       comments: 7,
@@ -31,11 +33,11 @@ const HomePage = () => {
       id: 2,
       author: {
         name: "Sarah Chen",
-        avatar: "https://via.placeholder.com/48",
+        avatar: logoIcon,
       },
       content:
         "Week 3 of my zero-waste challenge: Managing to fit all my waste in a single jar. The key is learning about packaging and bringing reusable containers everywhere.",
-      image: "https://via.placeholder.com/400x300?text=Zero+Waste",
+      image: "/assets/landingImgs/bag.png",
       tags: ["EcoFriendly", "#ZeroWaste", "Sustainability"],
       likes: 65,
       comments: 12,

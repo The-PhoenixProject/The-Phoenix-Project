@@ -28,7 +28,7 @@ function MaintenanceOffersPage() {
             location: "Downtown",
             status: "New",
             postedBy: "John Smith",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1002,
@@ -39,7 +39,7 @@ function MaintenanceOffersPage() {
             location: "Midtown",
             status: "Pending",
             postedBy: "Sarah Johnson",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1003,
@@ -50,7 +50,7 @@ function MaintenanceOffersPage() {
             location: "Uptown",
             status: "New",
             postedBy: "Mike Davis",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1004,
@@ -61,7 +61,7 @@ function MaintenanceOffersPage() {
             location: "Historic District",
             status: "Pending",
             postedBy: "Emily Chen",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1005,
@@ -72,7 +72,7 @@ function MaintenanceOffersPage() {
             location: "Park Area",
             status: "New",
             postedBy: "David Wilson",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1006,
@@ -83,7 +83,7 @@ function MaintenanceOffersPage() {
             location: "Suburbs",
             status: "New",
             postedBy: "Lisa Anderson",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1007,
@@ -94,7 +94,7 @@ function MaintenanceOffersPage() {
             location: "Old Town",
             status: "Pending",
             postedBy: "Robert Brown",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1008,
@@ -106,7 +106,7 @@ function MaintenanceOffersPage() {
             location: "Riverside",
             status: "New",
             postedBy: "Jennifer Lee",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1009,
@@ -117,7 +117,7 @@ function MaintenanceOffersPage() {
             location: "Crafts District",
             status: "New",
             postedBy: "Michael Taylor",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1010,
@@ -128,7 +128,7 @@ function MaintenanceOffersPage() {
             location: "Arts Quarter",
             status: "Pending",
             postedBy: "Amanda White",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1011,
@@ -139,7 +139,7 @@ function MaintenanceOffersPage() {
             location: "Music Street",
             status: "New",
             postedBy: "Chris Martinez",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
           {
             id: 1012,
@@ -150,7 +150,7 @@ function MaintenanceOffersPage() {
             location: "Museum Area",
             status: "New",
             postedBy: "Patricia Garcia",
-            image: "https://via.placeholder.com/150",
+            image: "/assets/landingImgs/logo-icon.png",
           },
         ];
         availableRequests = [...availableRequests, ...mockRequests];

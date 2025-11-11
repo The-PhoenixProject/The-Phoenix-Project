@@ -2,35 +2,37 @@ import React from "react";
 import "../../styles/Home/RightSideBar.css";
 
 const FriendsList = () => {
+  const logoIcon = "/assets/landingImgs/logo-icon.png";
+  
   const friends = [
     {
       id: 1,
       name: "Haya Singh",
-      avatar: "https://via.placeholder.com/40",
+      avatar: logoIcon,
       status: "Online",
     },
     {
       id: 2,
       name: "David Park",
-      avatar: "https://via.placeholder.com/40",
+      avatar: logoIcon,
       status: "Online",
     },
     {
       id: 3,
       name: "Olivia Lee",
-      avatar: "https://via.placeholder.com/40",
+      avatar: logoIcon,
       status: "Online",
     },
     {
       id: 4,
       name: "Haya Singh",
-      avatar: "https://via.placeholder.com/40",
+      avatar: logoIcon,
       status: "Online",
     },
     {
       id: 5,
       name: "Olivia Lee",
-      avatar: "https://via.placeholder.com/40",
+      avatar: logoIcon,
       status: "Online",
     },
   ];
