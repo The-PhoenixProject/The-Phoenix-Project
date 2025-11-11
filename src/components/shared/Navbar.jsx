@@ -84,7 +84,7 @@ export default function CustomNavbar() {
         { name: "Products", path: "#products" },
         { name: "About", path: "#about" },
         { name: "Reviews", path: "#reviews" },
-        { name: "Contact", path: "#contact" },
+        { name: "Contact", path: "/contact" },
     ];
 
     // Links for the Maintenance Component (New State)
@@ -181,21 +181,50 @@ export default function CustomNavbar() {
         );
       }
     
+    // Handle anchor link clicks for smooth scrolling
+    const handleAnchorClick = (e, path) => {
+        if (path.startsWith('#')) {
+            e.preventDefault();
+            const element = document.querySelector(path);
+            if (element) {
+                const yOffset = -80; // Offset for navbar
+                const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            }
+        }
+    };
+
     // NonHomeContent structure is different for landing vs maintenance
     const NonHomeContent = (
         <div className="d-flex flex-column flex-lg-row w-100 justify-content-end align-items-lg-center">
              <Nav className="me-lg-4 d-flex justify-content-start align-items-start">
-                {navLinks.map((link) => (
-                    <Nav.Link
-                        as={Link}
-                        to={link.path}
-                        key={link.name}
-                        className="mx-1 fw-medium linksHover"
-                        style={{ color: 'white' }}
-                    >
-                        {link.name}
-                    </Nav.Link>
-                ))}
+                {navLinks.map((link) => {
+                    // For anchor links, use regular anchor tag; for routes, use Link
+                    if (link.path.startsWith('#')) {
+                        return (
+                            <Nav.Link
+                                href={link.path}
+                                onClick={(e) => handleAnchorClick(e, link.path)}
+                                key={link.name}
+                                className="mx-1 fw-medium linksHover"
+                                style={{ color: 'white' }}
+                            >
+                                {link.name}
+                            </Nav.Link>
+                        );
+                    }
+                    return (
+                        <Nav.Link
+                            as={Link}
+                            to={link.path}
+                            key={link.name}
+                            className="mx-1 fw-medium linksHover"
+                            style={{ color: 'white' }}
+                        >
+                            {link.name}
+                        </Nav.Link>
+                    );
+                })}
             </Nav>
             
             <div > 
