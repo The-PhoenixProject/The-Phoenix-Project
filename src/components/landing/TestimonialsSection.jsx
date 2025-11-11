@@ -2,6 +2,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FaStar } from "react-icons/fa";
+import sarahImg from "../../assets/landingImgs/sarahImg.png";
+import mikeImg from "../../assets/landingImgs/mikeImg.png";
+import emmaImg from "../../assets/landingImgs/emmaImg.png";
 // import "./TestimonialsSection.css"; // ← Import CSS file
 
 const testimonials = [
@@ -9,21 +12,21 @@ const testimonials = [
     id: 1,
     name: "Sarah Johnson",
     text: "Phoenix Project has completely changed how I think about waste. The community is incredibly supportive and inspiring!",
-    img: "/src/assets/landingImgs/sarahImg.png",
+    img: sarahImg,
     rating: 5,
   },
   {
     id: 2,
     name: "John Miller",
     text: "An amazing experience from start to finish. Highly recommend to anyone looking to grow with like-minded people!",
-    img: "/src/assets/landingImgs/mikeImg.png",
+    img: mikeImg,
     rating: 5,
   },
   {
     id: 3,
     name: "Emma Davis",
     text: "I love how easy it is to connect and learn from others. Definitely worth joining this community.",
-    img: "/src/assets/landingImgs/emmaImg.png",
+    img: emmaImg,
     rating: 5,
   },
 ];

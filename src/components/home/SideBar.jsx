@@ -1,5 +1,5 @@
 import React from "react";
-import "/src/styles/Home/SideBar.css";
+import "../../styles/Home/SideBar.css";
 
 const Sidebar = () => {
   const quickAccess = [

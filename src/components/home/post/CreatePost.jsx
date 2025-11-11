@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import "/src/styles/Home/CreatePost.css";
+import "../../../styles/Home/CreatePost.css";
+import logoIcon from "../../../assets/landingImgs/logo-icon.png";
 
 const CreatePost = ({ currentUser }) => {
   const [postContent, setPostContent] = useState("");
@@ -19,7 +20,7 @@ const CreatePost = ({ currentUser }) => {
         <div className="d-flex gap-3">
           <div className="user-avatar-create">
             <img
-              src={currentUser?.avatar || "/src/assets/landingImgs/logo-icon.png"}
+              src={currentUser?.avatar || logoIcon}
               alt="User Avatar"
               className="rounded-circle"
               width="48"

@@ -72,6 +72,7 @@ import { FaShop , FaBell } from "react-icons/fa6";
 import { IoChatbubbleSharp } from "react-icons/io5";
 import { GrVmMaintenance } from "react-icons/gr";
 import { MdContactSupport } from "react-icons/md";
+import logoIcon from "../assets/landingImgs/logo-icon.png";
 
 export default function CustomNavbar() {
     const { pathname } = useLocation();
@@ -209,7 +210,7 @@ export default function CustomNavbar() {
             <Container fluid className="px-3 px-lg-5">
                 {/* Brand/Logo Section */}
                 <div className="d-flex align-items-center">
-                    <img src="/src/assets/landingImgs/logo-icon.png" alt="Phoenix Logo" width="60" className="me-2" />
+                    <img src={logoIcon} alt="Phoenix Logo" width="60" className="me-2" />
                     <Navbar.Brand as={Link} to="/" className="fw-bold  fs-4">
                         Phoenix
                     </Navbar.Brand>

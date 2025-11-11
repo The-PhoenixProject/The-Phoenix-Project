@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import "/src/styles/Home/PostCard.css";
+import "../../../styles/Home/PostCard.css";
 import PostActions from "./PostActions";
+import logoIcon from "../../../assets/landingImgs/logo-icon.png";
 
 const PostCard = ({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -12,7 +13,7 @@ const PostCard = ({ post }) => {
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="d-flex gap-3 align-items-center">
             <img
-              src={post.author.avatar || "/src/assets/landingImgs/logo-icon.png"}
+              src={post.author.avatar || logoIcon}
               alt={post.author.name}
               className="rounded-circle"
               width="48"

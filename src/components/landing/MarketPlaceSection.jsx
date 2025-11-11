@@ -1,4 +1,7 @@
 import { motion } from "framer-motion";
+import woodTable from "../../assets/landingImgs/woodTable.png";
+import bag from "../../assets/landingImgs/bag.png";
+import metalArt from "../../assets/landingImgs/metalArtSculpture.png";
 
 
 const sectionCustom={
@@ -15,7 +18,7 @@ function MarketPlace() {
                     <motion.div
                           whileHover={{ scale: 0.9 }} className="col-md-5 col-9 col-sm-7 col-lg-3 shadow rounded">
                         <div className="py-3">
-                            <img src="/src/assets/landingImgs/woodTable.png" alt="woodTable" className="img-fluid w-100" />
+                            <img src={woodTable} alt="woodTable" className="img-fluid w-100" />
                             <h5 className="mt-3">Reclaimed Wood Table</h5>
                             <p>Handcrafted from salvaged materials</p>
                             <p className="text-muted">$299</p>
@@ -26,7 +29,7 @@ function MarketPlace() {
                     <motion.div
                           whileHover={{ scale: 0.9 }} className="col-md-5 col-9 col-sm-7 col-lg-3 shadow rounded">
                         <div className="py-3">
-                            <img src="/src/assets/landingImgs/bag.png" alt="woodTable" className="img-fluid w-100" />
+                            <img src={bag} alt="woodTable" className="img-fluid w-100" />
                             <h5 className="mt-3">Eco Tote Bag</h5>
                             <p>Made from recycled plastic bottles</p>
                             <p className="text-muted">$25</p>
@@ -37,7 +40,7 @@ function MarketPlace() {
                     <motion.div
                           whileHover={{ scale: 0.9 }}className="col-md-5 col-9 col-sm-7 col-lg-3 shadow rounded">
                         <div className="py-3">
-                            <img src="/src/assets/landingImgs/metalArtSculpture.png" alt="woodTable" className="img-fluid w-100" />
+                            <img src={metalArt} alt="woodTable" className="img-fluid w-100" />
                             <h5 className="mt-3">Metal Art Sculpture</h5>
                             <p>Artistic piece from scrap metal</p>
                             <p className="text-muted">$150</p>

@@ -1,5 +1,5 @@
 import React from "react";
-import "/src/styles/Home/RightSideBar.css";
+import "../../styles/Home/RightSideBar.css";
 
 const FriendsList = () => {
   const friends = [

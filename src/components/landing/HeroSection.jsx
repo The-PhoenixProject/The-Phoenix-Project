@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import logoBig from "../../assets/landingImgs/logo big (1).png";
 
 
 export default function HeroSection({ onLearnMoreClick }) {
@@ -20,7 +21,7 @@ export default function HeroSection({ onLearnMoreClick }) {
             <Button as={Link} to="/home" className="orangebtnWithoutBg">Get Started</Button>
           </div>
           <div className="col">
-            <img src="/src/assets/landingImgs/logo big (1).png" alt="Hero" className="img-fluid mt-4 biglogo" />
+            <img src={logoBig} alt="Hero" className="img-fluid mt-4 biglogo" />
           </div>  
       </div>
       

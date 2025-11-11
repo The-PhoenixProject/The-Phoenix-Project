@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "/src/styles/Home/PostActions.css";
+import "../../../styles/Home/PostActions.css";
 
 const PostActions = ({
   likes = 0,

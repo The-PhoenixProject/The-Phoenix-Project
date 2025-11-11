@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
+import aboutImage from "../../assets/landingImgs/aboutImageresiezed.png";
 
 export default function AboutSection() {
   return (
@@ -23,7 +24,7 @@ export default function AboutSection() {
           </Col>
           <Col lg={6}>
             <img
-              src="/src/assets/landingImgs/aboutImageresiezed.png"
+              src={aboutImage}
               alt="about"
               className="img-fluid"
             />
