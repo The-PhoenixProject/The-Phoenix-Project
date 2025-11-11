@@ -72,7 +72,7 @@ import { FaShop , FaBell } from "react-icons/fa6";
 import { IoChatbubbleSharp } from "react-icons/io5";
 import { GrVmMaintenance } from "react-icons/gr";
 import { MdContactSupport } from "react-icons/md";
-import logoIcon from "../assets/landingImgs/logo-icon.png?url";
+const logoIcon = "/assets/landingImgs/logo-icon.png";
 
 export default function CustomNavbar() {
     const { pathname } = useLocation();

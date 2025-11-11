@@ -2,9 +2,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FaStar } from "react-icons/fa";
-import sarahImg from "../../assets/landingImgs/sarahImg.png?url";
-import mikeImg from "../../assets/landingImgs/mikeImg.png?url";
-import emmaImg from "../../assets/landingImgs/emmaImg.png?url";
+const sarahImg = "/assets/landingImgs/sarahImg.png";
+const mikeImg = "/assets/landingImgs/mikeImg.png";
+const emmaImg = "/assets/landingImgs/emmaImg.png";
 // import "./TestimonialsSection.css"; // ← Import CSS file
 
 const testimonials = [
