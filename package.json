@@ -9,9 +9,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "json-server --watch public/server.json --port 3001",
+    "server": "json-server --watch db.json --port 3001",
     "start": "concurrently \"npm run server\" \"npm run dev\"",
-    "api": "json-server --watch public/server.json --port 3001"
+    "api": "json-server --watch db.json --port 3001"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
