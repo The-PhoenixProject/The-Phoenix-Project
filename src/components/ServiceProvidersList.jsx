@@ -1,6 +1,7 @@
 import React from "react";
 
 function ServiceProvidersList({ providers, onDelete }) {
+  const defaultImage = "/assets/landingImgs/logo-icon.png";
   const renderStars = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <i key={i} className="bi bi-star-fill star-filled"></i>
@@ -41,7 +42,7 @@ function ServiceProvidersList({ providers, onDelete }) {
         {providers.map((provider) => (
           <div key={provider.id} className="provider-card">
             <img
-              src={provider.image}
+              src={provider.image || defaultImage}
               alt={provider.name}
               className="provider-image"
             />

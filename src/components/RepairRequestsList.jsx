@@ -1,6 +1,7 @@
 import React from "react";
 
 function RepairRequestsList({ requests, onDelete }) {
+  const defaultImage = "/assets/landingImgs/logo-icon.png";
   const getStatusClass = (status) => {
     const statusMap = {
       Pending: "status-pending",
@@ -43,7 +44,7 @@ function RepairRequestsList({ requests, onDelete }) {
         {requests.map((request) => (
           <div key={request.id} className="request-card">
             <img
-              src={request.image}
+              src={request.image || defaultImage}
               alt={request.itemName}
               className="request-image"
             />

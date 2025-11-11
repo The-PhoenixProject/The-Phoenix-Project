@@ -25,7 +25,7 @@ function ExploreServicesPage() {
         rating: provider.rating || 4.5,
         reviews: provider.reviews || 0,
         description: provider.description,
-        image: provider.image,
+        image: provider.image || "/assets/landingImgs/logo-icon.png",
       }));
 
       // Add mock services to match the image
