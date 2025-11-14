@@ -3,12 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import CustomNavbar from "./components/shared/Navbar";
 import LandingPage from "./pages/LandingPage";
 import HomePage from "./pages/HomePage";
-import Chat from './components/chat/Chat'
-import HeroSection from "./components/HeroSection";
-import RequestForm from "./components/RequestForm";
-import ServiceOfferForm from "./components/ServiceOfferForm";
-import RepairRequestsList from "./components/RepairRequestsList";
-import ServiceProvidersList from "./components/ServiceProvidersList";
+import Chat from "./components/chat/Chat";
+import HeroSection from "./components/maintenancepage/HeroSection";
+import RequestForm from "./components/maintenancepage/RequestForm";
+import ServiceOfferForm from "./components/maintenancepage/ServiceOfferForm";
+import RepairRequestsList from "./components/maintenancepage/RepairRequestsList";
+import ServiceProvidersList from "./components/maintenancepage/ServiceProvidersList";
 import MaintenanceOffersPage from "./pages/MaintenanceOffersPage";
 import MyMaintenanceRequestsPage from "./pages/MyMaintenanceRequestsPage";
 import MyServicesPage from "./pages/MyServicesPage";
@@ -20,7 +20,7 @@ import {
   deleteRepairRequest,
   deleteServiceProvider,
 } from "./services/dataService";
-import './App.css'
+import "./App.css";
 
 // Maintenance HomePage component
 function MaintenanceHomePage() {
@@ -96,36 +96,6 @@ function MaintenanceHomePage() {
         onOfferClick={handleOfferClick}
       />
 
-      {/* Tabs Navigation */}
-      <div className="tabs-container">
-        <div className="tabs">
-          <button
-            className={`tab ${activeTab === "requests" ? "active" : ""}`}
-            onClick={() => setActiveTab("requests")}
-          >
-            Requests & Offers
-          </button>
-          <button
-            className={`tab ${activeTab === "offers" ? "active" : ""}`}
-            onClick={() => setActiveTab("offers")}
-          >
-            Offers Only
-          </button>
-          <button
-            className={`tab ${activeTab === "myRequests" ? "active" : ""}`}
-            onClick={() => setActiveTab("myRequests")}
-          >
-            My Requests
-          </button>
-          <button
-            className={`tab ${activeTab === "myOffers" ? "active" : ""}`}
-            onClick={() => setActiveTab("myOffers")}
-          >
-            My Offers
-          </button>
-        </div>
-      </div>
-
       <div className="main-content">
         {activeTab === "requests" && (
           <div className="content-row">
@@ -163,7 +133,7 @@ function MaintenanceHomePage() {
         {activeTab === "myRequests" && (
           <div className="content-row">
             <div className="full-panel">
-              <MyMaintenanceRequestsPage />
+              <p>My Maintenance Requests content goes here</p>
             </div>
           </div>
         )}
@@ -171,7 +141,7 @@ function MaintenanceHomePage() {
         {activeTab === "myOffers" && (
           <div className="content-row">
             <div className="full-panel">
-              <MyServicesPage />
+              <p>My Offers content goes here</p>
             </div>
           </div>
         )}
@@ -180,9 +150,9 @@ function MaintenanceHomePage() {
       <footer className="app-footer">
         <p>Together, we give waste a second chance.</p>
         <div className="footer-links">
-          <Link to="/profile" className="text-decoration-none">Profile</Link>
-          <Link to="/contact" className="text-decoration-none">Contact</Link>
-          <Link to="/" className="text-decoration-none">Home</Link>
+          <button>Teams</button>
+          <button>Privacy</button>
+          <button>Contact</button>
         </div>
       </footer>
     </div>

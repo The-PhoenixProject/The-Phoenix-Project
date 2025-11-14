@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { loadData } from "../services/dataService";
-import "./ExploreServicesPage.css";
+import "../styles/maintenance_pages/ExploreServicesPage.css";
 
 function ExploreServicesPage() {
   const [services, setServices] = useState([]);
@@ -13,7 +13,6 @@ function ExploreServicesPage() {
 
   useEffect(() => {
     loadData().then((data) => {
-      // Transform serviceProviders data to match the explore services layout
       const transformedServices = data.serviceProviders.map((provider) => ({
         id: provider.id,
         providerName:
@@ -28,7 +27,6 @@ function ExploreServicesPage() {
         image: provider.image || "/assets/landingImgs/logo-icon.png",
       }));
 
-      // Add mock services to match the image
       const mockServices = [
         {
           id: 100,

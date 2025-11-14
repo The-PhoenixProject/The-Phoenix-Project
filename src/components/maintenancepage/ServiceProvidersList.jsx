@@ -18,9 +18,7 @@ function ServiceProvidersList({ providers, onDelete }) {
     }
   };
 
-  // Check if provider was added by user
   const isUserAdded = (provider) => {
-    // Check if postedBy exists and equals "You", or if ID is large (recently added)
     return provider.postedBy === "You" || provider.id > 1000000;
   };
 

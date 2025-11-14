@@ -2042,14 +2042,6 @@
       "image": "/assets/landingImgs/logo-icon.png"
     }
   ],
-  "myRequests": [
-    {
-      "id": "4c7a",
-      "item": "vvvv",
-      "category": "Accessories",
-      "budget": "vvvv",
-      "status": "New"
-    }
-  ],
+  "myRequests": [],
   "myOffers": []
 }

@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { loadData } from "../services/dataService";
 import { Link } from "react-router-dom";
-import "./MyMaintenanceRequestsPage.css";
+import "../styles/maintenance_pages/MyMaintenanceRequestsPage.css";
 
 function MyMaintenanceRequestsPage() {
   const [requests, setRequests] = useState([]);
 
   useEffect(() => {
     loadData().then((data) => {
-      // Transform myRequests data to match the card layout
       const transformedRequests = data.myRequests.map((req) => ({
         ...req,
         description: `Request for ${req.item} in ${req.category} category`,
-        offersCount: Math.floor(Math.random() * 5) + 1, // Mock offers count
+        offersCount: Math.floor(Math.random() * 5) + 1,
       }));
       setRequests(transformedRequests);
     });
@@ -30,7 +29,6 @@ function MyMaintenanceRequestsPage() {
   };
 
   const formatDate = () => {
-    // Mock date formatting - in real app, use actual dates
     const dates = [
       "Oct 12, 2024",
       "Oct 10, 2024",

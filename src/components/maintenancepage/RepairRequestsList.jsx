@@ -21,7 +21,6 @@ function RepairRequestsList({ requests, onDelete }) {
     }
   };
 
-  // Check if request was added by user (postedBy === "You")
   const isUserAdded = (request) => {
     return request.postedBy === "You";
   };

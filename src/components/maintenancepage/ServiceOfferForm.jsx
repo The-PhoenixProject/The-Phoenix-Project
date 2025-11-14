@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { addRepairRequest } from "../services/dataService";
+import { addMyOffer } from "../../services/dataService";
 
-function RequestForm({ onRequestAdded }) {
+function ServiceOfferForm({ onOfferAdded }) {
   const [formData, setFormData] = useState({
-    itemName: "",
+    name: "",
     category: "Electronics",
     description: "",
-    budget: "",
+    startingPrice: "",
     location: "",
-    preferredContactTime: "",
+    experience: "",
+    specialties: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
@@ -26,47 +27,42 @@ function RequestForm({ onRequestAdded }) {
     setSubmitMessage("");
 
     try {
-      // Validate required fields
-      if (!formData.itemName || !formData.description || !formData.budget) {
+      if (!formData.name || !formData.description || !formData.startingPrice) {
         setSubmitMessage("Please fill in all required fields.");
         setIsSubmitting(false);
         return;
       }
 
-      // Add the request using dataService
-      await addRepairRequest({
-        itemName: formData.itemName,
+      await addMyOffer({
+        serviceName: formData.name,
         category: formData.category,
+        price: formData.startingPrice,
         description: formData.description,
-        budget: formData.budget,
-        location: formData.location,
-        preferredContactTime: formData.preferredContactTime,
+        status: "Active",
       });
 
-      // Reset form
       setFormData({
-        itemName: "",
+        name: "",
         category: "Electronics",
         description: "",
-        budget: "",
+        startingPrice: "",
         location: "",
-        preferredContactTime: "",
+        experience: "",
+        specialties: "",
       });
 
-      setSubmitMessage("Request submitted successfully!");
+      setSubmitMessage("Service offer submitted successfully!");
 
-      // Notify parent component to refresh data
-      if (onRequestAdded) {
-        onRequestAdded();
+      if (onOfferAdded) {
+        onOfferAdded();
       }
 
-      // Clear success message after 3 seconds
       setTimeout(() => {
         setSubmitMessage("");
-      }, 3000);
+      }, 5000);
     } catch (error) {
-      console.error("Error submitting request:", error);
-      setSubmitMessage("Error submitting request. Please try again.");
+      console.error("Error submitting offer:", error);
+      setSubmitMessage("Error submitting offer. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -74,19 +70,20 @@ function RequestForm({ onRequestAdded }) {
 
   const handleCancel = () => {
     setFormData({
-      itemName: "",
+      name: "",
       category: "Electronics",
       description: "",
-      budget: "",
+      startingPrice: "",
       location: "",
-      preferredContactTime: "",
+      experience: "",
+      specialties: "",
     });
     setSubmitMessage("");
   };
 
   return (
-    <div className="request-form-container" id="request-repair-form">
-      <h3 className="form-title">Request a Repair</h3>
+    <div className="request-form-container" id="offer-service-form">
+      <h3 className="form-title">Offer a Service</h3>
       {submitMessage && (
         <div
           className={`submit-message ${
@@ -98,13 +95,13 @@ function RequestForm({ onRequestAdded }) {
       )}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Item Name *</label>
+          <label>Service Name *</label>
           <input
             type="text"
-            name="itemName"
+            name="name"
             className="form-control"
-            placeholder="e.g. Vintage Lamp"
-            value={formData.itemName}
+            placeholder="e.g. Electronics Repair Service"
+            value={formData.name}
             onChange={handleChange}
             required
           />
@@ -132,7 +129,7 @@ function RequestForm({ onRequestAdded }) {
             name="description"
             className="form-control"
             rows="4"
-            placeholder="Describe what needs repair...."
+            placeholder="Describe your service and expertise...."
             value={formData.description}
             onChange={handleChange}
             required
@@ -140,19 +137,13 @@ function RequestForm({ onRequestAdded }) {
         </div>
 
         <div className="form-group">
-          <button type="button" className="btn btn-upload">
-            <i className="bi bi-camera"></i> Upload Photos
-          </button>
-        </div>
-
-        <div className="form-group">
-          <label>Budget *</label>
+          <label>Starting Price *</label>
           <input
             type="text"
-            name="budget"
+            name="startingPrice"
             className="form-control"
-            placeholder="$20 - $30"
-            value={formData.budget}
+            placeholder="e.g. $25/hour or $50 - $100"
+            value={formData.startingPrice}
             onChange={handleChange}
             required
           />
@@ -164,20 +155,32 @@ function RequestForm({ onRequestAdded }) {
             type="text"
             name="location"
             className="form-control"
-            placeholder="e.g. Before Export"
+            placeholder="e.g. New York, NY"
             value={formData.location}
             onChange={handleChange}
           />
         </div>
 
         <div className="form-group">
-          <label>Preferred Contact Time</label>
+          <label>Years of Experience</label>
           <input
             type="text"
-            name="preferredContactTime"
+            name="experience"
             className="form-control"
-            placeholder="e.g. mm/dd/yyyy"
-            value={formData.preferredContactTime}
+            placeholder="e.g. 5 years"
+            value={formData.experience}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Specialties</label>
+          <input
+            type="text"
+            name="specialties"
+            className="form-control"
+            placeholder="e.g. Vintage electronics, Antique furniture"
+            value={formData.specialties}
             onChange={handleChange}
           />
         </div>
@@ -188,7 +191,7 @@ function RequestForm({ onRequestAdded }) {
             className="btn btn-submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Submit Request"}
+            {isSubmitting ? "Submitting..." : "Submit Offer"}
           </button>
           <button
             type="button"
@@ -203,4 +206,4 @@ function RequestForm({ onRequestAdded }) {
   );
 }
 
-export default RequestForm;
+export default ServiceOfferForm;

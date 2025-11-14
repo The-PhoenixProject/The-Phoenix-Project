@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { loadData, deleteServiceProvider } from "../services/dataService";
-import "./MyServicesPage.css";
+import "../styles/maintenance_pages/MyServicesPage.css";
 
 function MyServicesPage() {
   const [activeTab, setActiveTab] = useState("active");
@@ -13,13 +13,12 @@ function MyServicesPage() {
 
   const loadOffers = () => {
     loadData().then((data) => {
-      // Transform myOffers data to match the offers layout
       const transformedOffers = (data.myOffers || []).map((offer) => ({
         id: offer.id,
         name: offer.serviceName || offer.name || "Service",
         category: offer.category || "General",
         basePrice: offer.price || offer.startingPrice || "$50",
-        description: offer.description || "",
+        description: offer.description || "none",
         status: offer.status?.toLowerCase() || "active",
       }));
 
