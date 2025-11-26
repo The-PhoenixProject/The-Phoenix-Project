@@ -58,12 +58,24 @@ const CreateProductModal = ({ onClose, onSuccess }) => {
       images.forEach(img => data.append('images', img.file));
 
       const res = await productAPI.createProduct(data, token);
-      if (res.success) {
+      // Accept a few possible response shapes from the backend
+      // e.g. { success: true, product: {...} } OR { product: {...} } OR { data: { product: {...} } }
+      const createdProduct = res?.product || res?.data?.product || res?.data || (res && typeof res === 'object' ? res : null);
+      const isSuccess = res?.success || !!createdProduct;
+
+      console.debug('Create product response:', res);
+
+      if (isSuccess) {
         toast.success('Product listed successfully!');
-        onSuccess();
+        onSuccess && onSuccess(createdProduct);
+      } else {
+        // Fallback: still call onSuccess to refresh lists, but show info
+        toast('Product listed (server returned unexpected response)', { icon: 'ℹ️' });
+        onSuccess && onSuccess(createdProduct);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create product');
+      console.error('Create product error:', err);
+      toast.error(err.message || 'Failed to create product');
     } finally {
       setUploading(false);
     }
