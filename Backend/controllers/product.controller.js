@@ -1,409 +1,427 @@
-// controllers/product.controller.js - ✅ COMPLETE WITH WISHLIST
+// controllers/product.controller.js - Updated with Eco Points Integration
 const Product = require('../models/product.model');
 const User = require('../models/user.model');
+const EcoPointsService = require('../services/ecoPoints.service');
+const logger = require('../utlis/logger');
+const fs = require('fs').promises;
+const path = require('path');
 
-// === GET ALL PRODUCTS (Marketplace - Public/Protected) ===
+/**
+ * @desc    Get all products with filters
+ * @route   GET /api/products
+ * @access  Public
+ */
 exports.getAllProducts = async (req, res) => {
   try {
-    const {
-      category,
-      condition,
-      minPrice,
-      maxPrice,
-      search,
-      sort = '-createdAt',
-      page = 1,
-      limit = 12,
-    } = req.query;
-
-    // Build query
-    let query = { status: 'available' }; // Only show available products
-
-    // Category filter
-    if (category && category !== 'All') {
-      query.category = category;
-    }
-
-    // Condition filter
-    if (condition) {
-      query.condition = condition;
-    }
-
-    // Price range
+    const { category, condition, minPrice, maxPrice, search, isEcoFriendly, sort, page = 1, limit = 20 } = req.query;
+    
+    const filter = { status: { $ne: 'deleted' } };
+    
+    if (category) filter.category = category;
+    if (condition) filter.condition = condition;
+    if (isEcoFriendly === 'true') filter.isEcoFriendly = true;
     if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
+      filter.price = {};
+      if (minPrice) filter.price.$gte = parseFloat(minPrice);
+      if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
     }
-
-    // Search by keyword
-    if (search && search.trim()) {
-      query.$or = [
-        { title: { $regex: search.trim(), $options: 'i' } },
-        { description: { $regex: search.trim(), $options: 'i' } }
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
       ];
     }
 
-    // Pagination
-    const skip = (page - 1) * limit;
+    let sortOption = { createdAt: -1 };
+    if (sort === 'price_asc') sortOption = { price: 1 };
+    if (sort === 'price_desc') sortOption = { price: -1 };
+    if (sort === 'oldest') sortOption = { createdAt: 1 };
 
-    // Fetch products with populated seller
-    let products = await Product.find(query)
-      .populate('seller', 'fullName email profilePicture')
-      .sort(sort)
-      .skip(skip)
-      .limit(Number(limit))
-      .lean(); // ✅ Use lean for better performance
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const [products, total] = await Promise.all([
+      Product.find(filter)
+        .populate('seller', 'fullName profilePicture location ecoPoints level')
+        .sort(sortOption)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean(),
+      Product.countDocuments(filter)
+    ]);
 
-    // ✅ If user is logged in, check wishlist
-    if (req.user && req.user.userId) {
-      const user = await User.findById(req.user.userId).select('wishlist').lean();
-      
-      if (user && user.wishlist) {
-        const wishlistIds = user.wishlist.map(id => id.toString());
-        
-        products = products.map(product => ({
-          ...product,
-          isFavorited: wishlistIds.includes(product._id.toString())
-        }));
-      }
-    }
-
-    const total = await Product.countDocuments(query);
+    const API_BASE_URL = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    const mapped = products.map(p => ({
+      ...p,
+      images: (p.images || []).map(img => img.startsWith('http') ? img : `${API_BASE_URL}/${img}`)
+    }));
 
     res.json({
       success: true,
-      data: {
-        products,
+      data: { 
+        products: mapped,
         pagination: {
-          page: Number(page),
-          limit: Number(limit),
           total,
-          pages: Math.ceil(total / limit),
+          page: parseInt(page),
+          pages: Math.ceil(total / parseInt(limit)),
+          limit: parseInt(limit)
         }
       }
     });
   } catch (error) {
-    console.error('getAllProducts error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch products',
-    });
+    logger.error('Get products error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-// === GET SINGLE PRODUCT (Modal - Public/Protected) ===
+/**
+ * @desc    Get single product by ID
+ * @route   GET /api/products/:id
+ * @access  Public
+ */
 exports.getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
-      .populate('seller', 'fullName email profilePicture location')
+      .populate('seller', 'fullName profilePicture location ecoPoints level bio followersCount')
       .lean();
 
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found',
-      });
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    // ✅ Check if product is in wishlist
-    if (req.user && req.user.userId) {
-      const user = await User.findById(req.user.userId).select('wishlist').lean();
-      
-      if (user && user.wishlist) {
-        product.isFavorited = user.wishlist.some(
-          id => id.toString() === product._id.toString()
-        );
-      }
-    }
+    const API_BASE_URL = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    product.images = (product.images || []).map(img => 
+      img.startsWith('http') ? img : `${API_BASE_URL}/${img}`
+    );
 
-    // Increment views
+    // Increment view count
     await Product.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
 
-    res.json({
-      success: true,
-      data: { product }
-    });
+    res.json({ success: true, data: { product } });
   } catch (error) {
-    console.error('getProductById error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-    });
+    logger.error('Get product error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-// === CREATE PRODUCT (Profile - Protected) ===
+/**
+ * @desc    Create new product
+ * @route   POST /api/products
+ * @access  Private
+ */
 exports.createProduct = async (req, res) => {
   try {
-    const {
-      title,
-      description,
-      price,
-      condition,
-      category,
-      isEcoFriendly,
-      isUpcycled,
-      location
-    } = req.body;
+    const { title, description, price, category, condition, location, isEcoFriendly } = req.body;
 
-    // Validate required image
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'Product image is required',
+    if (!title || !price || !category || !condition) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Title, price, category and condition are required' 
       });
     }
 
-    const product = new Product({
-      title: title.trim(),
-      description: description.trim(),
-      price: Number(price),
-      condition,
+    // Handle image uploads
+    const images = [];
+    if (req.files && req.files.length > 0) {
+      req.files.forEach(file => {
+        images.push(`uploads/${file.filename}`);
+      });
+    }
+
+    if (images.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'At least one image is required' 
+      });
+    }
+
+    const product = await Product.create({
+      title,
+      description: description || '',
+      price: parseFloat(price),
       category,
-      image: `/uploads/${req.file.filename}`,
-      images: [`/uploads/${req.file.filename}`],
+      condition,
+      location: location || '',
       isEcoFriendly: isEcoFriendly === 'true' || isEcoFriendly === true,
-      isUpcycled: isUpcycled === 'true' || isUpcycled === true,
+      images,
       seller: req.user.userId,
-      sellerName: req.dbUser.fullName,
-      location: location || req.dbUser.location
+      status: 'available'
     });
 
-    await product.save();
-    
-    // Update user's products array
+    // Update user's products count
     await User.findByIdAndUpdate(req.user.userId, {
-      $push: { products: product._id },
-      $inc: { productsCount: 1 }
+      $inc: { productsCount: 1 },
+      $push: { products: product._id }
     });
 
-    await product.populate('seller', 'fullName email profilePicture');
+    // Award eco points for adding product
+    const pointsResult = await EcoPointsService.awardPoints(req.user.userId, 'addProduct');
+
+    // Populate seller info
+    await product.populate('seller', 'fullName profilePicture');
+
+    const API_BASE_URL = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+
+    logger.info(`Product created: ${product._id} by user ${req.user.userId}`);
 
     res.status(201).json({
       success: true,
       message: 'Product created successfully',
-      data: { product }
+      data: {
+        product: {
+          ...product.toObject(),
+          images: product.images.map(img => `${API_BASE_URL}/${img}`)
+        },
+        ecoPoints: pointsResult
+      }
     });
   } catch (error) {
-    console.error('createProduct error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to create product',
-      error: error.message,
-    });
-  }
-};
-
-// === GET MY PRODUCTS (Profile - Protected) ===
-exports.getMyProducts = async (req, res) => {
-  try {
-    const { status } = req.query;
-    
-    let query = { seller: req.user.userId };
-    if (status) {
-      query.status = status;
+    logger.error('Create product error:', error);
+    // Clean up uploaded files on error
+    if (req.files) {
+      for (const file of req.files) {
+        await fs.unlink(file.path).catch(() => {});
+      }
     }
-
-    const products = await Product.find(query)
-      .populate('seller', 'fullName email')
-      .sort({ createdAt: -1 })
-      .lean();
-
-    res.json({
-      success: true,
-      data: { products }
-    });
-  } catch (error) {
-    console.error('getMyProducts error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch products'
-    });
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
 
-// === UPDATE PRODUCT (Profile - Protected) ===
+/**
+ * @desc    Update product
+ * @route   PUT /api/products/:id
+ * @access  Private (Owner only)
+ */
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found'
-      });
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    // Check ownership
     if (product.seller.toString() !== req.user.userId) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to update this product'
-      });
+      return res.status(403).json({ success: false, message: 'Not authorized' });
     }
+
+    const { title, description, price, category, condition, location, isEcoFriendly, status } = req.body;
 
     // Update fields
-    const allowedFields = ['title', 'description', 'price', 'condition', 'category', 'isEcoFriendly', 'isUpcycled', 'status', 'location'];
-    allowedFields.forEach(field => {
-      if (req.body[field] !== undefined) {
-        product[field] = req.body[field];
-      }
-    });
+    if (title) product.title = title;
+    if (description !== undefined) product.description = description;
+    if (price) product.price = parseFloat(price);
+    if (category) product.category = category;
+    if (condition) product.condition = condition;
+    if (location !== undefined) product.location = location;
+    if (isEcoFriendly !== undefined) product.isEcoFriendly = isEcoFriendly === 'true' || isEcoFriendly === true;
+    if (status) product.status = status;
 
-    // Update image if provided
-    if (req.file) {
-      product.image = `/uploads/${req.file.filename}`;
-      product.images = [`/uploads/${req.file.filename}`];
+    // Handle new images
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(file => `uploads/${file.filename}`);
+      product.images = [...product.images, ...newImages].slice(0, 5); // Max 5 images
     }
 
     await product.save();
-    await product.populate('seller', 'fullName email');
+    await product.populate('seller', 'fullName profilePicture');
+
+    const API_BASE_URL = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
 
     res.json({
       success: true,
       message: 'Product updated successfully',
-      data: { product }
+      data: {
+        product: {
+          ...product.toObject(),
+          images: product.images.map(img => img.startsWith('http') ? img : `${API_BASE_URL}/${img}`)
+        }
+      }
     });
   } catch (error) {
-    console.error('updateProduct error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update product'
-    });
+    logger.error('Update product error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-// === DELETE PRODUCT (Profile - Protected) ===
+/**
+ * @desc    Delete product
+ * @route   DELETE /api/products/:id
+ * @access  Private (Owner only)
+ */
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found'
-      });
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    // Check ownership
     if (product.seller.toString() !== req.user.userId) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to delete this product'
-      });
+      return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
-    await product.deleteOne();
+    // Soft delete
+    product.status = 'deleted';
+    await product.save();
 
-    // Remove from user's products array
+    // Update user's products count
     await User.findByIdAndUpdate(req.user.userId, {
-      $pull: { products: product._id },
-      $inc: { productsCount: -1 }
+      $inc: { productsCount: -1 },
+      $pull: { products: product._id }
     });
 
-    res.json({
-      success: true,
-      message: 'Product deleted successfully'
-    });
+    logger.info(`Product deleted: ${product._id} by user ${req.user.userId}`);
+
+    res.json({ success: true, message: 'Product deleted successfully' });
   } catch (error) {
-    console.error('deleteProduct error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to delete product'
-    });
+    logger.error('Delete product error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-// === TOGGLE WISHLIST (Protected) ===
+/**
+ * @desc    Get current user's products
+ * @route   GET /api/products/my/products
+ * @access  Private
+ */
+exports.getMyProducts = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = { seller: req.user.userId, status: { $ne: 'deleted' } };
+    if (status) filter.status = status;
+
+    const products = await Product.find(filter)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const API_BASE_URL = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    const mapped = products.map(p => ({
+      ...p,
+      images: (p.images || []).map(img => img.startsWith('http') ? img : `${API_BASE_URL}/${img}`)
+    }));
+
+    res.json({ success: true, data: { products: mapped } });
+  } catch (error) {
+    logger.error('Get my products error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+/**
+ * @desc    Toggle wishlist
+ * @route   POST /api/products/:id/wishlist
+ * @access  Private
+ */
 exports.toggleWishlist = async (req, res) => {
   try {
+    const user = await User.findById(req.user.userId);
     const productId = req.params.id;
-    const userId = req.user.userId;
 
-    // Check if product exists
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found'
-      });
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    // Get user
-    const user = await User.findById(userId);
-    
-    // Check if product is already in wishlist
-    const wishlistIndex = user.wishlist.findIndex(
-      id => id.toString() === productId
-    );
+    const index = user.wishlist.indexOf(productId);
+    let isWishlisted;
 
-    let isFavorited;
-    let message;
-
-    if (wishlistIndex === -1) {
-      // Add to wishlist
+    if (index === -1) {
       user.wishlist.push(productId);
-      isFavorited = true;
-      message = 'Added to wishlist';
+      isWishlisted = true;
     } else {
-      // Remove from wishlist
-      user.wishlist.splice(wishlistIndex, 1);
-      isFavorited = false;
-      message = 'Removed from wishlist';
+      user.wishlist.splice(index, 1);
+      isWishlisted = false;
     }
 
     await user.save();
 
     res.json({
       success: true,
-      message,
-      data: { isFavorited }
+      message: isWishlisted ? 'Added to wishlist' : 'Removed from wishlist',
+      data: { isWishlisted }
     });
   } catch (error) {
-    console.error('toggleWishlist error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update wishlist'
-    });
+    logger.error('Toggle wishlist error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-// === GET WISHLIST (Protected) ===
+/**
+ * @desc    Get user's wishlist
+ * @route   GET /api/products/my/wishlist
+ * @access  Private
+ */
 exports.getWishlist = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId)
       .populate({
         path: 'wishlist',
-        populate: {
-          path: 'seller',
-          select: 'fullName email profilePicture'
-        }
+        populate: { path: 'seller', select: 'fullName profilePicture' }
       })
       .lean();
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
+    const API_BASE_URL = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    const products = (user.wishlist || []).map(p => ({
+      ...p,
+      images: (p.images || []).map(img => img.startsWith('http') ? img : `${API_BASE_URL}/${img}`)
+    }));
+
+    res.json({ success: true, data: { products } });
+  } catch (error) {
+    logger.error('Get wishlist error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+/**
+ * @desc    Mark product as sold (awards points to seller)
+ * @route   POST /api/products/:id/sold
+ * @access  Private (Owner only)
+ */
+exports.markAsSold = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    // Mark all wishlist products as favorited
-    const products = (user.wishlist || []).map(product => ({
-      ...product,
-      isFavorited: true
-    }));
+    if (product.seller.toString() !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+
+    if (product.status === 'sold') {
+      return res.status(400).json({ success: false, message: 'Product already sold' });
+    }
+
+    product.status = 'sold';
+    product.soldAt = new Date();
+    await product.save();
+
+    // Check if this is the user's first sale
+    const soldCount = await Product.countDocuments({ 
+      seller: req.user.userId, 
+      status: 'sold' 
+    });
+
+    // Award eco points for selling
+    const pointsResult = await EcoPointsService.awardPoints(
+      req.user.userId, 
+      'sellProduct',
+      { isFirstSale: soldCount === 1 }
+    );
+
+    logger.info(`Product sold: ${product._id} by user ${req.user.userId}`);
 
     res.json({
       success: true,
-      data: { products }
+      message: 'Product marked as sold',
+      data: {
+        product,
+        ecoPoints: pointsResult
+      }
     });
   } catch (error) {
-    console.error('getWishlist error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch wishlist'
-    });
+    logger.error('Mark as sold error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
