@@ -1,48 +1,60 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { maintenanceAPI } from "../services/api";
 
-function RepairRequestsList({ requests, onDelete }) {
+function RepairRequestsList({ token, onDelete }) {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const defaultImage = "/assets/landingImgs/logo-icon.png";
-  const getStatusClass = (status) => {
-    const statusMap = {
-      Pending: "status-pending",
-      "In Progress": "status-progress",
-      New: "status-new",
-      Completed: "status-completed",
-      Accepted: "status-accepted",
-    };
-    return statusMap[status] || "status-default";
-  };
 
-  const handleDelete = (requestId) => {
-    if (window.confirm("Are you sure you want to delete this request?")) {
-      if (onDelete) {
-        onDelete(requestId);
+  useEffect(() => {
+    const loadRequests = async () => {
+      try {
+        const res = await maintenanceAPI.getAllRequests(token);
+        setRequests(res.data || []);
+      } catch {
+        console.error("Failed to load requests");
+      } finally {
+        setLoading(false);
       }
+    };
+
+    loadRequests();
+  }, [token]);
+
+  const handleDelete = async (requestId) => {
+    if (!window.confirm("Are you sure you want to delete this request?")) return;
+    try {
+      await maintenanceAPI.deleteRequest(requestId, token);
+      setRequests(prev => prev.filter(r => r._id !== requestId));
+      onDelete?.();
+    // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      alert("Failed to delete request");
     }
   };
 
-  // Check if request was added by user (postedBy === "You")
-  const isUserAdded = (request) => {
-    return request.postedBy === "You";
+  const getStatusClass = (status) => {
+    const map = {
+      New: "status-new",
+      Pending: "status-pending",
+      "In Progress": "status-progress",
+      Completed: "status-completed",
+    };
+    return map[status] || "status-default";
   };
+
+  if (loading) return <p>Loading requests...</p>;
 
   return (
     <div className="repair-requests-list">
       <div className="section-header">
         <h3>Recent Repair Requests</h3>
-        <div className="header-actions">
-          <button className="btn-icon">
-            <i className="bi bi-chevron-down"></i> Filter
-          </button>
-          <button className="btn-icon">
-            <i className="bi bi-list"></i> Sort
-          </button>
-        </div>
       </div>
 
       <div className="requests-grid">
         {requests.map((request) => (
-          <div key={request.id} className="request-card">
+          <div key={request._id} className="request-card">
             <img
               src={request.image || defaultImage}
               alt={request.itemName}
@@ -54,25 +66,23 @@ function RepairRequestsList({ requests, onDelete }) {
               <div className="request-details">
                 <span className="request-budget">{request.budget}</span>
                 <span className="request-posted">
-                  Posted by {request.postedBy}
+                  by {request.user?.fullName || "User"}
                 </span>
               </div>
               <div className="request-footer">
-                <span
-                  className={`status-badge ${getStatusClass(request.status)}`}
-                >
+                <span className={`status-badge ${getStatusClass(request.status)}`}>
                   {request.status}
                 </span>
                 <div className="request-actions">
                   <button className="action-link">Apply</button>
                   <button className="action-link">View Details</button>
-                  {isUserAdded(request) && (
+                  {request.user?._id === token?.userId && (
                     <button
                       className="btn btn-delete"
-                      onClick={() => handleDelete(request.id)}
+                      onClick={() => handleDelete(request._id)}
                       title="Delete"
                     >
-                      <i className="bi bi-trash"></i>
+                      Delete
                     </button>
                   )}
                 </div>
