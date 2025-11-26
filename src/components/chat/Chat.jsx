@@ -1,51 +1,234 @@
-import { useState, useEffect } from 'react'
+// Chat.jsx - COMPLETE FIX WITH STATUS & MESSAGES
+import { useState, useEffect, useRef } from 'react'
+import { useLocation} from 'react-router-dom'
+import { io } from 'socket.io-client'
+import { chatAPI } from '../../services/api'
+import { useAuth } from '../../hooks/useAuth'
 import ChatList from './ChatList'
 import Conversation from './Conversation'
 import UserProfile from './UserProfile'
 import '../../styles/chat-page/Chat.css'
 
-const API_URL = 'http://localhost:3001'
+const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150"%3E%3Crect fill="%23ddd" width="150" height="150"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="40"%3E?%3C/text%3E%3C/svg%3E'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-/**
- * Main Chat Component
- * Manages chat conversations, message sending, archiving, and responsive layout
- */
+const getAvatarUrl = (avatar, API = API_URL) => {
+  if (!avatar) return DEFAULT_AVATAR
+  if (typeof avatar !== 'string') return DEFAULT_AVATAR
+  if (avatar.startsWith('http')) return avatar
+  if (avatar.startsWith('/uploads')) return `${API}${avatar}`
+  if (avatar.startsWith('uploads/')) return `${API}/${avatar}`
+  return avatar
+}
+
 function Chat() {
-  // State Management
+  const location = useLocation()
+  const { token, currentUser } = useAuth()
+  const socketRef = useRef(null)
+  
   const [conversations, setConversations] = useState([])
   const [selectedChat, setSelectedChat] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [profileTab, setProfileTab] = useState('summary')
   const [showArchived, setShowArchived] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [pinnedChats, setPinnedChats] = useState([])
+  const [connectionStatus, setConnectionStatus] = useState('disconnected')
+  const [onlineUsers, setOnlineUsers] = useState(new Set())
   
-  // Resizable Panel State
   const [chatListWidth, setChatListWidth] = useState(350)
   const [profileWidth, setProfileWidth] = useState(320)
   const [isResizingChatList, setIsResizingChatList] = useState(false)
   const [isResizingProfile, setIsResizingProfile] = useState(false)
   
-  // Responsive Design State
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false)
-  const [isTablet, setIsTablet] = useState(() => typeof window !== 'undefined' ? (window.innerWidth >= 768 && window.innerWidth < 1024) : false)
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+  const [isTablet, setIsTablet] = useState(() => window.innerWidth >= 768 && window.innerWidth < 1024)
 
   // ==========================================
-  // Effects
+  // Socket.IO Setup
   // ==========================================
 
-  /**
-   * Handle window resize for responsive design
-   * Adjusts panel widths and updates mobile/tablet state
-   */
+  useEffect(() => {
+    if (!token) return
+
+    const socket = io(API_URL, {
+      auth: { token },
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5
+    })
+
+    socketRef.current = socket
+
+    // Connection handlers
+    socket.on('connect', () => {
+      console.log('✅ Socket connected')
+      setConnectionStatus('connected')
+      
+      conversations.forEach(conv => {
+        socket.emit('conversation:join', conv.id)
+      })
+    })
+
+    socket.on('disconnect', () => {
+      console.log('❌ Socket disconnected')
+      setConnectionStatus('disconnected')
+    })
+
+    socket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error)
+      setConnectionStatus('error')
+    })
+
+    // User online/offline status
+    socket.on('user:online', ({ userId }) => {
+      console.log('🟢 User online:', userId)
+      setOnlineUsers(prev => new Set([...prev, userId]))
+      
+      setConversations(prev => prev.map(conv => 
+        conv.userId === userId ? { ...conv, status: 'Online' } : conv
+      ))
+      
+      if (selectedChat?.userId === userId) {
+        setSelectedChat(prev => ({ ...prev, status: 'Online' }))
+      }
+    })
+
+    socket.on('user:offline', ({ userId }) => {
+      console.log('🔴 User offline:', userId)
+      setOnlineUsers(prev => {
+        const updated = new Set(prev)
+        updated.delete(userId)
+        return updated
+      })
+      
+      setConversations(prev => prev.map(conv => 
+        conv.userId === userId ? { ...conv, status: 'Offline' } : conv
+      ))
+      
+      if (selectedChat?.userId === userId) {
+        setSelectedChat(prev => ({ ...prev, status: 'Offline' }))
+      }
+    })
+
+    // Message handlers
+    socket.on('message:received', ({ conversationId, message }) => {
+      console.log('📨 New message received:', message)
+      
+      setConversations(prev => prev.map(conv => {
+        if (conv.id === conversationId) {
+          return {
+            ...conv,
+            lastMessage: message.text,
+            time: message.timestampDate,
+            timestampDate: message.timestampDate,
+            unread: selectedChat?.id === conversationId ? 0 : (conv.unread || 0) + 1
+          }
+        }
+        return conv
+      }))
+
+      if (selectedChat?.id === conversationId) {
+        setSelectedChat(prev => ({
+          ...prev,
+          messages: [...(prev.messages || []), message],
+          isTyping: false
+        }))
+      }
+    })
+
+    // Typing indicators
+    socket.on('typing:start', ({ conversationId, userId: typingUserId }) => {
+      if (selectedChat?.id === conversationId && typingUserId !== currentUser?.id) {
+        setSelectedChat(prev => ({
+          ...prev,
+          isTyping: true
+        }))
+      }
+    })
+
+    socket.on('typing:stop', ({ conversationId }) => {
+      if (selectedChat?.id === conversationId) {
+        setSelectedChat(prev => ({
+          ...prev,
+          isTyping: false
+        }))
+      }
+    })
+
+    // Read receipts
+    socket.on('messages:read', ({ conversationId, readBy }) => {
+      if (selectedChat?.id === conversationId) {
+        setSelectedChat(prev => ({
+          ...prev,
+          messages: prev.messages.map(msg => ({
+            ...msg,
+            read: msg.read || msg.senderId === currentUser?.id || readBy === currentUser?.id
+          }))
+        }))
+      }
+    })
+
+    // Message deleted
+    socket.on('message:deleted', ({ conversationId, messageId }) => {
+      if (selectedChat?.id === conversationId) {
+        setSelectedChat(prev => ({
+          ...prev,
+          messages: prev.messages.map(msg => 
+            msg.id === messageId 
+              ? { ...msg, text: 'This message was deleted', isDeleted: true }
+              : msg
+          )
+        }))
+      }
+    })
+
+    // Message pinned
+    socket.on('message:pinned', ({ conversationId, messageId }) => {
+      if (selectedChat?.id === conversationId) {
+        setSelectedChat(prev => ({
+          ...prev,
+          pinnedMessages: [...(prev.pinnedMessages || []), messageId]
+        }))
+      }
+    })
+
+    // Notifications
+    socket.on('notification:new', (notification) => {
+      console.log('🔔 New notification:', notification)
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [token, currentUser, selectedChat?.id, conversations])
+
+  // Join conversation room when selected
+  useEffect(() => {
+    if (socketRef.current && selectedChat) {
+      socketRef.current.emit('conversation:join', selectedChat.id)
+      
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.emit('conversation:leave', selectedChat.id)
+        }
+      }
+    }
+  }, [selectedChat?.id])
+
+  // ==========================================
+  // Existing Effects
+  // ==========================================
+
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth
       setIsMobile(width < 768)
       setIsTablet(width >= 768 && width < 1024)
       
-      // Adjust panel widths on resize
       if (width < 768) {
         setChatListWidth(width)
       } else if (width < 1024) {
@@ -62,45 +245,46 @@ function Chat() {
     return () => window.removeEventListener('resize', handleResize)
   }, [chatListWidth, profileWidth])
 
-  /**
-   * Fetch conversations and pinned chats on component mount
-   */
   useEffect(() => {
-    fetchConversations()
-    fetchPinnedChats()
-  }, [])
+    if (token) {
+      fetchConversations()
+      fetchPinnedChats()
+    } else {
+      setError('Please login to view conversations')
+      setLoading(false)
+    }
+  }, [token])
 
-  /**
-   * Fetch pinned chats from database
-   * Uses localStorage as primary storage since json-server doesn't support root-level resource updates
-   */
+  // Handle navigation from product card
+  useEffect(() => {
+    const conversationId = location.state?.conversationId
+    
+    if (conversationId && conversations.length > 0 && !selectedChat) {
+      const targetConversation = conversations.find(
+        conv => String(conv.id) === String(conversationId)
+      )
+      
+      if (targetConversation) {
+        handleChatSelect(targetConversation)
+      }
+    }
+  }, [location.state, conversations, selectedChat])
+
   const fetchPinnedChats = async () => {
     try {
-      // Check localStorage (primary and only storage)
       const localData = localStorage.getItem('pinnedChats')
       if (localData) {
-        try {
-          const pinnedArray = JSON.parse(localData)
-          // Ensure all IDs are strings for consistency
-          setPinnedChats(pinnedArray.map(id => String(id)))
-          return
-        } catch (parseErr) {
-          console.error('Error parsing localStorage pinnedChats:', parseErr)
-        }
+        const pinnedArray = JSON.parse(localData)
+        setPinnedChats(pinnedArray.map(id => String(id)))
+      } else {
+        setPinnedChats([])
       }
-      
-      // No data found - use empty array
-      setPinnedChats([])
     } catch (err) {
       console.error('Error fetching pinned chats:', err)
       setPinnedChats([])
     }
   }
 
-  /**
-   * Update pinned chats in database
-   * Uses localStorage as primary storage since json-server doesn't support root-level resource updates
-   */
   const updatePinnedChats = async (newPinnedChats) => {
     try {
       localStorage.setItem('pinnedChats', JSON.stringify(newPinnedChats))
@@ -109,95 +293,8 @@ function Chat() {
     }
   }
 
-  /**
-   * Poll for conversation updates to detect new messages and unread counts
-   * Refreshes every 5 seconds to show new messages added to database
-   * Preserves selected chat and doesn't reset unread counts
-   */
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      // Only refresh if not currently loading and we have conversations
-      if (!loading && conversations.length > 0) {
-        try {
-          const response = await fetch(`${API_URL}/conversations`)
-          if (!response.ok) return
-          
-          const data = await response.json()
-          const nonDeletedData = data.filter(conv => !conv.deleted)
-          
-          // Sort by most recent message timestamp
-          const sortedData = nonDeletedData.sort((a, b) => {
-            if (a.timestampDate && b.timestampDate) {
-              return new Date(b.timestampDate) - new Date(a.timestampDate)
-            }
-            if (a.timestampDate && !b.timestampDate) return -1
-            if (!a.timestampDate && b.timestampDate) return 1
-            if (a.isActive && !b.isActive) return -1
-            if (!a.isActive && b.isActive) return 1
-            return 0
-          })
-          
-          const conversationsWithMessages = sortedData.map(conv => ({
-            ...conv,
-            messages: conv.messages || [],
-            pinnedMessages: conv.pinnedMessages || [],
-            deletedForMeMessages: conv.deletedForMeMessages || []
-          }))
-          
-          // Preserve selected chat if it still exists
-          setConversations(prev => {
-            const selectedId = selectedChat?.id
-            const updated = conversationsWithMessages.map(newConv => {
-              const existing = prev.find(c => String(c.id) === String(newConv.id))
-              // Preserve isActive state for selected chat
-              if (selectedId && String(newConv.id) === String(selectedId)) {
-                return {
-                  ...newConv,
-                  isActive: true
-                }
-              }
-              // Preserve isActive state from existing if not selected
-              return {
-                ...newConv,
-                isActive: existing?.isActive || false
-              }
-            })
-            return updated
-          })
-          
-            // Update selected chat if it exists
-            if (selectedChat) {
-              const updatedSelected = conversationsWithMessages.find(
-                c => String(c.id) === String(selectedChat.id)
-              )
-              if (updatedSelected) {
-                setSelectedChat({
-                  ...updatedSelected,
-                  isActive: true,
-                  pinnedMessages: updatedSelected.pinnedMessages || selectedChat.pinnedMessages || [],
-                  deletedForMeMessages: updatedSelected.deletedForMeMessages || selectedChat.deletedForMeMessages || []
-                })
-              }
-            }
-            
-            // Also refresh pinned chats
-            fetchPinnedChats()
-        } catch (err) {
-          // Silently fail polling - don't spam console
-        }
-      }
-    }, 5000) // Poll every 5 seconds
-
-    return () => clearInterval(interval)
-  }, [loading, conversations.length, selectedChat])
-
-  /**
-   * Handle panel resizing (desktop only)
-   * Allows users to drag resize handles to adjust panel widths
-   */
   useEffect(() => {
     if (isMobile) {
-      // Disable resize on mobile
       if (isResizingChatList) setIsResizingChatList(false)
       if (isResizingProfile) setIsResizingProfile(false)
       return
@@ -246,57 +343,28 @@ function Chat() {
   // API Functions
   // ==========================================
 
-  /**
-   * Fetch all conversations from the server
-   * Filters deleted conversations and sorts by most recent
-   */
   const fetchConversations = async () => {
+    if (!token) return
+    setLoading(true)
     try {
-      setLoading(true)
-      const response = await fetch(`${API_URL}/conversations`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch conversations')
+      const response = await chatAPI.getConversations(token)
+      if (response.success && Array.isArray(response.data)) {
+        setConversations(response.data.map(conv => ({
+          ...conv,
+          id: String(conv.id),
+          avatar: getAvatarUrl(conv.avatar),
+          messages: conv.messages || [],
+          pinnedMessages: conv.pinnedMessages || [],
+          deletedForMeMessages: conv.deletedForMeMessages || [],
+          status: onlineUsers.has(conv.userId) ? 'Online' : 'Offline'
+        })))
       }
-      const data = await response.json()
-      
-      // Filter out deleted conversations
-      const nonDeletedData = data.filter(conv => !conv.deleted)
-      
-      // Sort by most recent message timestamp
-      const sortedData = nonDeletedData.sort((a, b) => {
-        if (a.timestampDate && b.timestampDate) {
-          return new Date(b.timestampDate) - new Date(a.timestampDate)
-        }
-        if (a.timestampDate && !b.timestampDate) return -1
-        if (!a.timestampDate && b.timestampDate) return 1
-        if (a.isActive && !b.isActive) return -1
-        if (!a.isActive && b.isActive) return 1
-        return 0
-      })
-      
-      // Ensure each conversation has messages array, pinnedMessages, and deletedForMeMessages
-      // Reset all isActive flags to false on refresh - no chat should be selected
-      // Also ensure deleted flag is false (deleted conversations are already filtered out)
-      const conversationsWithMessages = sortedData.map(conv => ({
-        ...conv,
-        messages: conv.messages || [],
-        pinnedMessages: conv.pinnedMessages || [],
-        deletedForMeMessages: conv.deletedForMeMessages || [],
-        isActive: false, // Reset isActive on refresh
-        deleted: false // Ensure deleted is false (deleted conversations are filtered out)
-      }))
-      
-      setConversations(conversationsWithMessages)
-      
-      // Explicitly ensure no chat is selected on refresh
-      setSelectedChat(null)
-      
-      // Don't auto-select a chat - show "no selected chats" panel instead
-      setLoading(false)
+      setError(null)
     } catch (err) {
-      setError(err.message)
+      console.error('Failed to load chats:', err)
+      setError('Failed to load chats')
+    } finally {
       setLoading(false)
-      console.error('Error fetching conversations:', err)
     }
   }
 
@@ -304,116 +372,55 @@ function Chat() {
   // Chat Selection & Management
   // ==========================================
 
-  /**
-   * Handle chat selection
-   * Fetches full chat details, marks all messages as read, and resets unread count
-   */
   const handleChatSelect = async (chat) => {
     try {
-      const response = await fetch(`${API_URL}/conversations/${chat.id}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch chat details')
+      const convResponse = await chatAPI.getConversationById(chat.id, token)
+      
+      if (!convResponse.success) {
+        throw new Error('Failed to load conversation')
       }
-      const fullChatData = await response.json()
       
-        // Mark all incoming messages (not from "You") as read
-        const updatedMessages = fullChatData.messages.map(msg => {
-          if (!msg.isOwn) {
-            return {
-              ...msg,
-              read: true
-            }
-          }
-          return msg
-        })
-
-        // Reset unread count (only if not archived)
-        const chatWithUnreadReset = {
-          ...fullChatData,
-          messages: updatedMessages,
-          pinnedMessages: fullChatData.pinnedMessages || [],
-          deletedForMeMessages: fullChatData.deletedForMeMessages || [],
-          unread: fullChatData.archived ? fullChatData.unread : 0
+      const messagesResponse = await chatAPI.getMessages(chat.id, token)
+      
+      if (messagesResponse.success) {
+        const fullChatData = {
+          ...convResponse.data,
+          avatar: getAvatarUrl(convResponse.data.avatar),
+          messages: messagesResponse.data.messages || [],
+          pinnedMessages: messagesResponse.data.pinnedMessages || [],
+          deletedForMeMessages: messagesResponse.data.deletedForMeMessages || [],
+          unread: 0,
+          status: onlineUsers.has(chat.userId) ? 'Online' : 'Offline'
         }
-        setSelectedChat(chatWithUnreadReset)
-      
-      // Update conversation list: mark as active and reset unread
-      const chatId = String(chat.id)
-      setConversations(prev => {
-        return prev.map(conv => {
-          if (String(conv.id) === chatId) {
-            return {
-              ...conv,
-              isActive: true,
-              unread: 0,
-              messages: updatedMessages,
-              pinnedMessages: fullChatData.pinnedMessages || [],
-              deletedForMeMessages: fullChatData.deletedForMeMessages || []
-            }
-          }
-          return {
-            ...conv,
-            isActive: false
-          }
-        })
-      })
-      
-      // Update messages and unread count on server (only if not archived)
-      if (!chat.archived) {
-        try {
-          await fetch(`${API_URL}/conversations/${chat.id}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              messages: updatedMessages,
-              unread: 0
-            })
-          })
-        } catch (err) {
-          console.error('Error updating messages and unread count:', err)
-        }
+        
+        setSelectedChat(fullChatData)
+        
+        setConversations(prev => prev.map(conv => ({
+          ...conv,
+          isActive: String(conv.id) === String(chat.id),
+          unread: String(conv.id) === String(chat.id) ? 0 : conv.unread
+        })))
       }
     } catch (err) {
-      console.error('Error fetching chat details:', err)
-      // Fallback to basic chat data
-      setSelectedChat(chat)
-      
-      setConversations(prev => {
-        const chatId = String(chat.id)
-        return prev.map(conv => {
-          if (String(conv.id) === chatId) {
-            return {
-              ...conv,
-              isActive: true,
-              unread: 0
-            }
-          }
-          return {
-            ...conv,
-            isActive: false
-          }
-        })
+      console.error('Error selecting chat:', err)
+      setSelectedChat({
+        ...chat,
+        messages: [],
+        pinnedMessages: [],
+        deletedForMeMessages: [],
+        status: onlineUsers.has(chat.userId) ? 'Online' : 'Offline'
       })
+      
+      setConversations(prev => prev.map(conv => ({
+        ...conv,
+        isActive: String(conv.id) === String(chat.id)
+      })))
     }
   }
 
-  /**
-   * Archive a conversation
-   * Marks conversation as archived and selects another if needed
-   */
   const handleArchiveChat = async (chatId) => {
     try {
-      await fetch(`${API_URL}/conversations/${chatId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          archived: true
-        })
-      })
+      await chatAPI.archiveConversation(chatId, token)
       
       setConversations(prev => prev.map(conv => 
         String(conv.id) === String(chatId) 
@@ -421,7 +428,6 @@ function Chat() {
           : conv
       ))
       
-      // If archived chat was selected, select a different one
       if (selectedChat && String(selectedChat.id) === String(chatId)) {
         const nextChat = conversations.find(conv => 
           !conv.archived && String(conv.id) !== String(chatId)
@@ -437,21 +443,9 @@ function Chat() {
     }
   }
 
-  /**
-   * Unarchive a conversation
-   * Marks conversation as active and switches to active view
-   */
   const handleUnarchiveChat = async (chatId) => {
     try {
-      await fetch(`${API_URL}/conversations/${chatId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          archived: false
-        })
-      })
+      await chatAPI.unarchiveConversation(chatId, token)
       
       setConversations(prev => prev.map(conv => 
         String(conv.id) === String(chatId) 
@@ -459,7 +453,6 @@ function Chat() {
           : conv
       ))
       
-      // Switch to active view and select the unarchived chat
       setShowArchived(false)
       const unarchivedChat = conversations.find(conv => String(conv.id) === String(chatId))
       if (unarchivedChat) {
@@ -470,13 +463,6 @@ function Chat() {
     }
   }
 
-  // ==========================================
-  // Delete Functionality
-  // ==========================================
-
-  /**
-   * Show delete confirmation modal
-   */
   const handleDeleteChat = async (chatId) => {
     const chatToDelete = conversations.find(conv => String(conv.id) === String(chatId))
     if (!chatToDelete) return
@@ -487,37 +473,19 @@ function Chat() {
     })
   }
 
-  /**
-   * Confirm and execute delete (soft delete - marks as deleted)
-   */
   const confirmDelete = async () => {
     if (!deleteConfirm) return
 
     const { chatId } = deleteConfirm
 
     try {
-      // Mark as deleted (hidden) instead of actually deleting
-      await fetch(`${API_URL}/conversations/${chatId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          deleted: true
-        })
-      })
+      await chatAPI.deleteConversation(chatId, token)
       
-      // Update local state
-      setConversations(prev => prev.map(conv => 
-        String(conv.id) === String(chatId) 
-          ? { ...conv, deleted: true }
-          : conv
-      ))
+      setConversations(prev => prev.filter(conv => String(conv.id) !== String(chatId)))
       
-      // If deleted chat was selected, select a different one
       if (selectedChat && String(selectedChat.id) === String(chatId)) {
         const nextChat = conversations.find(conv => 
-          String(conv.id) !== String(chatId) && !conv.deleted
+          String(conv.id) !== String(chatId)
         )
         if (nextChat) {
           handleChatSelect(nextChat)
@@ -532,9 +500,6 @@ function Chat() {
     }
   }
 
-  /**
-   * Cancel delete confirmation
-   */
   const cancelDelete = () => {
     setDeleteConfirm(null)
   }
@@ -543,84 +508,35 @@ function Chat() {
   // Message Handling
   // ==========================================
 
-  /**
-   * Send a new message
-   * Optimistically updates UI, then syncs with server
-   */
-  const handleSendMessage = async (messageText) => {
-    if (!selectedChat || !messageText.trim()) return
+  const handleSendMessage = async (text) => {
+    if (!selectedChat || !text.trim() || !socketRef.current) return
 
-    const now = new Date()
-    const newMessage = {
-      id: Date.now(),
-      sender: 'You',
-      text: messageText,
-      timestamp: now.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: true 
-      }),
-      isOwn: true,
-      read: false,
-      timestampDate: now.toISOString()
-    }
-
-    // Optimistically update the UI
-    const updatedChat = {
-      ...selectedChat,
-      messages: [...selectedChat.messages, newMessage]
-    }
-    setSelectedChat(updatedChat)
-
-    // Update conversations list: move to top and update messages
-    setConversations(prev => {
-      const selectedId = String(selectedChat.id)
-      
-      const updated = prev.map(conv => {
-        if (String(conv.id) === selectedId) {
-          return {
-            ...conv,
-            messages: updatedChat.messages,
-            timestampDate: now.toISOString(),
-            isActive: true
-          }
-        }
-        return { ...conv, isActive: false }
-      })
-      
-      // Separate updated conversation and sort others
-      const updatedConv = updated.find(conv => String(conv.id) === selectedId)
-      const otherConvs = updated.filter(conv => String(conv.id) !== selectedId)
-      
-      if (!updatedConv) {
-        return prev
-      }
-      
-      // Sort other conversations by timestamp (most recent first)
-      const sortedOthers = [...otherConvs].sort((a, b) => {
-        const timeA = a.timestampDate ? new Date(a.timestampDate).getTime() : 0
-        const timeB = b.timestampDate ? new Date(b.timestampDate).getTime() : 0
-        return timeB - timeA
-      })
-      
-      // Place updated conversation at the top
-      return [updatedConv, ...sortedOthers]
-    })
-
-    // Sync with server
     try {
-      await fetch(`${API_URL}/conversations/${selectedChat.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: updatedChat.messages,
-          timestampDate: now.toISOString()
-        })
-      })
+      const res = await chatAPI.sendMessage(selectedChat.id, text, token)
+      if (res.success && res.data?.message) {
+        const newMsg = res.data.message
+        setSelectedChat(prev => ({
+          ...prev,
+          messages: [...(prev.messages || []), newMsg]
+        }))
+        setConversations(prev => prev.map(c =>
+          c.id === selectedChat.id
+            ? { ...c, lastMessage: text, time: new Date(), timestampDate: new Date() }
+            : c
+        ))
+      }
     } catch (err) {
-      console.error('Error sending message:', err)
+      console.error('Send failed:', err)
+    }
+  }
+
+  const handleTyping = (isTyping) => {
+    if (!socketRef.current || !selectedChat) return
+    
+    if (isTyping) {
+      socketRef.current.emit('typing:start', { conversationId: selectedChat.id })
+    } else {
+      socketRef.current.emit('typing:stop', { conversationId: selectedChat.id })
     }
   }
 
@@ -644,7 +560,9 @@ function Chat() {
         <div className="error-container">
           <p className="error-message">Error: {error}</p>
           <p className="error-hint">
-            Make sure the JSON server is running: <code>npm run server</code>
+            {error.includes('login') 
+              ? 'Please log in to access chat' 
+              : 'Make sure the backend server is running on port 3000'}
           </p>
           <button 
             className="btn-retry"
@@ -659,7 +577,13 @@ function Chat() {
 
   return (
     <div className="chat-container">
-      {/* Chat List Panel */}
+      {connectionStatus !== 'connected' && (
+        <div className={`connection-status ${connectionStatus}`}>
+          {connectionStatus === 'disconnected' && '🔴 Disconnected'}
+          {connectionStatus === 'error' && '⚠️ Connection Error'}
+        </div>
+      )}
+
       <div 
         className={`resizable-panel chat-list-wrapper ${isMobile ? 'mobile' : ''} ${isTablet ? 'tablet' : ''}`}
         style={{ 
@@ -669,15 +593,14 @@ function Chat() {
       >
         <ChatList 
           conversations={showArchived
-            ? conversations.filter(conv => conv.archived === true && !conv.deleted)
-            : conversations.filter(conv => conv.archived !== true && !conv.deleted)
+            ? conversations.filter(conv => conv.archived === true)
+            : conversations.filter(conv => conv.archived !== true)
           }
           selectedChatId={selectedChat?.id}
           onChatSelect={handleChatSelect}
           showArchived={showArchived}
           onToggleArchived={() => {
             setShowArchived(!showArchived)
-            // Clear selected chat when switching views if it doesn't match
             if (selectedChat) {
               const isSelectedArchived = selectedChat.archived === true
               if (isSelectedArchived !== !showArchived) {
@@ -688,6 +611,16 @@ function Chat() {
           onArchiveChat={handleArchiveChat}
           onUnarchiveChat={handleUnarchiveChat}
           onDeleteChat={handleDeleteChat}
+          onViewProfile={(conversation) => {
+            setSelectedChat(conversation)
+            setProfileTab('summary')
+            setIsProfileOpen(true)
+          }}
+          onViewProducts={(conversation) => {
+            setSelectedChat(conversation)
+            setProfileTab('products')
+            setIsProfileOpen(true)
+          }}
           pinnedChats={pinnedChats}
           onPinChat={async (chatId) => {
             const chatIdStr = String(chatId)
@@ -722,11 +655,9 @@ function Chat() {
         )}
       </div>
 
-      {/* Main Content Area */}
       {selectedChat ? (
         <>
           {isTablet && isProfileOpen ? (
-            // Tablet: Show profile instead of conversation
             <div 
               className={`resizable-panel profile-wrapper ${isMobile ? 'mobile' : ''} ${isTablet ? 'tablet' : ''}`}
               style={{ 
@@ -745,16 +676,16 @@ function Chat() {
               )}
               <UserProfile 
                 user={selectedChat} 
+                initialTab={profileTab}
                 onClose={() => setIsProfileOpen(false)}
               />
             </div>
           ) : (
-            // Desktop: Show conversation, profile can be side-by-side
-            // Tablet: Show conversation when profile is closed
             <>
               <Conversation 
                 chat={selectedChat} 
                 onSendMessage={handleSendMessage}
+                onTyping={handleTyping}
                 onOpenProfile={() => setIsProfileOpen(true)}
                 onArchiveChat={!showArchived ? handleArchiveChat : undefined}
                 onUnarchiveChat={showArchived ? handleUnarchiveChat : undefined}
@@ -785,7 +716,6 @@ function Chat() {
                 pinnedChats={pinnedChats}
                 onChatUpdate={(updatedChat) => {
                   setSelectedChat(updatedChat)
-                  // Also update in conversations list
                   setConversations(prev => prev.map(conv => 
                     String(conv.id) === String(updatedChat.id) 
                       ? { ...conv, messages: updatedChat.messages, deletedForMeMessages: updatedChat.deletedForMeMessages || [] }
@@ -794,7 +724,6 @@ function Chat() {
                 }}
               />
               {!isTablet && isProfileOpen && (
-                // Desktop: Show profile alongside conversation
                 <div 
                   className={`resizable-panel profile-wrapper ${isMobile ? 'mobile' : ''} ${isTablet ? 'tablet' : ''}`}
                   style={{ 
@@ -812,6 +741,7 @@ function Chat() {
                   )}
                   <UserProfile 
                     user={selectedChat} 
+                    initialTab={profileTab}
                     onClose={() => setIsProfileOpen(false)}
                   />
                 </div>
@@ -820,7 +750,6 @@ function Chat() {
           )}
         </>
       ) : (
-        // Empty State
         <div className="no-chat-selected">
           <div className="no-chat-message">
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -833,7 +762,6 @@ function Chat() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="modal-overlay" onClick={cancelDelete}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -865,4 +793,3 @@ function Chat() {
 }
 
 export default Chat
-
