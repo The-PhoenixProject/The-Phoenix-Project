@@ -1,6 +1,8 @@
-// pages/Marketplace.jsx - FIXED VERSION
+// FIXED Marketplace.jsx - Key improvements highlighted with // ✅
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, Heart, Plus, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { productAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import ProductCard from '../components/ProductCard';
@@ -14,11 +16,13 @@ const conditions = ['New', 'Like New', 'Good', 'Fair', 'Used'];
 
 function Marketplace() {
   const { currentUser, token } = useAuth();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   const [filters, setFilters] = useState({
     category: 'All',
@@ -36,7 +40,25 @@ function Marketplace() {
     pages: 0
   });
 
-  // ---------- FETCH PRODUCTS ----------
+  // ✅ Fetch wishlist count
+  useEffect(() => {
+    const fetchWishlistCount = async () => {
+      if (!token) return;
+      try {
+        const res = await productAPI.getWishlist(token);
+        if (res.success) {
+          const prods = res.data?.products || res.products || [];
+          setWishlistCount(prods.length);
+        }
+      // eslint-disable-next-line no-unused-vars
+      } catch (err) {
+        console.error('Failed to fetch wishlist count');
+      }
+    };
+    fetchWishlistCount();
+  }, [token]);
+
+  // ✅ Fetch products with proper error handling
   const fetchProducts = useCallback(async () => {
     if (!token) return;
     try {
@@ -71,23 +93,12 @@ function Marketplace() {
     } finally {
       setLoading(false);
     }
-  }, [
-    token,
-    pagination.page,
-    pagination.limit,
-    filters.category,
-    filters.condition,
-    filters.minPrice,
-    filters.maxPrice,
-    filters.search,
-    filters.sort
-  ]);
+  }, [token, pagination.page, pagination.limit, filters]);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
-  // ---------- FILTER HANDLERS ----------
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     setPagination(prev => ({ ...prev, page: 1 }));
@@ -105,7 +116,7 @@ function Marketplace() {
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
-  // ---------- PRODUCT CLICK ----------
+  // ✅ Fetch full product details when clicking
   const handleProductClick = async (product) => {
     try {
       const res = await productAPI.getProductById(product._id, token);
@@ -119,197 +130,249 @@ function Marketplace() {
     }
   };
 
-  // ---------- WISHLIST TOGGLE ----------
+  // ✅ Toggle wishlist with optimistic updates
   const handleToggleWishlist = async (productId) => {
     if (!token) return toast.error('Please login to add to wishlist');
+    
     try {
-      const res = await productAPI.toggleWishlist(productId, token);
-      if (res.success) {
-        const isFav = res.data?.isFavorited ?? !res.isFavorited;
-        toast.success(isFav ? 'Added to wishlist' : 'Removed from wishlist');
+      // Optimistic update
+      const currentProduct = products.find(p => p._id === productId);
+      const wasFavorited = currentProduct?.isFavorited;
+      
+      setProducts(prev => prev.map(p =>
+        p._id === productId ? { ...p, isFavorited: !wasFavorited } : p
+      ));
+      
+      if (selectedProduct?._id === productId) {
+        setSelectedProduct(prev => ({ ...prev, isFavorited: !wasFavorited }));
+      }
+      
+      setWishlistCount(prev => wasFavorited ? prev - 1 : prev + 1);
 
+      // API call
+      const res = await productAPI.toggleWishlist(productId, token);
+      
+      if (res.success) {
+        const isFav = res.data?.isFavorited ?? res.isFavorited;
+        toast.success(isFav ? 'Added to wishlist' : 'Removed from wishlist');
+        
+        // Confirm update with server response
         setProducts(prev => prev.map(p =>
           p._id === productId ? { ...p, isFavorited: isFav } : p
         ));
-
+        
         if (selectedProduct?._id === productId) {
           setSelectedProduct(prev => ({ ...prev, isFavorited: isFav }));
         }
       }
-    } catch {
+    // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      // Revert on error
+      setProducts(prev => prev.map(p =>
+        p._id === productId ? { ...p, isFavorited: !p.isFavorited } : p
+      ));
+      
+      if (selectedProduct?._id === productId) {
+        setSelectedProduct(prev => ({ ...prev, isFavorited: !prev.isFavorited }));
+      }
+      
       toast.error('Failed to update wishlist');
     }
   };
 
+  // ✅ Refresh marketplace after product creation
   const handleProductCreated = () => {
     setShowCreateModal(false);
-    fetchProducts();
+    fetchProducts(); // Refresh the list
     toast.success('Product created successfully!');
   };
 
   return (
     <div className="marketplace-container">
-      {/* Header */}
-      <div className="marketplace-header">
-        <div className="header-content">
-          <h1>Marketplace</h1>
-          <p>Discover sustainable treasures and give items a second life</p>
-        </div>
-        {currentUser && (
-          <button className="btn-create-product" onClick={() => setShowCreateModal(true)}>
-            + List Product
-          </button>
-        )}
-      </div>
+      {/* Sidebar Overlay for Mobile */}
+      <div 
+        className={`sidebar-overlay ${sidebarOpen ? 'show' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
 
-      {/* Search & Filters */}
-      <div className="search-filter-section">
-        <div className="search-bar">
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={filters.search}
-            onChange={e => handleFilterChange('search', e.target.value)}
-          />
-        </div>
-        <button className="btn-filters" onClick={() => setShowFilters(!showFilters)}>
-          <SlidersHorizontal size={20} />
-          Filters
+      {/* Filters Sidebar */}
+      <aside className={`filters-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <button className="btn-close-sidebar" onClick={() => setSidebarOpen(false)}>
+          <X size={20} />
         </button>
-      </div>
 
-      {/* Filters Panel */}
-      {showFilters && (
-        <div className="filters-panel">
-          <div className="filters-header">
-            <h3>Filters</h3>
-            <button onClick={clearFilters} className="btn-clear">Clear All</button>
-          </div>
-
-          {/* Category */}
-          <div className="filter-group">
-            <label>Category</label>
-            <div className="category-chips">
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  className={`chip ${filters.category === cat ? 'active' : ''}`}
-                  onClick={() => handleFilterChange('category', cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Condition - FIXED */}
-          <div className="filter-group">
-            <label>Condition</label>
-            <select 
-              value={filters.condition} 
-              onChange={e => handleFilterChange('condition', e.target.value)}
-            >
-              <option value="">All Conditions</option>
-              {conditions.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-
-          {/* Price */}
-          <div className="filter-group">
-            <label>Price Range</label>
-            <div className="price-inputs">
-              <input 
-                type="number" 
-                placeholder="Min" 
-                value={filters.minPrice}
-                onChange={e => handleFilterChange('minPrice', e.target.value)} 
-              />
-              <span>-</span>
-              <input 
-                type="number" 
-                placeholder="Max" 
-                value={filters.maxPrice}
-                onChange={e => handleFilterChange('maxPrice', e.target.value)} 
-              />
-            </div>
-          </div>
-
-          {/* Sort */}
-          <div className="filter-group">
-            <label>Sort By</label>
-            <select value={filters.sort} onChange={e => handleFilterChange('sort', e.target.value)}>
-              <option value="-createdAt">Newest First</option>
-              <option value="createdAt">Oldest First</option>
-              <option value="price">Price: Low to High</option>
-              <option value="-price">Price: High to Low</option>
-              <option value="-views">Most Viewed</option>
-            </select>
-          </div>
-        </div>
-      )}
-
-      {/* Products Grid */}
-      <div className="products-section">
-        <div className="products-header">
-          <p>{pagination.total} products found</p>
+        <div className="sidebar-header">
+          <h3><SlidersHorizontal size={22} /> Filters</h3>
+          <button onClick={clearFilters} className="btn-clear">Clear All</button>
         </div>
 
-        {loading ? (
-          <div className="loading-state">
-            <div className="spinner"></div>
-            <p>Loading...</p>
+        {/* Category */}
+        <div className="filter-group">
+          <label>Category</label>
+          <div className="category-chips">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                className={`chip ${filters.category === cat ? 'active' : ''}`}
+                onClick={() => handleFilterChange('category', cat)}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
-        ) : products.length === 0 ? (
-          <div className="empty-state">
-            <p>No products found</p>
-            <button onClick={clearFilters}>Clear filters</button>
+        </div>
+
+        {/* Condition */}
+        <div className="filter-group">
+          <label>Condition</label>
+          <select 
+            value={filters.condition} 
+            onChange={e => handleFilterChange('condition', e.target.value)}
+          >
+            <option value="">All Conditions</option>
+            {conditions.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+
+        {/* Price Range */}
+        <div className="filter-group">
+          <label>Price Range</label>
+          <div className="price-inputs">
+            <input 
+              type="number" 
+              placeholder="Min" 
+              value={filters.minPrice}
+              onChange={e => handleFilterChange('minPrice', e.target.value)} 
+            />
+            <span>—</span>
+            <input 
+              type="number" 
+              placeholder="Max" 
+              value={filters.maxPrice}
+              onChange={e => handleFilterChange('maxPrice', e.target.value)} 
+            />
           </div>
-        ) : (
-          <>
-            <div className="products-grid">
-              {products.map(p => (
-                <ProductCard
-                  key={p._id}
-                  product={p}
-                  onClick={() => handleProductClick(p)}
-                  onToggleWishlist={handleToggleWishlist}
-                />
-              ))}
-            </div>
+        </div>
 
-            {pagination.pages > 1 && (
-              <div className="pagination">
-                <button 
-                  disabled={pagination.page === 1}
-                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                >
-                  Previous
-                </button>
+        {/* Sort */}
+        <div className="filter-group">
+          <label>Sort By</label>
+          <select value={filters.sort} onChange={e => handleFilterChange('sort', e.target.value)}>
+            <option value="-createdAt">Newest First</option>
+            <option value="createdAt">Oldest First</option>
+            <option value="price">Price: Low to High</option>
+            <option value="-price">Price: High to Low</option>
+            <option value="-views">Most Viewed</option>
+          </select>
+        </div>
+      </aside>
 
-                <div className="page-numbers">
-                  {Array.from({ length: pagination.pages }, (_, i) => (
-                    <button
-                      key={i + 1}
-                      className={pagination.page === i + 1 ? 'active' : ''}
-                      onClick={() => setPagination(prev => ({ ...prev, page: i + 1 }))}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-
-                <button 
-                  disabled={pagination.page === pagination.pages}
-                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                >
-                  Next
-                </button>
-              </div>
+      {/* Main Content */}
+      <main className="main-content">
+        {/* Header */}
+        <div className="marketplace-header">
+          <div className="header-content">
+            <h1>Marketplace</h1>
+            <p>Discover sustainable treasures and give items a second life</p>
+          </div>
+          <div className="header-actions">
+            {token && (
+              <button className="btn-wishlist-nav" onClick={() => navigate('/wishlist')}>
+                <Heart size={20} />
+                My Wishlist
+                {wishlistCount > 0 && <span className="wishlist-count">{wishlistCount}</span>}
+              </button>
             )}
-          </>
-        )}
-      </div>
+            {currentUser && (
+              <button className="btn-create-product" onClick={() => setShowCreateModal(true)}>
+                <Plus size={20} />
+                List Product
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Search Section */}
+        <div className="search-section">
+          <div className="search-bar">
+            <Search size={22} color="#9ca3af" />
+            <input
+              type="text"
+              placeholder="Search for products..."
+              value={filters.search}
+              onChange={e => handleFilterChange('search', e.target.value)}
+            />
+          </div>
+          <button className="btn-mobile-filters" onClick={() => setSidebarOpen(true)}>
+            <SlidersHorizontal size={20} />
+            Filters
+          </button>
+        </div>
+
+        {/* Products Section */}
+        <div className="products-section">
+          <div className="products-header">
+            <p>{pagination.total} products found</p>
+          </div>
+
+          {loading ? (
+            <div className="loading-state">
+              <div className="spinner"></div>
+              <p>Loading products...</p>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="empty-state">
+              <h3>No products found</h3>
+              <p>Try adjusting your filters or search terms</p>
+              <button onClick={clearFilters}>Clear Filters</button>
+            </div>
+          ) : (
+            <>
+              <div className="products-grid">
+                {products.map(p => (
+                  <ProductCard
+                    key={p._id}
+                    product={p}
+                    onClick={() => handleProductClick(p)}
+                    onToggleWishlist={handleToggleWishlist}
+                  />
+                ))}
+              </div>
+
+              {pagination.pages > 1 && (
+                <div className="pagination">
+                  <button 
+                    disabled={pagination.page === 1}
+                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                  >
+                    Previous
+                  </button>
+                  <div className="page-numbers">
+                    {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => {
+                      const page = i + 1;
+                      return (
+                        <button
+                          key={page}
+                          className={pagination.page === page ? 'active' : ''}
+                          onClick={() => setPagination(prev => ({ ...prev, page }))}
+                        >
+                          {page}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button 
+                    disabled={pagination.page === pagination.pages}
+                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </main>
 
       {/* Modals */}
       {selectedProduct && (
