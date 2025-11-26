@@ -7,11 +7,6 @@ const { sendOTPEmail, sendWelcomeEmail } = require('../utlis/emailService');
 const { generateAccessToken, generateRefreshToken } = require('../utlis/tokenHelper');
 const logger = require('../utlis/logger');
 
-/**
- * @desc    Register a new user
- * @route   POST /api/auth/signup
- * @access  Public
- */
 exports.signup = async (req, res) => {
   try {
     console.log('🔥 Signup request body:', req.body);
@@ -104,11 +99,7 @@ exports.signup = async (req, res) => {
   }
 };
 
-/**
- * @desc    Verify OTP
- * @route   POST /api/auth/verify-otp
- * @access  Public
- */
+
 exports.verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -188,11 +179,7 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
-/**
- * @desc    Resend OTP
- * @route   POST /api/auth/resend-otp
- * @access  Public
- */
+
 exports.resendOTP = async (req, res) => {
   try {
     const { email } = req.body;
@@ -239,8 +226,10 @@ exports.resendOTP = async (req, res) => {
   }
 };
 
+// Add this to auth.controller.js - Fixed login with streak update
+
 /**
- * @desc    Login user
+ * @desc    Login user - WITH STREAK UPDATE
  * @route   POST /api/auth/login
  * @access  Public
  */
@@ -255,6 +244,7 @@ exports.login = async (req, res) => {
       });
     }
 
+    // Find user with password field
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
     
     if (!user) {
@@ -264,41 +254,62 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (user.authProvider !== 'local') {
-      return res.status(400).json({
+    // Check if user is suspended
+    if (user.isSuspended) {
+      return res.status(403).json({
         success: false,
-        message: `This account uses ${user.authProvider} login. Please use ${user.authProvider} to sign in.`,
+        message: 'Account suspended',
+        reason: user.suspensionReason
       });
     }
 
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account deactivated'
+      });
+    }
+
+    // Verify password
+    const isPasswordValid = await user.comparePassword(password);
+    
+    if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password',
       });
     }
 
+    // Check if email is verified
     if (!user.isEmailVerified) {
+      // Generate and send OTP
+      const otp = generateOTP();
+      await OTP.createOTP(email, otp, 'email_verification');
+      await sendOTPEmail(email, otp, user.fullName);
+      
       return res.status(403).json({
         success: false,
-        message: 'Please verify your email first',
+        message: 'Please verify your email first. A new OTP has been sent.',
         needsVerification: true,
+        email: user.email
       });
     }
 
-    if (user.isSuspended) {
-      return res.status(403).json({
-        success: false,
-        message: 'Account suspended',
-        reason: user.suspensionReason,
-      });
+    // ✅ Update streak and award daily login points
+    let streakInfo = null;
+    try {
+      streakInfo = await user.updateStreak();
+      logger.info(`Streak updated for user ${user.email}: ${JSON.stringify(streakInfo)}`);
+    } catch (streakError) {
+      logger.error('Streak update error:', streakError);
     }
 
+    // Update last login
     user.lastLoginAt = new Date();
-    await user.updateStreak();
     await user.save();
 
+    // Generate tokens
     const accessToken = generateAccessToken({
       userId: user._id,
       email: user.email,
@@ -323,9 +334,11 @@ exports.login = async (req, res) => {
           ecoPoints: user.ecoPoints,
           level: user.level,
           streak: user.streak,
+          badges: user.badges,
         },
-        accessToken: accessToken,
-        refreshToken: refreshToken,
+        accessToken,
+        refreshToken,
+        streakInfo // Include streak info in response
       },
     });
   } catch (error) {
@@ -333,173 +346,6 @@ exports.login = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error during login',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
-  }
-};
-
-/**
- * @desc    Social Login (Google/Facebook) - COMPLETELY FIXED
- * @route   POST /api/auth/social-login
- * @access  Public
- */
-exports.socialLogin = async (req, res) => {
-  try {
-    const { idToken } = req.body;
-
-    if (!idToken) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'ID token is required' 
-      });
-    }
-
-    // Verify Firebase token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const { uid, email, name, picture, firebase } = decodedToken;
-
-    if (!email) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Email not provided by social provider' 
-      });
-    }
-
-    console.log('🔍 Social login attempt:', { uid, email, provider: firebase.sign_in_provider });
-
-    // ✅ STEP 1: Check if user exists by Firebase UID
-    let user = await User.findByFirebaseUid(uid);
-    
-    if (user) {
-      console.log('✅ Existing user found by firebaseUid');
-    } else {
-      console.log('❌ No user found by firebaseUid, checking by email...');
-      
-      // ✅ STEP 2: Check if user exists by email
-      const existingEmailUser = await User.findByEmail(email);
-      
-      if (existingEmailUser) {
-        console.log('⚠️ User found with same email but different auth method');
-        
-        // User exists but with different auth provider
-        if (existingEmailUser.authProvider === 'local') {
-          return res.status(400).json({
-            success: false,
-            message: 'An account with this email already exists. Please login with email and password, or use "Forgot Password" to reset.',
-          });
-        }
-        
-        // User exists with different social provider
-        if (existingEmailUser.authProvider !== firebase.sign_in_provider.replace('.com', '')) {
-          return res.status(400).json({
-            success: false,
-            message: `This email is already registered with ${existingEmailUser.authProvider}. Please use ${existingEmailUser.authProvider} to sign in.`,
-          });
-        }
-        
-        // ✅ Same provider but missing firebaseUid - update it
-        console.log('✅ Updating existing user with firebaseUid');
-        existingEmailUser.firebaseUid = uid;
-        if (picture && !existingEmailUser.profilePicture) {
-          existingEmailUser.profilePicture = picture;
-        }
-        await existingEmailUser.save();
-        user = existingEmailUser;
-      }
-    }
-
-    // ✅ STEP 3: Create new user if doesn't exist
-    if (!user) {
-      console.log('✅ Creating new social user');
-      
-      const provider = firebase.sign_in_provider;
-      const authProvider = provider.includes('google') ? 'google' : 'facebook';
-
-      user = await User.create({
-        email: email.toLowerCase(),
-        fullName: name || 'User',
-        firebaseUid: uid,
-        authProvider,
-        isEmailVerified: decodedToken.email_verified || false,
-        profilePicture: picture || 'https://via.placeholder.com/150',
-        location: 'Not specified',
-      });
-
-      await sendWelcomeEmail(email, user.fullName);
-      
-      logger.info(`New social user: ${email} via ${authProvider}`);
-    }
-
-    // ✅ STEP 4: Check if email needs verification
-    let needsVerification = false;
-    if (!user.isEmailVerified) {
-      const otp = generateOTP();
-      await OTP.createOTP(email, otp, 'email_verification');
-      await sendOTPEmail(email, otp, user.fullName);
-      needsVerification = true;
-      console.log('📧 OTP sent for email verification');
-    }
-
-    // ✅ STEP 5: Update login info
-    user.lastLoginAt = new Date();
-    await user.updateStreak();
-    await user.save();
-
-    // ✅ STEP 6: Generate tokens
-    const accessToken = generateAccessToken({
-      userId: user._id,
-      email: user.email,
-      firebaseUid: user.firebaseUid,
-    });
-    const refreshToken = generateRefreshToken({ userId: user._id });
-
-    user.refreshTokens.push({ token: refreshToken });
-    await user.save();
-
-    logger.info(`Social login successful: ${email}`);
-
-    res.status(200).json({
-      success: true,
-      message: 'Social login successful',
-      data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          fullName: user.fullName,
-          location: user.location,
-          profilePicture: user.profilePicture,
-          ecoPoints: user.ecoPoints,
-          level: user.level,
-          streak: user.streak,
-        },
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      },
-      needsVerification,
-    });
-  } catch (error) {
-    logger.error('Social login error:', error);
-    console.error('❌ Social login error details:', error);
-    
-    if (error.code === 'auth/argument-error') {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid ID token',
-      });
-    }
-
-    if (error.code === 11000) {
-      // Duplicate key error
-      const field = Object.keys(error.keyPattern)[0];
-      return res.status(409).json({
-        success: false,
-        message: `An account with this ${field} already exists. Please try logging in instead.`,
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Error during social login',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
