@@ -1,41 +1,56 @@
-// src/components/ProductCard.jsx - ✅ FIXED IMAGE URLS
+// FIXED ProductCard.jsx - Improved image handling
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Heart, MessageCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { chatAPI } from '../services/api';
 import toast from 'react-hot-toast';
+import '../styles/MarketPlace/ProductCard.css';
 
 const ProductCard = ({ product, onClick, onToggleWishlist }) => {
   const { token, currentUser } = useAuth();
   const navigate = useNavigate();
 
-  // ✅ FIXED: Properly construct image URL (SAME AS MODAL)
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
   
+  // ✅ IMPROVED: Better image URL construction with fallback
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/placeholder-image.jpg';
     
-    // If it's already a full URL, return as is
+    // Already a full URL
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       return imagePath;
     }
     
-    // If it starts with /uploads, prepend the API base URL
+    // Starts with /uploads
     if (imagePath.startsWith('/uploads')) {
       return `${API_BASE_URL}${imagePath}`;
     }
     
-    // Otherwise, assume it needs /uploads prefix
+    // Starts with uploads/ (no leading slash)
+    if (imagePath.startsWith('uploads/')) {
+      return `${API_BASE_URL}/${imagePath}`;
+    }
+    
+    // Default: assume it needs /uploads prefix
     return `${API_BASE_URL}/uploads/${imagePath}`;
   };
 
-  // ✅ Get first image with proper URL construction
-  const imageUrl = Array.isArray(product.images) && product.images.length > 0
-    ? getImageUrl(product.images[0])
-    : product.image 
-      ? getImageUrl(product.image) 
-      : '/placeholder-image.jpg';
+  // ✅ Get first available image from images array or fallback to image field
+  const getProductImage = () => {
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      return getImageUrl(product.images[0]);
+    }
+    if (product.image) {
+      return getImageUrl(product.image);
+    }
+    return '/placeholder-image.jpg';
+  };
 
+  const imageUrl = getProductImage();
+
+  // ✅ Get seller information safely
   const sellerName = typeof product.seller === 'object' && product.seller
     ? product.seller.fullName || product.seller.name || 'Unknown Seller'
     : product.sellerName || 'Unknown Seller';
@@ -44,7 +59,6 @@ const ProductCard = ({ product, onClick, onToggleWishlist }) => {
     ? product.seller._id
     : typeof product.seller === 'string' ? product.seller : null;
 
-  // ✅ Chat handler with better navigation
   const handleChat = async (e) => {
     e.stopPropagation();
     
@@ -66,21 +80,15 @@ const ProductCard = ({ product, onClick, onToggleWishlist }) => {
 
     try {
       const loadingToast = toast.loading('Starting conversation...');
-      
       const res = await chatAPI.startConversation(sellerId, token);
-      
       toast.dismiss(loadingToast);
       
       if (res.success && res.data?.conversationId) {
-        navigate('/chat', { 
-          state: { 
-            conversationId: res.data.conversationId 
-          } 
-        });
+        navigate('/chat', { state: { conversationId: res.data.conversationId } });
         toast.success('Conversation started!');
       } else {
         navigate('/chat');
-        toast.info('Opening chat...');
+        toast('Opening chat...');
       }
     } catch (error) {
       console.error('Chat error:', error);
@@ -117,7 +125,11 @@ const ProductCard = ({ product, onClick, onToggleWishlist }) => {
             onClick={handleWishlist}
             title={product.isFavorited ? 'Remove from wishlist' : 'Add to wishlist'}
           >
-            ❤️
+            <Heart 
+              size={22} 
+              fill={product.isFavorited ? '#ef4444' : 'none'}
+              stroke={product.isFavorited ? '#ef4444' : '#9ca3af'}
+            />
           </button>
         )}
       </div>
@@ -135,6 +147,7 @@ const ProductCard = ({ product, onClick, onToggleWishlist }) => {
           </div>
           {token && currentUser?._id !== sellerId && (
             <button className="btn-chat" onClick={handleChat}>
+              <MessageCircle size={18} />
               Chat
             </button>
           )}
