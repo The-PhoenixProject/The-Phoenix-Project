@@ -106,7 +106,74 @@
 .post-action-buttons .btn:hover {
   background-color: #e9ecef;
 }
+/* Add this to your global CSS or create a new scrollbar.css file */
 
+/* ✅ Custom Scrollbar for Sidebar and Friends List */
+.sidebar-container::-webkit-scrollbar,
+.right-sidebar-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-container::-webkit-scrollbar-track,
+.right-sidebar-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.sidebar-container::-webkit-scrollbar-thumb,
+.right-sidebar-container::-webkit-scrollbar-thumb {
+  background: #007D6E;
+  border-radius: 10px;
+}
+
+.sidebar-container::-webkit-scrollbar-thumb:hover,
+.right-sidebar-container::-webkit-scrollbar-thumb:hover {
+  background: #005a4d;
+}
+
+/* Firefox scrollbar */
+.sidebar-container,
+.right-sidebar-container {
+  scrollbar-width: thin;
+  scrollbar-color: #007D6E #f1f1f1;
+}
+
+/* ✅ Smooth scrolling behavior */
+.sidebar-container,
+.right-sidebar-container {
+  scroll-behavior: smooth;
+}
+
+/* ✅ Hide scrollbar when not hovering (optional) */
+.sidebar-container:not(:hover)::-webkit-scrollbar-thumb,
+.right-sidebar-container:not(:hover)::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+/* ✅ Transition for smooth appearance */
+.sidebar-container::-webkit-scrollbar-thumb,
+.right-sidebar-container::-webkit-scrollbar-thumb {
+  transition: background 0.3s ease;
+}
+
+/* ✅ Custom styles for post feed scrolling */
+.posts-feed {
+  scroll-behavior: smooth;
+}
+
+/* ✅ Prevent horizontal scrolling issues */
+.sidebar-container,
+.right-sidebar-container {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ✅ Ensure cards don't overflow */
+.sidebar-container .card,
+.right-sidebar-container .card {
+  max-width: 100%;
+  overflow: hidden;
+}
 
 /* Responsive Design */
 /* @media (max-width: 991px) {
