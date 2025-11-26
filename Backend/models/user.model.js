@@ -153,6 +153,12 @@ const userSchema = new mongoose.Schema({
   
   // Timestamps
   lastLoginAt: Date,
+  // Online status
+  isOnline: {
+    type: Boolean,
+    default: false
+  },
+  lastSeen: Date,
   
   // Refresh Tokens for JWT
   refreshTokens: [{
@@ -363,6 +369,77 @@ userSchema.methods.toggleSavedPost = async function(postId) {
     this.savedPosts.splice(index, 1);
   }
   await this.save();
+};
+// Add this to user.model.js - FIXED streak update method
+
+// Update streak - FIXED VERSION
+userSchema.methods.updateStreak = async function() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const lastActivity = this.lastActivityDate 
+    ? new Date(this.lastActivityDate) 
+    : null;
+  
+  if (lastActivity) {
+    lastActivity.setHours(0, 0, 0, 0);
+  }
+  
+  const daysDifference = lastActivity 
+    ? Math.floor((today - lastActivity) / (1000 * 60 * 60 * 24))
+    : null;
+  
+  let streakBroken = false;
+  let bonusPoints = 0;
+  let streakIncreased = false;
+  
+  if (daysDifference === null || daysDifference > 1) {
+    // First time or streak broken
+    streakBroken = this.streak > 0;
+    this.streak = 1;
+    bonusPoints = 5; // Daily login bonus
+    this.ecoPoints += bonusPoints;
+    streakIncreased = true;
+  } else if (daysDifference === 1) {
+    // Consecutive day
+    this.streak += 1;
+    bonusPoints = 5; // Daily login bonus
+    this.ecoPoints += bonusPoints;
+    streakIncreased = true;
+    
+    // Bonus points for longer streaks
+    if (this.streak >= 7) {
+      bonusPoints += 10; // Week bonus
+      this.ecoPoints += 10;
+    }
+    if (this.streak >= 30) {
+      bonusPoints += 25; // Month bonus
+      this.ecoPoints += 25;
+    }
+  } else if (daysDifference === 0) {
+    // Same day, no change but return current info
+    return {
+      streak: this.streak,
+      changed: false,
+      message: 'Already logged in today!'
+    };
+  }
+  
+  this.lastActivityDate = new Date();
+  await this.save();
+  
+  return {
+    streak: this.streak,
+    changed: true,
+    streakBroken,
+    streakIncreased,
+    bonusPoints,
+    message: streakBroken 
+      ? '🔥 Streak reset! Start building again!' 
+      : streakIncreased
+        ? `🔥 ${this.streak} day streak! +${bonusPoints} points`
+        : 'Keep it up!'
+  };
 };
 
 const User = mongoose.model('User', userSchema);
