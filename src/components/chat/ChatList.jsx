@@ -1,10 +1,11 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { useTimeAgo } from '../../utils/useTimeAgo'
 import '../../styles/chat-page/ChatList.css'
 
+const DEFAULT_AVATAR = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="48" height="48"%3E%3Crect fill="%23ddd" width="48" height="48"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="18"%3E%3F%3C/text%3E%3C/svg%3E'
+
 /**
  * ConversationTime Component
- * Displays time ago format (e.g., "2m ago") with dynamic updates
  */
 function ConversationTime({ timestampDate, fallbackTime }) {
   const timeAgo = useTimeAgo(timestampDate)
@@ -12,12 +13,10 @@ function ConversationTime({ timestampDate, fallbackTime }) {
 }
 
 /**
- * ChatList Component
- * Displays list of conversations with search, archive, and context menu functionality
+ * ChatList Component - WITHOUT NEW CHAT BUTTON
  */
 function ChatList({ 
-  conversations, 
-  selectedChatId, 
+  conversations,  
   onChatSelect, 
   showArchived, 
   onToggleArchived, 
@@ -26,29 +25,19 @@ function ChatList({
   onDeleteChat,
   pinnedChats = [],
   onPinChat,
-  onUnpinChat
+  onUnpinChat,
+  onViewProfile, 
+  onViewProducts
 }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [contextMenu, setContextMenu] = useState(null)
   const contextMenuRef = useRef(null)
 
-  /**
-   * Check if a chat is pinned
-   * @param {string} chatId - The ID of the chat to check
-   * @returns {boolean}
-   */
-  const isChatPinned = (chatId) => {
-    return pinnedChats.includes(String(chatId))
-  }
+  const isChatPinned = useCallback(
+    (chatId) => pinnedChats.includes(String(chatId)),
+    [pinnedChats]
+  );
 
-  // ==========================================
-  // Helper Functions
-  // ==========================================
-
-  /**
-   * Get last message from conversation's messages array
-   * Falls back to stored lastMessage if messages array is unavailable
-   */
   const getLastMessage = (conversation) => {
     if (conversation.messages && conversation.messages.length > 0) {
       const lastMsg = conversation.messages[conversation.messages.length - 1]
@@ -58,18 +47,9 @@ function ChatList({
     return conversation.lastMessage || 'No messages yet'
   }
 
-  // ==========================================
-  // Filtered Conversations
-  // ==========================================
-
-  /**
-   * Filter and sort conversations
-   * Pinned chats appear first, then sorted by timestamp
-   */
   const filteredConversations = useMemo(() => {
     let filtered = conversations
 
-    // Apply search filter if query exists
     const trimmedQuery = searchQuery.trim()
     
     if (trimmedQuery) {
@@ -82,24 +62,19 @@ function ChatList({
       })
     }
 
-    // Sort: pinned chats first, then by timestamp
     return filtered.sort((a, b) => {
       const aPinned = isChatPinned(a.id)
       const bPinned = isChatPinned(b.id)
 
-      // Pinned chats come first
       if (aPinned && !bPinned) return -1
       if (!aPinned && bPinned) return 1
 
-      // If both pinned or both not pinned, maintain order within pinned group
       if (aPinned && bPinned) {
-        // Maintain pinned order (first pinned stays first)
         const aIndex = pinnedChats.indexOf(String(a.id))
         const bIndex = pinnedChats.indexOf(String(b.id))
         return aIndex - bIndex
       }
 
-      // For non-pinned, sort by timestamp
       if (a.timestampDate && b.timestampDate) {
         return new Date(b.timestampDate) - new Date(a.timestampDate)
       }
@@ -107,15 +82,8 @@ function ChatList({
       if (!a.timestampDate && b.timestampDate) return 1
       return 0
     })
-  }, [conversations, searchQuery, pinnedChats])
+  }, [conversations, searchQuery, pinnedChats, isChatPinned])
 
-  // ==========================================
-  // Context Menu Handling
-  // ==========================================
-
-  /**
-   * Close context menu when clicking outside or pressing Escape
-   */
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
@@ -142,15 +110,10 @@ function ChatList({
     }
   }, [contextMenu])
 
-  /**
-   * Handle right-click context menu
-   * Positions menu at cursor location, ensuring it stays within viewport
-   */
   const handleContextMenu = (e, conversation) => {
     e.preventDefault()
     e.stopPropagation()
     
-    // Calculate position, ensuring menu stays within viewport
     const menuWidth = 160
     const menuHeight = 100
     const x = Math.min(e.clientX, window.innerWidth - menuWidth - 10)
@@ -163,9 +126,6 @@ function ChatList({
     })
   }
 
-  /**
-   * Handle context menu action (archive/unarchive/delete/pin/unpin)
-   */
   const handleMenuAction = (action, conversation) => {
     setContextMenu(null)
     if (action === 'archive' && onArchiveChat) {
@@ -181,10 +141,6 @@ function ChatList({
     }
   }
 
-  // ==========================================
-  // Render
-  // ==========================================
-
   return (
     <div className="chat-list">
       {/* Header */}
@@ -192,11 +148,8 @@ function ChatList({
         <h2>Chat</h2>
       </div>
       
-      {/* Actions: New Chat & Search */}
+      {/* Search Only */}
       <div className="chat-list-actions">
-        <button className="btn-new-chat">
-          <span>+</span> New Chat
-        </button>
         <div className="search-box">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M7.33333 12.6667C10.2789 12.6667 12.6667 10.2789 12.6667 7.33333C12.6667 4.38781 10.2789 2 7.33333 2C4.38781 2 2 4.38781 2 7.33333C2 10.2789 4.38781 12.6667 7.33333 12.6667Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -221,15 +174,13 @@ function ChatList({
               onClick={() => onChatSelect(conversation)}
               onContextMenu={(e) => handleContextMenu(e, conversation)}
             >
-              {/* Avatar */}
               <div className="conversation-avatar">
-                <img src={conversation.avatar} alt={conversation.name} />
+                <img src={conversation.avatar || DEFAULT_AVATAR} alt={conversation.name} onError={(e)=> (e.target.src = DEFAULT_AVATAR)} />
                 {conversation.status === 'Online' && (
                   <span className="online-indicator"></span>
                 )}
               </div>
 
-              {/* Content */}
               <div className="conversation-content">
                 <div className="conversation-header">
                   <h3>
@@ -251,12 +202,10 @@ function ChatList({
                 <p className="conversation-preview">{getLastMessage(conversation)}</p>
               </div>
 
-              {/* Unread Badge */}
               {conversation.unread && conversation.unread > 0 && (
                 <span className="unread-badge">{conversation.unread}</span>
               )}
 
-              {/* Archive Button (hover, active chats only) */}
               {!showArchived && onArchiveChat && (
                 <button 
                   className="archive-btn"
@@ -272,7 +221,33 @@ function ChatList({
                 </button>
               )}
 
-              {/* Unarchive Button (hover, archived chats only) */}
+              <div className="conversation-actions-quick">
+                {onViewProfile && (
+                  <button
+                    className="icon-btn small"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onViewProfile(conversation)
+                    }}
+                    title="View profile"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z" fill="currentColor"/></svg>
+                  </button>
+                )}
+                {onViewProducts && (
+                  <button
+                    className="icon-btn small"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onViewProducts(conversation)
+                    }}
+                    title="View products"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 7L12 2 3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </button>
+                )}
+              </div>
+
               {showArchived && onUnarchiveChat && (
                 <button 
                   className="archive-btn unarchive-btn"
@@ -292,7 +267,7 @@ function ChatList({
         ) : (
           <div className="no-results">
             <p>{searchQuery.trim() ? 'No conversations found' : showArchived ? 'No archived conversations' : 'No active conversations'}</p>
-            <span>{searchQuery.trim() ? 'Try a different search term' : showArchived ? 'Archive conversations to see them here' : 'Start a new conversation'}</span>
+            <span>{searchQuery.trim() ? 'Try a different search term' : showArchived ? 'Archive conversations to see them here' : 'Start chatting from product pages'}</span>
           </div>
         )}
       </div>
@@ -309,7 +284,6 @@ function ChatList({
             zIndex: 1000
           }}
         >
-          {/* Pin/Unpin Option */}
           {isChatPinned(contextMenu.conversation.id) ? (
             <button
               className="context-menu-item"
@@ -365,7 +339,7 @@ function ChatList({
         </div>
       )}
 
-      {/* Footer: Archive Toggle */}
+      {/* Footer */}
       <div className="chat-list-footer">
         <button 
           className="btn-archived" 
