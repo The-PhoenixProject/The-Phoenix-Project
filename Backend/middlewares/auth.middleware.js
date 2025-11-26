@@ -54,9 +54,9 @@ const verifyToken = async (req, res, next) => {
       });
     }
 
-    // Attach user to request
+    // Attach user to request (normalize userId to string for consistent comparisons)
     req.user = {
-      userId: user._id,
+      userId: user._id.toString(),
       email: user.email,
       authProvider: user.authProvider
     };
