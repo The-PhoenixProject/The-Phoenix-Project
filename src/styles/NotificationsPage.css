@@ -1,0 +1,43 @@
+/* src/styles/NotificationsPage.css */
+.notifications-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+  background-color: #f0f9f7;
+}
+
+.notification-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 125, 110, 0.15);
+}
+
+.filter-tabs .btn-group {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.filter-tabs .btn {
+  border-radius: 0 !important;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.filter-tabs .btn:first-child {
+  border-top-left-radius: 12px !important;
+  border-bottom-left-radius: 12px !important;
+}
+
+.filter-tabs .btn:last-child {
+  border-top-right-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+}
+
+.notifications-list {
+  max-width: 900px;
+  margin: 0 auto;
+}

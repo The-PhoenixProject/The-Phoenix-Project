@@ -1,0 +1,65 @@
+{
+  "repairRequests": [
+    {
+      "id": "1",
+      "itemName": "Antique Wooden Chair Restoration",
+      "category": "Furniture",
+      "description": "Popularize methods, and soon in restorations. Original wood finish worth restoration.",
+      "budget": "$40 - $80",
+      "postedBy": "Sam M.",
+      "status": "Pending",
+      "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><rect fill='%23f0f0f0' width='150' height='150'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='20'>Image</text></svg>"
+    },
+    {
+      "id": "2",
+      "itemName": "Vintage Radio Repair",
+      "category": "Electronics",
+      "description": "Demonstrating handling in vintage electrical diagnosis, and component replacement.",
+      "budget": "$20 - $100",
+      "postedBy": "Sam M.",
+      "status": "In Progress",
+      "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><rect fill='%23f0f0f0' width='150' height='150'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='20'>Image</text></svg>"
+    },
+    {
+      "id": "3",
+      "itemName": "Leather Jacket Tear Repair",
+      "category": "Clothing",
+      "description": "Device for professional isolation, professional leather repair, standing door. In certain...",
+      "budget": "$50 - $80",
+      "postedBy": "Susan L.",
+      "status": "New",
+      "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><rect fill='%23f0f0f0' width='150' height='150'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='20'>Image</text></svg>"
+    }
+  ],
+  "serviceProviders": [
+    {
+      "id": "1",
+      "name": "Wood Furniture Restoration",
+      "rating": 5,
+      "reviews": 160,
+      "description": "Over 10 years of experience in vintage furniture restoration. Specializing in restored furniture and after quality tests.",
+      "startingPrice": "$25/hour",
+      "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect fill='%23f0f0f0' width='80' height='80'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='14'>Img</text></svg>"
+    },
+    {
+      "id": "2",
+      "name": "Electronics & Appliance Repair",
+      "rating": 5,
+      "reviews": 155,
+      "description": "Over 15 years of experience in vintage electronics, tables, and small appliances. Pledged and determined to serve.",
+      "startingPrice": "$25/hour",
+      "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect fill='%23f0f0f0' width='80' height='80'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='14'>Img</text></svg>"
+    },
+    {
+      "id": "2",
+      "name": "Electronics & Appliance Repair",
+      "rating": 5,
+      "reviews": 155,
+      "description": "Over 15 years of experience in vintage electronics, tables, and small appliances. Pledged and determined to serve.",
+      "startingPrice": "$25/hour",
+      "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect fill='%23f0f0f0' width='80' height='80'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='14'>Img</text></svg>"
+    }
+  ],
+  "myRequests": [],
+  "myOffers": []
+}

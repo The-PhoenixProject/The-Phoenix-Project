@@ -13,9 +13,14 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import "@popperjs/core/dist/umd/popper.js"
 import "bootstrap/dist/js/bootstrap.min.js"
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import { AuthProvider } from './context/AuthContext.jsx'
+import { Toaster } from 'react-hot-toast';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+      <Toaster position="top-right" />
+    </AuthProvider>
   </StrictMode>,
 )

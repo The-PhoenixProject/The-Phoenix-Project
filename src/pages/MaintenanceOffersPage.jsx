@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { loadData } from "../services/dataService";
-import "../styles/maintenance_pages/MaintenanceOffersPage.css";
+import "./MaintenanceOffersPage.css";
 
 function MaintenanceOffersPage() {
   const [activeTab, setActiveTab] = useState("all");
@@ -10,9 +10,13 @@ function MaintenanceOffersPage() {
   useEffect(() => {
     const loadRequests = async () => {
       const data = await loadData();
+
+      // Filter out requests posted by "You" - only show requests from others
       let availableRequests = (data.repairRequests || []).filter(
         (req) => req.postedBy !== "You"
       );
+
+      // If there are fewer than 10 requests, add mock requests
       if (availableRequests.length < 10) {
         const mockRequests = [
           {

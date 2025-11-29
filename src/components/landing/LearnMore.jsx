@@ -18,7 +18,7 @@ function LearnMore({ onClose }) {
       </div>
     </div>
         </>
-     );
+        );
 }
 
 export default LearnMore;

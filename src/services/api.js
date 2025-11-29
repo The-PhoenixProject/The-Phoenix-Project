@@ -523,38 +523,253 @@ export const notificationAPI = {
 
 /* ======================================== MAINTENANCE & REPAIR HUB API ======================================== */
 export const maintenanceAPI = {
+  // ==========================================
+  // Maintenance Requests
+  // ==========================================
+  /**
+   * Get all maintenance requests (browse marketplace)
+   */
   getAllRequests: async (token) =>
     apiCall('/maintenance/requests', { headers: { Authorization: `Bearer ${token}` } }),
+
+  /**
+   * Get single request with full details
+   */
+  getRequestById: async (requestId, token) =>
+    apiCall(`/maintenance/requests/${requestId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  /**
+   * Create a new maintenance request
+   */
   createRequest: async (requestData, token) =>
     apiCall('/maintenance/requests', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(requestData),
     }),
+
+  /**
+   * Delete own maintenance request
+   */
   deleteRequest: async (requestId, token) =>
     apiCall(`/maintenance/requests/${requestId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     }),
+
+  /**
+   * Get all requests created by current user
+   */
+  getMyRequests: async (token) =>
+    apiCall('/maintenance/my-requests', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  // ==========================================
+  // Service Offers & Applications
+  // ==========================================
+
+  /**
+   * Service provider submits an offer for a request
+   */
   applyToRequest: async (requestId, offerData, token) =>
     apiCall(`/maintenance/requests/${requestId}/apply`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(offerData),
     }),
+
+  /**
+   * Requester accepts a service offer
+   */
+  acceptOffer: async (requestId, offerId, token) =>
+    apiCall(`/maintenance/requests/${requestId}/offers/${offerId}/accept`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  /**
+   * Requester rejects a service offer
+   */
+  rejectOffer: async (requestId, offerId, token) =>
+    apiCall(`/maintenance/requests/${requestId}/offers/${offerId}/reject`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  // ==========================================
+  // Work Status Management
+  // ==========================================
+
+  /**
+   * Update work status (start work, mark complete, etc.)
+   */
+  updateWorkStatus: async (requestId, status, token) =>
+    apiCall(`/maintenance/requests/${requestId}/status`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ status }),
+    }),
+
+  /**
+   * Requester confirms work completion and releases payment
+   */
+  confirmWorkCompletion: async (requestId, token) =>
+    apiCall(`/maintenance/requests/${requestId}/confirm`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  /**
+   * Get all jobs accepted by current user (as service provider)
+   */
+  getMyJobs: async (token) =>
+    apiCall('/maintenance/my-jobs', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  // ==========================================
+  // Disputes
+  // ==========================================
+
+  /**
+   * Open a dispute for a request
+   */
+  openDispute: async (requestId, reason, token) =>
+    apiCall(`/maintenance/requests/${requestId}/dispute`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ reason }),
+    }),
+
+  /**
+   * Resolve a dispute (Admin only)
+   */
+  resolveDispute: async (requestId, resolution, refundAmount, token) =>
+    apiCall(`/maintenance/requests/${requestId}/dispute/resolve`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ resolution, refundAmount }),
+    }),
+
+  // ==========================================
+  // Reviews & Ratings
+  // ==========================================
+
+  /**
+   * Submit a review after service completion
+   */
+  submitReview: async (requestId, rating, review, token) =>
+    apiCall(`/maintenance/requests/${requestId}/review`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ rating, review }),
+    }),
+
+  // ==========================================
+  // Service Offers (Provider Profile)
+  // ==========================================
+
+  /**
+   * Get all service offers (service provider listings)
+   */
   getAllOffers: async (token) =>
-    apiCall('/maintenance/offers', { headers: { Authorization: `Bearer ${token}` } }),
+    apiCall('/maintenance/offers', { 
+      headers: { Authorization: `Bearer ${token}` } 
+    }),
+
+  /**
+   * Create a service offer (list your service)
+   */
   createOffer: async (offerData, token) =>
     apiCall('/maintenance/offers', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(offerData),
     }),
+
+  /**
+   * Delete own service offer
+   */
   deleteOffer: async (offerId, token) =>
     apiCall(`/maintenance/offers/${offerId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     }),
+
+  /**
+   * Update own service offer
+   */
+  updateOffer: async (offerId, offerData, token) =>
+    apiCall(`/maintenance/offers/${offerId}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(offerData),
+    }),
+
+  /**
+   * Get single service offer details
+   */
+  getOfferById: async (offerId, token) =>
+    apiCall(`/maintenance/offers/${offerId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  // ==========================================
+  // Additional Helper Functions
+  // ==========================================
+
+  /**
+   * Upload before/after photos for completed work
+   */
+  uploadWorkPhotos: async (requestId, formData, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}/photos`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to upload photos');
+      return data;
+    } catch (error) {
+      console.error('Upload work photos error:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get request statistics (for requester dashboard)
+   */
+  getRequestStats: async (token) =>
+    apiCall('/maintenance/requests/stats', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  /**
+   * Get provider statistics (for provider dashboard)
+   */
+  getProviderStats: async (token) =>
+    apiCall('/maintenance/provider/stats', {
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+
+  /**
+   * Search maintenance requests with filters
+   */
+  searchRequests: async (filters, token) => {
+    const queryParams = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== '' && value !== null) {
+        queryParams.append(key, value);
+      }
+    });
+    return apiCall(`/maintenance/requests/search?${queryParams.toString()}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
 };
 
 /* ======================================== ECO POINTS API ======================================== */
