@@ -36,7 +36,7 @@ import ServiceOfferForm from "./components/ServiceOfferForm";
 import RepairRequestsList from "./components/RepairRequestsList";
 import ServiceProvidersList from "./components/ServiceProvidersList";
 import MaintenanceOffersPage from "./pages/MaintenanceOffersPage";
-import MyMaintenanceRequestsPage from "./pages/MyMaintenanceRequestsPage";
+import MyMaintenanceRequestsPage from "./pages/request";
 import MyServicesPage from "./pages/MyServicesPage";
 import ExploreServicesPage from "./pages/ExploreServicesPage";
 
@@ -121,36 +121,6 @@ function MaintenanceHomePage() {
         onRequestClick={handleRequestClick}
         onOfferClick={handleOfferClick}
       />
-
-      <div className="tabs-container">
-        <div className="tabs">
-          <button
-            className={`tab ${activeTab === "requests" ? "active" : ""}`}
-            onClick={() => setActiveTab("requests")}
-          >
-            Requests & Offers
-          </button>
-          <button
-            className={`tab ${activeTab === "offers" ? "active" : ""}`}
-            onClick={() => setActiveTab("offers")}
-          >
-            Offers Only
-          </button>
-          <button
-            className={`tab ${activeTab === "myRequests" ? "active" : ""}`}
-            onClick={() => setActiveTab("myRequests")}
-          >
-            My Requests
-          </button>
-          <button
-            className={`tab ${activeTab === "myOffers" ? "active" : ""}`}
-            onClick={() => setActiveTab("myOffers")}
-          >
-            My Offers
-          </button>
-        </div>
-      </div>
-
       <div className="main-content">
         {activeTab === "requests" && (
           <div className="content-row">
@@ -207,7 +177,7 @@ function MaintenanceHomePage() {
         <div className="footer-links">
           <Link to="/profile" className="text-decoration-none">Profile</Link>
           <Link to="/contact" className="text-decoration-none">Contact</Link>
-          <Link to="/" className="text-decoration-none">Home</Link>
+          <Link to="/home" className="text-decoration-none">Home</Link>
         </div>
       </footer>
     </div>
