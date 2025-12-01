@@ -72,7 +72,7 @@ import { FaShop , FaBell } from "react-icons/fa6";
 import { IoChatbubbleSharp } from "react-icons/io5";
 import { GrVmMaintenance } from "react-icons/gr";
 import { MdContactSupport } from "react-icons/md";
-const logoIcon = "/assets/landingImgs/logo-icon.png";
+const logoIcon = "/public/assets/landingImgs/phoenix-removebg-preview.png";
 
 export default function CustomNavbar() {
     const { pathname } = useLocation();
@@ -150,7 +150,7 @@ export default function CustomNavbar() {
             {/* Icon Links and Profile Avatar - Always visible on internal pages */}
             <Nav className="d-flex flex-row justify-content-center align-items-center ms-auto order-lg-3 gap-lg-1 ">
                 {iconLinks.map((link) => (
-                    <Nav.Link as={Link} to={link.path} key={link.name} className="text-white p-2 " title={link.name}>
+                    <Nav.Link as={Link} to={link.path} key={link.name} className="navLinks p-2 " title={link.name}>
                         {/* Icon display */}
                         <span className="fs-4 linksHover">{link.icon}</span>
                     </Nav.Link>
@@ -170,11 +170,11 @@ export default function CustomNavbar() {
     if (isLandingPage) {
         buttonContent = (
             <>
-                <Button as={Link} to="/home" variant="outline-light">
+                <Button as={Link} to="/home" className="ms-2 greenBtn">
                     Sign In
                 </Button>
                 {/* Placeholder style for the user's '.orangebtn' class */}
-                <Button as={Link} to="/home" className="ms-2 orangebtn"  >
+                <Button as={Link} to="/home" className="ms-2 greenBtnWithoutBg"  >
                     Sign up
                 </Button>
             </>
@@ -196,7 +196,7 @@ export default function CustomNavbar() {
 
     // NonHomeContent structure is different for landing vs maintenance
     const NonHomeContent = (
-        <div className="d-flex flex-column flex-lg-row w-100 justify-content-end align-items-lg-center">
+        <div className="d-flex flex-column flex-lg-row w-100 justify-content-end align-items-lg-center ">
              <Nav className="me-lg-4 d-flex justify-content-start align-items-start">
                 {navLinks.map((link) => {
                     // For anchor links, use regular anchor tag; for routes, use Link
@@ -207,7 +207,7 @@ export default function CustomNavbar() {
                                 onClick={(e) => handleAnchorClick(e, link.path)}
                                 key={link.name}
                                 className="mx-1 fw-medium linksHover"
-                                style={{ color: 'white' }}
+                                
                             >
                                 {link.name}
                             </Nav.Link>
@@ -218,8 +218,8 @@ export default function CustomNavbar() {
                             as={Link}
                             to={link.path}
                             key={link.name}
-                            className="mx-1 fw-medium linksHover"
-                            style={{ color: 'white' }}
+                            className="mx-1 fw-medium linksHover navLinks"
+                            
                         >
                             {link.name}
                         </Nav.Link>
@@ -235,12 +235,12 @@ export default function CustomNavbar() {
     );
 
     return (
-        <Navbar expand="lg" className="shadow py-1 gradient ">
+        <Navbar expand="lg" className=" py-1  nav-bg">
             <Container fluid className="px-3 px-lg-5">
                 {/* Brand/Logo Section */}
                 <div className="d-flex align-items-center">
-                    <img src={logoIcon} alt="Phoenix Logo" width="60" className="me-2" />
-                    <Navbar.Brand as={Link} to="/" className="fw-bold  fs-4">
+                    <img src={logoIcon} alt="Phoenix Logo" width="80" className="me-1" />
+                    <Navbar.Brand as={Link} to="/" className="fw-bold  fs-4 logo-text">
                         Phoenix
                     </Navbar.Brand>
                 </div>

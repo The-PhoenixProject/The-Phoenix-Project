@@ -4,7 +4,8 @@
 
 .section-title {
   text-align: center;
-  color: #1b473c;
+  /* color: #1b473c; */
+  color:var(--color-primary-green);
   font-weight: 700;
   margin-bottom: 1.8rem;
   font-size: 2rem;

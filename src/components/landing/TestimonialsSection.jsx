@@ -47,9 +47,9 @@ const cardVariants = {
 
 export default function TestimonialsSection() {
   return (
-    <section className="testimonials-section px-2">
+    <section id="reviews" className="testimonials-section px-2">
       <div className="container px-5">
-        <h2 className="section-title text-center mb-4 p-4">What Our Community Says</h2>
+        <h2 className="section-title text-center mb-4 p-4 ">What Our Community Says</h2>
 
         <motion.div
           className="row justify-content-center"
