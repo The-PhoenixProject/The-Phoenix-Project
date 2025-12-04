@@ -208,7 +208,7 @@ export default function CustomNavbar() {
     const userProfileImage = "https://i.pravatar.cc/36?u=currentUser"; // Example dynamic URL
     
     // Define Paths for Pages that should HIDE the Navbar 
-    const NO_NAVBAR_PATHS = ["/login", "/signup","/auth/signup","/auth/login"];
+    const NO_NAVBAR_PATHS = ["/login", "/signup","/auth/signup","/auth/login","/otp-verification" ,"/forgot-password"];
 
     // Check if the current path is one where the Navbar should be hidden
     const shouldHideNavbar = NO_NAVBAR_PATHS.includes(pathname);
