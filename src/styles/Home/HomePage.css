@@ -1,11 +1,23 @@
 /* HomePage.css - Main container and layout */
+:root {
+  
+  /* Background & Neutral Colors */
+  --color-background-light: #e7e9e32d; /* The primary off-white/light cream background color. */
+  --color-text-dark: #2F3E46; /* A very dark, almost black, but slightly softer color for main body text and headings. */
+  --color-text-light: #5A6D65; /* A muted, soft gray/green for secondary text like the mission statement description. */
+  --color-border-light: #D4D8CB; /* A very subtle light color for borders or separators. */
+
+}
 
 .homepage-container {
-  background-color: #e5e7eb4b;
+  /* background-color: var(--color-background-light) !important; */
   min-height: calc(100vh - 60px);
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
+/* .container-fluid{
+  background-color: var(--color-background-light) !important;
+} */
 
 .posts-feed {
   display: flex;
