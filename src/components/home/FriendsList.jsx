@@ -13,7 +13,7 @@ const FriendsList = ({ onUserFollowed }) => {
   const [loading, setLoading] = useState(true);
   const [followingIds, setFollowingIds] = useState(new Set());
   
-  const PLACEHOLDER_AVATAR = "https://ui-avatars.com/api/?name=User&background=007D6E&color=fff&size=100";
+  const PLACEHOLDER_AVATAR = "https://t3.ftcdn.net/jpg/11/61/33/36/360_F_1161333642_i694dqMuUwQEpEPdQOhuxdRC9WHPREFJ.jpg";
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
   // ✅ ECO TIPS - Random on every refresh
