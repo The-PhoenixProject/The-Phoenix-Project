@@ -1,0 +1,259 @@
+/* UserProfile.css - UPDATED VERSION */
+.user-profile {
+  position: relative;
+  height: 100%;
+  background: white;
+  border-left: 1px solid #e1e5e9;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  color: #666;
+  z-index: 10;
+}
+
+.profile-close-btn:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.profile-summary {
+  padding: 40px 24px 24px;
+  text-align: center;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.profile-avatar-large {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
+}
+
+.profile-avatar-large img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.online-indicator-large {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid white;
+}
+
+.online-indicator-large.online {
+  background: #5EB47C;
+}
+
+.online-indicator-large.offline {
+  background: #999;
+}
+
+.profile-summary h2 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.user-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.online {
+  background: #5EB47C;
+}
+
+.status-dot.offline {
+  background: #999;
+}
+
+.profile-section {
+  padding: 24px;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.profile-section h3 {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.specializations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.specialization-tag {
+  background: #f0f7ff;
+  color: #0077cc;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.response-time {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.products-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.product-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.product-preview-item:hover {
+  background: #e9ecef;
+}
+
+.product-preview-item img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-title {
+  margin: 0 0 4px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+}
+
+.product-price {
+  margin: 0;
+  font-weight: 600;
+  color: #007D6E;
+  font-size: 0.85rem;
+}
+
+.more-products {
+  margin: 8px 0 0;
+  text-align: center;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.no-products {
+  margin: 0;
+  color: #999;
+  font-style: italic;
+  text-align: center;
+}
+
+.loading-products {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.profile-actions {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-profile-primary,
+.btn-profile-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-profile-primary {
+  background: #007D6E;
+  color: white;
+}
+
+.btn-profile-primary:hover {
+  background: #005a4d;
+  transform: translateY(-1px);
+}
+
+.btn-profile-secondary {
+  background: #f8f9fa;
+  color: #333;
+  border: 1px solid #dee2e6;
+}
+
+.btn-profile-secondary:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .user-profile {
+    border-left: none;
+    border-top: 1px solid #e1e5e9;
+  }
+  
+  .profile-summary {
+    padding: 24px 16px 16px;
+  }
+  
+  .profile-section {
+    padding: 16px;
+  }
+  
+  .profile-actions {
+    padding: 16px;
+  }
+}

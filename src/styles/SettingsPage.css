@@ -1,0 +1,84 @@
+.settings-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.settings-page .card {
+  border: none;
+  transition: all 0.2s;
+}
+
+.settings-page .btn {
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.settings-page .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.settings-page .form-control,
+.settings-page .form-select {
+  border: 2px solid #e9ecef;
+  transition: all 0.2s;
+}
+
+.settings-page .form-control:focus,
+.settings-page .form-select:focus {
+  border-color: #007D6E;
+  box-shadow: 0 0 0 0.2rem rgba(0, 125, 110, 0.25);
+}
+
+.settings-page .form-check-input:checked {
+  background-color: #007D6E;
+  border-color: #007D6E;
+}
+
+.settings-page .form-check-input:focus {
+  border-color: #007D6E;
+  box-shadow: 0 0 0 0.2rem rgba(0, 125, 110, 0.25);
+}
+
+.settings-page h5 {
+  color: #007D6E;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.settings-page h6 {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Danger zone styling */
+.settings-page .border-danger {
+  background-color: #fff5f5;
+}
+
+/* ============================================ */
+/* src/styles/SavedPostsPage.css (if needed) */
+.saved-posts-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* ============================================ */
+/* Additional responsive improvements */
+@media (max-width: 768px) {
+  .notifications-page .container,
+  .settings-page .container,
+  .saved-posts-page .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .filter-tabs .btn {
+    font-size: 0.875rem;
+    padding: 8px 12px;
+  }
+
+  .settings-page .col-md-3 {
+    margin-bottom: 20px;
+  }
+}

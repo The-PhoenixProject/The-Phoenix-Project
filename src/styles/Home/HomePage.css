@@ -1,0 +1,32 @@
+/* HomePage.css - Main container and layout */
+
+.homepage-container {
+  background-color: #e5e7eb4b;
+  min-height: calc(100vh - 60px);
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.posts-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (max-width: 991px) {
+  .homepage-container {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .homepage-container .container-fluid {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .posts-feed {
+    gap: 1rem;
+  }
+}
