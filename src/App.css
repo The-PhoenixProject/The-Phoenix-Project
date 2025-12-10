@@ -64,6 +64,19 @@
   --dark: #1F2937;
   --home-bg: #F8F6F1;
   --gradient: linear-gradient(90deg #38765A ,#1F2937 );
+
+  
+  /* Primary Brand Colors-------new */
+  --color-primary-green: #386641; /* The main deep, earthy green used for the 'Contact Us' button and key accents. */
+  --color-secondary-green: #6A994E; /* A slightly lighter, more vibrant green, possibly for hover states or secondary accents. */
+  --color-tertiary-green: #A7C957; /* The light, fresh green seen in the logo and some leaf details. */
+
+  /* Background & Neutral Colors */
+  --color-background-light: #e7e9e36b; /* The primary off-white/light cream background color. */
+  --color-text-dark: #2F3E46; /* A very dark, almost black, but slightly softer color for main body text and headings. */
+  --color-text-light: #5A6D65; /* A muted, soft gray/green for secondary text like the mission statement description. */
+  --color-border-light: #D4D8CB; /* A very subtle light color for borders or separators. */
+
 }
 
 * {
@@ -90,7 +103,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--lighter-gray);
+  background-color: var(--color-background-light) !important;
   color: var(--text-primary);
 }
 
@@ -103,19 +116,22 @@ body {
   overflow-x: hidden;
 }
 
+.navLinks{
+  color: var(--color-text-light) !important;
+}
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(
+  /* background: linear-gradient(
     180deg,
     var(--primary-green-start) 0%,
     var(--primary-green-end) 45%,
     var(--primary-green-light) 55%,
     var(--white) 60%,
     var(--white) 100%
-  );
-  padding: 80px 20px;
+  ); */
+  /* padding: 80px 20px; */
   text-align: center;
-  color: var(--white);
+  color: var(--color-primary-green);
   position: relative;
 }
 
@@ -126,7 +142,7 @@ body {
 
 .hero-title {
   font-size: 3.5rem;
-  font-weight: bold;
+  /* font-weight: bold; */
   margin-bottom: 20px;
 }
 
@@ -986,64 +1002,63 @@ body {
   }
 }
 
-/* HEAD-specific styles for compatibility */
-#root {
-  width: 100%;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-}
+/* HEAD-specific styles for compatibility-------mariam mamdouh */
 
-.gradient {
-  background: linear-gradient(90deg, var(--green-light), var(--green-dark)) !important;
-}
+/* .nav-bg{
+  background-color: var(--color-background-light) !important;
+} */
+ a{
+  text-decoration: none !important;
+ }
 
+.logo-text{
+  color:var(--color-primary-green) !important;
+}
 .linksHover:hover {
-  color: var(--orange) !important;
+  color:var(--black) !important;
 }
 
-.orangebtn {
-  background-color: var(--orange) !important;
-  border: 1px solid var(--orange) !important;
+.greenBtn {
+  background-color: var(--color-primary-green) !important;
+  border: none !important;
   color: white;
 }
 
-.orangebtn:hover {
-  background-color: white !important;
+.greenBtn:hover {
+  background-color: var(--color-secondary-green) !important;
   color: white !important;
   border: 1px solid white !important;
 }
 
-.btn-gradient {
-  background: linear-gradient(90deg, var(--green-light), var(--green-dark));
-  border: none;
-  color: white;
-}
 
-.btn-gradient:hover {
-  background: linear-gradient(90deg, var(--green-dark), var(--green-light));
-}
-
-.orangebtnWithoutBg {
+.greenBtnWithoutBg {
   background-color: transparent !important;
-  border: 1px solid var(--orange) !important;
-  color: var(--orange) !important;
+  border: 1px solid var(--primary-green-dark) !important;
+  color: var(--color-primary-green) !important;
 }
 
-.orangebtnWithoutBg:hover {
-  background-color: var(--orange) !important;
+.greenBtnWithoutBg:hover {
+  background-color: var(--color-primary-green) !important;
   color: white !important;
-  border: 1px solid var(--orange) !important;
+  border: 1px solid var(--color-primary-green) !important;
 }
 
-.orangeText {
-  color: var(--orange) !important;
+.title-color{
+  color: var(--color-primary-green) !important;
 }
+
+.bg-second{
+  background-color: white !important;
+}
+
 
 footer {
-  background-color: var(--dark);
+  background-color:  #1b473c;
   color: #fff;
   padding: 40px 0;
+}
+.footerLinks {
+ color: var(--home-bg);
 }
 
 /* HOME PAGE STYLES */

@@ -1,4 +1,4 @@
-// src/App.jsx - Updated with session interceptor
+// src/App.jsx - Fixed and Cleaned Version
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
@@ -6,6 +6,7 @@ import sessionInterceptor from "./services/sessionInterceptor";
 
 // Context
 import { AuthProvider } from "./context/AuthContext";
+import { UserProvider } from "./context/UserContext";
 
 // Components
 import CustomNavbar from "./components/shared/Navbar";
@@ -47,18 +48,6 @@ import Marketplace from "./pages/Marketplace";
 import Wishlist from "./pages/WishlistPage";
 
 import './App.css';
-
-// Wrapper component to set up navigation
-function AppWrapper() {
-  const navigate = useNavigate();
-  
-  // Initialize session interceptor with navigate function
-  React.useEffect(() => {
-    sessionInterceptor.setNavigate(navigate);
-  }, [navigate]);
-  
-  return <AppContent />;
-}
 
 // Maintenance HomePage component
 function MaintenanceHomePage() {
@@ -129,7 +118,7 @@ function MaintenanceHomePage() {
           <div className="content-row">
             <div className="left-panel">
               <RequestForm />
-               <ServiceOfferForm onOfferAdded={() => setActiveTab("myOffers")} />
+              <ServiceOfferForm onOfferAdded={() => setActiveTab("myOffers")} />
             </div>
             <div className="right-panel">
               <RepairRequestsList />
@@ -167,6 +156,18 @@ function MaintenanceHomePage() {
   );
 }
 
+// Wrapper component to set up navigation
+function AppWrapper() {
+  const navigate = useNavigate();
+  
+  // Initialize session interceptor with navigate function
+  useEffect(() => {
+    sessionInterceptor.setNavigate(navigate);
+  }, [navigate]);
+  
+  return <AppContent />;
+}
+
 function AppContent() {
   // Sync auth state across tabs
   useEffect(() => {
@@ -187,6 +188,7 @@ function AppContent() {
       {/* Toast Notifications */}
       <Toaster 
         position="top-right"
+      
         toastOptions={{
           duration: 3000,
           style: {
@@ -409,7 +411,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppWrapper />
+        <UserProvider>
+          <AppWrapper />
+        </UserProvider>
       </AuthProvider>
     </Router>
   );
