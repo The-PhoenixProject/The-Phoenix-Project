@@ -24,10 +24,10 @@ function MyServicesPage() {
 
     try {
       setLoading(true);
-      const response = await maintenanceAPI.getAllOffers(token);
+      const response = await maintenanceAPI.getMyOffers(token);
       
       // Handle different response structures
-      const offersData = response?.data || response || [];
+      const offersData = response?.data?.offers || response?.data || response || [];
       
       // Transform offers data to match the offers layout
       const transformedOffers = (Array.isArray(offersData) ? offersData : []).map((offer) => ({

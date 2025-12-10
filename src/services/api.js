@@ -776,7 +776,23 @@ export const maintenanceAPI = {
       throw error;
     }
   },
-
+ getMyOffers: async (token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/my-offers`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch my offers');
+      return data;
+    } catch (error) {
+      console.error('❌ Get my offers error:', error);
+      throw error;
+    }
+  },
   getAllOffers: async (token) => {
     try {
       const response = await fetch(`${API_BASE_URL}/maintenance/offers`, {

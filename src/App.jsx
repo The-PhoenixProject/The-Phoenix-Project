@@ -129,7 +129,7 @@ function MaintenanceHomePage() {
           <div className="content-row">
             <div className="left-panel">
               <RequestForm />
-              <ServiceOfferForm />
+               <ServiceOfferForm onOfferAdded={() => setActiveTab("myOffers")} />
             </div>
             <div className="right-panel">
               <RepairRequestsList />
