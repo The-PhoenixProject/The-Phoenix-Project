@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { maintenanceAPI } from "../services/api";
-import { useAuth } from "../hooks/useAuth"; // ✅ Import useAuth hook
-import "./MaintenanceOffersPage.css";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { maintenanceAPI } from '../services/api';
+import { useAuth } from '../hooks/useAuth'; // ✅ Import useAuth hook
+import './MaintenanceOffersPage.css';
 
 function MaintenanceOffersPage() {
   const { token } = useAuth(); // ✅ Get token from AuthContext
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState('all');
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ function MaintenanceOffersPage() {
     const loadRequests = async () => {
       // ✅ Check if user is authenticated
       if (!token) {
-        setError("Please login to view maintenance requests");
+        setError('Please login to view maintenance requests');
         setLoading(false);
         return;
       }
@@ -26,14 +26,15 @@ function MaintenanceOffersPage() {
 
         // ✅ Call backend API with token
         const response = await maintenanceAPI.getAllRequests(token);
-        console.log("✅ Maintenance requests loaded:", response);
+        console.log('✅ Maintenance requests loaded:', response);
 
-        const availableRequests = response.data?.requests || response.data || [];
-        
+        const availableRequests =
+          response.data?.requests || response.data || [];
+
         setRequests(availableRequests);
       } catch (err) {
-        console.error("❌ Failed to fetch requests:", err);
-        setError(err.message || "Failed to load maintenance requests");
+        console.error('❌ Failed to fetch requests:', err);
+        setError(err.message || 'Failed to load maintenance requests');
       } finally {
         setLoading(false);
       }
@@ -44,28 +45,30 @@ function MaintenanceOffersPage() {
 
   const getStatusClass = (status) => {
     const statusMap = {
-      Pending: "status-pending",
-      "In Progress": "status-progress",
-      New: "status-new",
-      Completed: "status-completed",
-      Accepted: "status-accepted",
+      Pending: 'status-pending',
+      'In Progress': 'status-progress',
+      New: 'status-new',
+      Completed: 'status-completed',
+      Accepted: 'status-accepted',
     };
-    return statusMap[status] || "status-default";
+    return statusMap[status] || 'status-default';
   };
 
   const filteredRequests =
-    activeTab === "all"
+    activeTab === 'all'
       ? requests
       : requests.filter((req) => req.status === activeTab);
 
   const handleApply = async (requestId) => {
     if (!token) {
-      alert("Please login to apply for maintenance requests");
+      alert('Please login to apply for maintenance requests');
       return;
     }
-    
+
     // TODO: Navigate to detail page or open application modal
-    alert(`Applied to request #${requestId}. This feature will be implemented soon!`);
+    alert(
+      `Applied to request #${requestId}. This feature will be implemented soon!`
+    );
   };
 
   // ✅ Loading State
@@ -92,8 +95,8 @@ function MaintenanceOffersPage() {
               Login to Continue
             </Link>
           )}
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="btn btn-secondary"
           >
             Try Again
@@ -109,36 +112,37 @@ function MaintenanceOffersPage() {
         <div>
           <h1>Maintenance Requests</h1>
           <p className="page-subtitle">
-            Browse available repair requests and apply to help others fix their items.
+            Browse available repair requests and apply to help others fix their
+            items.
           </p>
         </div>
-        <Link to="/" className="btn btn-home">
-          Home
+        <Link to="/maintenance" className="btn btn-home">
+          Back
         </Link>
       </div>
 
       <div className="offers-tabs">
         <button
-          className={`tab ${activeTab === "all" ? "active" : ""}`}
-          onClick={() => setActiveTab("all")}
+          className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
         >
           All Requests
         </button>
         <button
-          className={`tab ${activeTab === "New" ? "active" : ""}`}
-          onClick={() => setActiveTab("New")}
+          className={`tab ${activeTab === 'New' ? 'active' : ''}`}
+          onClick={() => setActiveTab('New')}
         >
           New
         </button>
         <button
-          className={`tab ${activeTab === "Pending" ? "active" : ""}`}
-          onClick={() => setActiveTab("Pending")}
+          className={`tab ${activeTab === 'Pending' ? 'active' : ''}`}
+          onClick={() => setActiveTab('Pending')}
         >
           Pending
         </button>
         <button
-          className={`tab ${activeTab === "In Progress" ? "active" : ""}`}
-          onClick={() => setActiveTab("In Progress")}
+          className={`tab ${activeTab === 'In Progress' ? 'active' : ''}`}
+          onClick={() => setActiveTab('In Progress')}
         >
           In Progress
         </button>
@@ -149,7 +153,7 @@ function MaintenanceOffersPage() {
           filteredRequests.map((request) => (
             <div key={request._id || request.id} className="offer-card">
               <img
-                src={request.image || "/assets/landingImgs/logo-icon.png"}
+                src={request.image || '/assets/landingImgs/logo-icon.png'}
                 alt={request.itemName}
                 className="offer-provider-image"
               />
@@ -173,7 +177,8 @@ function MaintenanceOffersPage() {
                   </span>
                 </div>
                 <div className="request-posted">
-                  Posted by {request.user?.fullName || request.postedBy || "Unknown"}
+                  Posted by{' '}
+                  {request.user?.fullName || request.postedBy || 'Unknown'}
                 </div>
                 <div className="offer-actions">
                   <button
@@ -182,7 +187,7 @@ function MaintenanceOffersPage() {
                   >
                     Apply
                   </button>
-                  <Link 
+                  <Link
                     to={`/maintenance/requests/${request._id || request.id}`}
                     className="btn btn-accept"
                   >

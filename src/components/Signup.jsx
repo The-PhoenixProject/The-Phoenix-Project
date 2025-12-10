@@ -1,8 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaEye, FaEyeSlash, FaGoogle, FaFacebookF } from 'react-icons/fa';
 import '../styles/Register/Signup.css';
+
+// --- Framer Motion Variants ---
+const centerLogoVariants = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: { scale: 1, opacity: 1, transition: { duration: 1.0, type: "spring", stiffness: 80 } },
+  exit: { opacity: 0, scale: 1.2, transition: { duration: 0.5 } }
+};
+
+const centerTextVariants = {
+  initial: { y: 50, opacity: 0 },
+  animate: { y: 0, opacity: 1, transition: { duration: 0.7, delay: 0.5 } },
+  exit: { opacity: 0, y: -50, transition: { duration: 0.5 } }
+};
+
+const formCardVariants = {
+  initial: { y: 50, opacity: 0, scale: 0.95 },
+  animate: {
+    y: 0,
+    opacity: 1,
+    scale: 1,
+    transition: { type: 'spring', stiffness: 80, damping: 15, delay: 0.2 }
+  }
+};
+
+const itemVariants = {
+  initial: { y: 20, opacity: 0 },
+  animate: { y: 0, opacity: 1 }
+};
+
+const cornerLogoVariants = {
+  initial: { opacity: 0, x: -20 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.6, delay: 0.8 } }
+};
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -18,6 +53,14 @@ const Signup = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 3500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -139,125 +182,207 @@ const Signup = () => {
     }
   };
 
-  /* ---------- JSX (unchanged except for button handlers) ---------- */
   return (
-    <div className="signup-container">
-      {/* LEFT SIDE – LOGO & TEXT */}
-      <div className="signup-left">
-        <div className="logo-card">
-          <img src="../../public/logo big (1).png" alt="Phoenix Logo" className="logo-image" />
-          <h2 className="logo-title">THE<br/>PHOENIX<br/>PROJECT</h2>
-          <p className="logo-subtitle">RECYCLE · RENEW</p>
-        </div>
-        <h2 className="welcome-title">Welcome to Phoenix</h2>
-        <p className="welcome-text">
-          Join our community of conscious consumers renewing<br/>the world, one item at a time.
-        </p>
-      </div>
-
-      {/* RIGHT SIDE – FORM */}
-      <div className="signup-right">
-        <div className="form-wrapper">
-          <h1 className="form-title">Create Account</h1>
-          <p className="form-subtitle">Start your renewal journey today</p>
-
-          <form onSubmit={handleSubmit} className="signup-form">
-            {/* Full Name */}
-            <div className="input-group">
-              <label className="input-label">Full Name</label>
-              <input
-                type="text"
-                name="fullName"
-                placeholder="John Doe"
-                value={formData.fullName}
-                onChange={handleChange}
-                className={`input-field ${errors.fullName ? 'input-error' : ''}`}
-                disabled={loading}
-              />
-              {errors.fullName && <span className="error-text">{errors.fullName}</span>}
-            </div>
-
-            {/* Email */}
-            <div className="input-group">
-              <label className="input-label">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="your@email.com"
-                value={formData.email}
-                onChange={handleChange}
-                className={`input-field ${errors.email ? 'input-error' : ''}`}
-                disabled={loading}
-              />
-              {errors.email && <span className="error-text">{errors.email}</span>}
-            </div>
-
-            {/* Password */}
-            <div className="input-group">
-              <label className="input-label">Password</label>
-              <div className="password-wrapper">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`input-field ${errors.password ? 'input-error' : ''}`}
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={loading}
-                >
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
+    <div className="signup-container-main staged-layout">
+      <AnimatePresence mode="wait">
+        {showWelcome ? (
+          <motion.div
+            key="welcome"
+            className="signup-full-screen-welcome"
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <motion.div
+              className="signup-center-logo-group"
+              variants={centerLogoVariants}
+            >
+              <img src="/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="signup-logo-image-center" />
+              <h1 className="signup-logo-title-center">Welcome to Phoenix</h1>
+            </motion.div>
+            
+            <motion.p
+              className="signup-welcome-text-center"
+              variants={centerTextVariants}
+            >
+              RECYCLE · RENEW<br/>Join our community of conscious consumers.
+            </motion.p>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="form"
+            className="signup-center-content-wrapper form-stage"
+          >
+            {/* Top-left corner logo */}
+            <motion.div 
+              className="signup-corner-logo-card"
+              variants={cornerLogoVariants}
+              initial="initial"
+              animate="animate"
+            >
+              <img src="/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="signup-logo-image-small" />
+              <div className="signup-logo-text-small">
+                <span className="signup-logo-title-small">PHOENIX</span>
               </div>
-              {errors.password && <span className="error-text">{errors.password}</span>}
-            </div>
+            </motion.div>
 
-            {/* Location */}
-            <div className="input-group">
-              <label className="input-label">Location</label>
-              <input
-                type="text"
-                name="location"
-                placeholder="City, Country"
-                value={formData.location}
-                onChange={handleChange}
-                className={`input-field ${errors.location ? 'input-error' : ''}`}
-                disabled={loading}
-              />
-              {errors.location && <span className="error-text">{errors.location}</span>}
-            </div>
+            {/* Welcome header */}
+            <motion.div
+              className="signup-welcome-header"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0, transition: { delay: 0.8 } }}
+            >
+              <h2 className="signup-welcome-title">Create Your Account</h2>
+              <p className="signup-welcome-text">Start your renewal journey today</p>
+            </motion.div>
 
-            <button type="submit" className="submit-button" disabled={loading}>
-              {loading ? 'Creating Account...' : 'Create Account'}
-            </button>
-          </form>
+            {/* Form card */}
+            <motion.div
+              className="signup-form-wrapper"
+              variants={formCardVariants}
+              initial="initial"
+              animate="animate"
+            >
+              <motion.div
+                className="signup-form-inner-content"
+                initial="initial"
+                animate="animate"
+                transition={{ staggerChildren: 0.08, delayChildren: 1.0 }}
+              >
+                
+                <form onSubmit={handleSubmit} className="signup-form">
+                  {/* Row 1: Full Name and Email */}
+                  <motion.div className="signup-input-row" variants={itemVariants}>
+                    {/* Full Name */}
+                    <div className="signup-input-group">
+                      <label className="signup-input-label">Full Name</label>
+                      <motion.input
+                        type="text"
+                        name="fullName"
+                        placeholder="John Doe"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        className={`signup-input-field ${errors.fullName ? 'signup-input-error' : ''}`}
+                        disabled={loading}
+                        whileFocus={{ scale: 1.01, boxShadow: '0 0 8px rgba(56, 178, 91, 0.4)' }}
+                      />
+                      {errors.fullName && <motion.span className="signup-error-text" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{errors.fullName}</motion.span>}
+                    </div>
 
-          <div className="divider">
-            <span className="divider-text">OR SIGN UP WITH</span>
-          </div>
+                    {/* Email */}
+                    <div className="signup-input-group">
+                      <label className="signup-input-label">Email Address</label>
+                      <motion.input
+                        type="email"
+                        name="email"
+                        placeholder="your@email.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={`signup-input-field ${errors.email ? 'signup-input-error' : ''}`}
+                        disabled={loading}
+                        whileFocus={{ scale: 1.01, boxShadow: '0 0 8px rgba(56, 178, 91, 0.4)' }}
+                      />
+                      {errors.email && <motion.span className="signup-error-text" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{errors.email}</motion.span>}
+                    </div>
+                  </motion.div>
 
-          <div className="social-buttons">
-            <button onClick={handleGoogleSignup} className="social-button google-button" disabled={loading}>
-              Google
-            </button>
-            <button onClick={handleFacebookSignup} className="social-button facebook-button" disabled={loading}>
-              Facebook
-            </button>
-          </div>
+                  {/* Row 2: Password and Location */}
+                  <motion.div className="signup-input-row" variants={itemVariants}>
+                    {/* Password */}
+                    <div className="signup-input-group">
+                      <label className="signup-input-label">Password</label>
+                      <div className="signup-password-wrapper">
+                        <motion.input
+                          type={showPassword ? 'text' : 'password'}
+                          name="password"
+                          placeholder="••••••••"
+                          value={formData.password}
+                          onChange={handleChange}
+                          className={`signup-input-field ${errors.password ? 'signup-input-error' : ''}`}
+                          disabled={loading}
+                          whileFocus={{ scale: 1.01, boxShadow: '0 0 8px rgba(56, 178, 91, 0.4)' }}
+                        />
+                        <button
+                          type="button"
+                          className="signup-password-toggle"
+                          onClick={() => setShowPassword(!showPassword)}
+                          disabled={loading}
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                      {errors.password && <motion.span className="signup-error-text" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{errors.password}</motion.span>}
+                    </div>
 
-          <p className="switch-text">
-            Already have an account?{' '}
-            <button onClick={() => navigate('/auth/login')} className="link-button" disabled={loading}>
-              Sign in
-            </button>
-          </p>
-        </div>
-      </div>
+                    {/* Location */}
+                    <div className="signup-input-group">
+                      <label className="signup-input-label">Location</label>
+                      <motion.input
+                        type="text"
+                        name="location"
+                        placeholder="City, Country"
+                        value={formData.location}
+                        onChange={handleChange}
+                        className={`signup-input-field ${errors.location ? 'signup-input-error' : ''}`}
+                        disabled={loading}
+                        whileFocus={{ scale: 1.01, boxShadow: '0 0 8px rgba(56, 178, 91, 0.4)' }}
+                      />
+                      {errors.location && <motion.span className="signup-error-text" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{errors.location}</motion.span>}
+                    </div>
+                  </motion.div>
+
+                  {/* Submit Button */}
+                  <motion.button
+                    type="submit"
+                    className="signup-submit-button signup-full-width-btn"
+                    disabled={loading}
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.02, backgroundColor: '#577f40ff' }}
+                    whileTap={{ scale: 0.92 }}
+                  >
+                    {loading ? 'Creating Account...' : 'Create Account'}
+                  </motion.button>
+                </form>
+
+                {/* Divider */}
+                <motion.div className="signup-divider" variants={itemVariants}>
+                  <span className="signup-divider-text">OR SIGN UP WITH</span>
+                </motion.div>
+
+                {/* Social Buttons */}
+                <motion.div className="signup-social-buttons" variants={itemVariants}>
+                  <motion.button
+                    onClick={handleGoogleSignup}
+                    className="signup-social-button signup-google-button"
+                    disabled={loading}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <FaGoogle className="signup-social-icon" /> Google
+                  </motion.button>
+                  <motion.button
+                    onClick={handleFacebookSignup}
+                    className="signup-social-button signup-facebook-button"
+                    disabled={loading}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <FaFacebookF className="signup-social-icon" /> Facebook
+                  </motion.button>
+                </motion.div>
+
+                {/* Switch Link */}
+                <motion.p className="signup-switch-text" variants={itemVariants}>
+                  Already have an account?{' '}
+                  <button onClick={() => navigate('/auth/login')} className="signup-link-button" disabled={loading}>
+                    Sign in
+                  </button>
+                </motion.p>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

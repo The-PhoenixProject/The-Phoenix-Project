@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { maintenanceAPI } from "../services/api";
-import { useAuth } from "../hooks/useAuth";
+import React, { useState, useEffect } from 'react';
+import { maintenanceAPI } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 
 function RepairRequestsList({ onDelete }) {
   const { token } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const defaultImage = "/assets/landingImgs/logo-icon.png";
+  const defaultImage = '/assets/landingImgs/logo-icon.png';
 
   useEffect(() => {
     const loadRequests = async () => {
@@ -19,12 +19,12 @@ function RepairRequestsList({ onDelete }) {
       try {
         // ✅ Fetch MY requests from backend
         const res = await maintenanceAPI.getMyRequests(token);
-        console.log("✅ My requests loaded:", res);
-        
+        console.log('✅ My requests loaded:', res);
+
         const myRequests = res.data || [];
         setRequests(myRequests);
       } catch (error) {
-        console.error("❌ Failed to load requests:", error);
+        console.error('❌ Failed to load requests:', error);
       } finally {
         setLoading(false);
       }
@@ -34,32 +34,33 @@ function RepairRequestsList({ onDelete }) {
   }, [token]);
 
   const handleDelete = async (requestId) => {
-    if (!window.confirm("Are you sure you want to delete this request?")) return;
-    
+    if (!window.confirm('Are you sure you want to delete this request?'))
+      return;
+
     try {
       await maintenanceAPI.deleteRequest(requestId, token);
-      
+
       // ✅ Update local state
-      setRequests(prev => prev.filter(r => r._id !== requestId));
-      
+      setRequests((prev) => prev.filter((r) => r._id !== requestId));
+
       // ✅ Notify parent component
       if (onDelete) onDelete();
-      
-      alert("Request deleted successfully");
+
+      alert('Request deleted successfully');
     } catch (err) {
-      console.error("❌ Delete failed:", err);
-      alert("Failed to delete request: " + err.message);
+      console.error('❌ Delete failed:', err);
+      alert('Failed to delete request: ' + err.message);
     }
   };
 
   const getStatusClass = (status) => {
     const map = {
-      New: "status-new",
-      Pending: "status-pending",
-      "In Progress": "status-progress",
-      Completed: "status-completed",
+      New: 'status-new',
+      Pending: 'status-pending',
+      'In Progress': 'status-progress',
+      Completed: 'status-completed',
     };
-    return map[status] || "status-default";
+    return map[status] || 'status-default';
   };
 
   if (loading) return <p>Loading your requests...</p>;
@@ -100,17 +101,27 @@ function RepairRequestsList({ onDelete }) {
                 <div className="request-details">
                   <span className="request-budget">{request.budget}</span>
                   <span className="request-posted">
-                    by {request.user?.fullName || "You"}
+                    by {request.user?.fullName || 'You'}
                   </span>
                 </div>
                 <div className="request-footer">
-                  <span className={`status-badge ${getStatusClass(request.status)}`}>
+                  <span
+                    className={`status-badge ${getStatusClass(request.status)}`}
+                  >
                     {request.status}
                   </span>
                   <div className="request-actions">
-                    {request.status === "New" && (
+                    {request.status === 'New' && (
                       <>
-                        <button className="action-link">View Offers</button>
+                        <button
+                          className="action-link"
+                          onClick={() => {
+                            // Navigate to edit page
+                            window.location.href = `/my-maintenance-requests`;
+                          }}
+                        >
+                          View Request
+                        </button>
                         <button
                           className="btn btn-delete"
                           onClick={() => handleDelete(request._id)}
@@ -120,15 +131,15 @@ function RepairRequestsList({ onDelete }) {
                         </button>
                       </>
                     )}
-                    {request.status === "Pending" && (
+                    {request.status === 'Pending' && (
                       <button className="action-link">
                         View Offers ({request.offers?.length || 0})
                       </button>
                     )}
-                    {request.status === "In Progress" && (
+                    {request.status === 'In Progress' && (
                       <button className="action-link">Track Progress</button>
                     )}
-                    {request.status === "Completed" && (
+                    {request.status === 'Completed' && (
                       <button className="action-link">Leave Review</button>
                     )}
                   </div>
