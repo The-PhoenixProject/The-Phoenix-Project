@@ -1,4 +1,4 @@
-/* Base styles - minimal to avoid conflicts with App.css */
+/* Base styles - minimal to avoid conflicts with App.css
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -68,4 +68,5 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */
+

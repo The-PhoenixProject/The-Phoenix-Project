@@ -16,7 +16,7 @@ const cards = [
     id: 2,
     title: "Marketplace",
     text: "Buy, sell, or trade upcycled goods.",
-    icon: <FaShoppingBag size={35} color="#EC744A" />,
+    icon: <FaShoppingBag size={35} color="#A7C957" />,
   },
   {
     id: 3,
@@ -28,7 +28,7 @@ const cards = [
     id: 4,
     title: "Eco Badges",
     text: "Earn rewards for eco-impact",
-    icon: <FaMedal size={35} color="#EC744A" />,
+    icon: <FaMedal size={35} color="#A7C957" />,
   },
   {
     id: 5,
@@ -40,7 +40,7 @@ const cards = [
     id: 6,
     title: "Eco Story Feed",
     text: "Share before & after recycling stories",
-    icon: <FaCamera size={35} color="#EC744A" />,
+    icon: <FaCamera size={35} color="#A7C957" />,
   },
   {
     id: 7,
@@ -52,7 +52,7 @@ const cards = [
     id: 8,
     title: "Community Chat",
     text: "Connect with fellow eco-enthusiasts.",
-    icon: <IoMdChatboxes size={35} color="#EC744A" />,
+    icon: <IoMdChatboxes size={35} color="#A7C957" />,
   },
   {
     id: 9,
@@ -64,7 +64,7 @@ const cards = [
     id: 10,
     title: "Maintainance Services",
     text: " Get help to recycle your items",
-    icon: <GrVmMaintenance size={35} color="#EC744A" />,
+    icon: <GrVmMaintenance size={35} color="#A7C957" />,
   },
   {
     id: 11,
@@ -76,7 +76,7 @@ const cards = [
     id: 12,
     title: "Marketplace",
     text: "Buy, sell, or trade upcycled goods.",
-    icon: <FaShoppingBag size={35} color="#EC744A" />,
+    icon: <FaShoppingBag size={35} color="#A7C957" />,
   },
   {
     id: 13,
@@ -88,7 +88,7 @@ const cards = [
     id: 14,
     title: "Eco Badges",
     text: "Earn rewards for eco-impact",
-    icon: <FaMedal size={35} color="#EC744A" />,
+    icon: <FaMedal size={35} color="#A7C957" />,
   },
   {
     id: 15,
@@ -100,7 +100,7 @@ const cards = [
     id: 16,
     title: "Eco Story Feed",
     text: "Share before & after recycling stories",
-    icon: <FaCamera size={35} color="#EC744A" />,
+    icon: <FaCamera size={35} color="#A7C957" />,
   },
   {
     id: 17,
@@ -112,7 +112,7 @@ const cards = [
     id: 18,
     title: "Community Chat",
     text: "Connect with fellow eco-enthusiasts.",
-    icon: <IoMdChatboxes size={35} color="#EC744A" />,
+    icon: <IoMdChatboxes size={35} color="#A7C957" />,
   },
   {
     id: 19,
@@ -124,7 +124,7 @@ const cards = [
     id: 20,
     title: "Maintainance Services",
     text: " Get help to recycle your items",
-    icon: <GrVmMaintenance size={35} color="#EC744A" />,
+    icon: <GrVmMaintenance size={35} color="#A7C957" />,
   },
   {
     id: 21,
@@ -136,7 +136,7 @@ const cards = [
     id: 22,
     title: "Marketplace",
     text: "Buy, sell, or trade upcycled goods.",
-    icon: <FaShoppingBag size={35} color="#EC744A" />,
+    icon: <FaShoppingBag size={35} color="#A7C957" />,
   },
   {
     id: 23,
@@ -148,7 +148,7 @@ const cards = [
     id: 24,
     title: "Eco Badges",
     text: "Earn rewards for eco-impact",
-    icon: <FaMedal size={35} color="#EC744A" />,
+    icon: <FaMedal size={35} color="#A7C957" />,
   },
   {
     id: 25,
@@ -172,7 +172,7 @@ export default function FeaturesSection() {
   return (
     <div id="features">
     <div className="d-flex  justify-content-center mt-5 p-2">
-       <h2>Platform Features</h2>
+       <h2 className="title-color">Platform Features</h2>
     </div>
     <div className="d-flex  justify-content-center mb-4">
     <div className="featuresSection">

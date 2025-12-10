@@ -1,5 +1,4 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 function HeroSection({ onRequestClick, onOfferClick }) {
   const handleRequestClick = () => {
@@ -38,7 +37,7 @@ function HeroSection({ onRequestClick, onOfferClick }) {
             My Maintenance Requests
           </Link>
           <Link to="/my-services" className="hero-link">
-            My Offers
+            My Services
           </Link>
           <Link to="/explore-services" className="hero-link">
             Explore Services

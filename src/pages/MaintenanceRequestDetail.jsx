@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { maintenanceAPI } from "../services/api";
 
@@ -8,11 +8,7 @@ function ServiceProviderDashboard({ token }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       const [jobsResponse, statsResponse] = await Promise.all([
         maintenanceAPI.getMyJobs(token),
@@ -25,7 +21,11 @@ function ServiceProviderDashboard({ token }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const handleStartWork = async (jobId) => {
     if (!window.confirm("Start working on this job?")) return;

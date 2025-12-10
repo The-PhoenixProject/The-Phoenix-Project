@@ -1,36 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { maintenanceAPI } from "../services/api";
-import { useAuth } from "../hooks/useAuth";
-import "./ExploreServicesPage.css";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { maintenanceAPI } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
+import './ExploreServicesPage.css';
 
 // ✅ IMPROVED: Better placeholder images with category icons
 const CATEGORY_ICONS = {
-  Electronics: "⚡",
-  Furniture: "🪑",
-  Clothing: "👕",
-  Accessories: "👜",
-  Appliances: "🔌",
-  Other: "🔧"
+  Electronics: '⚡',
+  Furniture: '🪑',
+  Clothing: '👕',
+  Accessories: '👜',
+  Appliances: '🔌',
+  Other: '🔧',
 };
 
 const CATEGORY_GRADIENTS = {
-  Electronics: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-  Furniture: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-  Clothing: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-  Accessories: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-  Appliances: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-  Other: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)"
+  Electronics: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  Furniture: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+  Clothing: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+  Accessories: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+  Appliances: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+  Other: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
 };
 
 function ExploreServicesPage() {
   const { token } = useAuth();
   const [services, setServices] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [priceRange, setPriceRange] = useState({ min: "", max: "" });
-  const [ratingFilter, setRatingFilter] = useState("all");
-  const [locationFilter, setLocationFilter] = useState("nearby");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+  const [ratingFilter, setRatingFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('nearby');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imageErrors, setImageErrors] = useState({});
@@ -38,7 +38,7 @@ function ExploreServicesPage() {
   useEffect(() => {
     const loadServices = async () => {
       if (!token) {
-        setError("Please login to view services");
+        setError('Please login to view services');
         setLoading(false);
         return;
       }
@@ -48,26 +48,26 @@ function ExploreServicesPage() {
         setError(null);
 
         const response = await maintenanceAPI.getAllOffers(token);
-        console.log("✅ Service offers loaded:", response);
+        console.log('✅ Service offers loaded:', response);
 
         const offersData = response.data?.offers || response.data || [];
-        
+
         const transformedServices = offersData.map((offer) => ({
           id: offer._id || offer.id,
-          providerName: offer.user?.fullName || "Provider",
-          category: offer.category || "Other",
-          priceRange: offer.startingPrice || "$50 - $200",
+          providerName: offer.user?.fullName || 'Provider',
+          category: offer.category || 'Other',
+          priceRange: offer.startingPrice || '$50 - $200',
           rating: offer.user?.rating || 4.5,
           reviews: offer.user?.reviewCount || 0,
           description: offer.description || offer.name,
           image: offer.image || null, // ✅ Handle missing images
-          name: offer.name
+          name: offer.name,
         }));
 
         setServices(transformedServices);
       } catch (err) {
-        console.error("❌ Failed to load services:", err);
-        setError(err.message || "Failed to load services");
+        console.error('❌ Failed to load services:', err);
+        setError(err.message || 'Failed to load services');
       } finally {
         setLoading(false);
       }
@@ -78,14 +78,14 @@ function ExploreServicesPage() {
 
   const filteredServices = services.filter((service) => {
     const matchesSearch =
-      searchQuery === "" ||
+      searchQuery === '' ||
       service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       service.providerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       service.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
-      selectedCategory === "all" || service.category === selectedCategory;
+      selectedCategory === 'all' || service.category === selectedCategory;
     const matchesRating =
-      ratingFilter === "all" || service.rating >= parseFloat(ratingFilter);
+      ratingFilter === 'all' || service.rating >= parseFloat(ratingFilter);
 
     return matchesSearch && matchesCategory && matchesRating;
   });
@@ -94,8 +94,8 @@ function ExploreServicesPage() {
     return Array.from({ length: 5 }, (_, i) => (
       <i
         key={i}
-        className={`bi bi-star${i < Math.floor(rating) ? "-fill" : ""} ${
-          i < Math.floor(rating) ? "star-filled" : "star-empty"
+        className={`bi bi-star${i < Math.floor(rating) ? '-fill' : ''} ${
+          i < Math.floor(rating) ? 'star-filled' : 'star-empty'
         }`}
       ></i>
     ));
@@ -103,7 +103,7 @@ function ExploreServicesPage() {
 
   // ✅ IMPROVED: Handle image errors and show fallback
   const handleImageError = (serviceId) => {
-    setImageErrors(prev => ({ ...prev, [serviceId]: true }));
+    setImageErrors((prev) => ({ ...prev, [serviceId]: true }));
   };
 
   // ✅ IMPROVED: Render service image with fallback
@@ -124,14 +124,12 @@ function ExploreServicesPage() {
     }
 
     // ✅ Fallback: Beautiful gradient with category icon
-    const gradient = CATEGORY_GRADIENTS[service.category] || CATEGORY_GRADIENTS.Other;
+    const gradient =
+      CATEGORY_GRADIENTS[service.category] || CATEGORY_GRADIENTS.Other;
     const icon = CATEGORY_ICONS[service.category] || CATEGORY_ICONS.Other;
 
     return (
-      <div 
-        className="service-image-fallback"
-        style={{ background: gradient }}
-      >
+      <div className="service-image-fallback" style={{ background: gradient }}>
         <span className="service-icon">{icon}</span>
         <span className="service-category-label">{service.category}</span>
       </div>
@@ -175,8 +173,8 @@ function ExploreServicesPage() {
               Find trusted providers who can fix or restore your items.
             </p>
           </div>
-          <Link to="/" className="btn btn-home">
-            Home
+          <Link to="/maintenance" className="btn btn-home">
+            Back
           </Link>
         </div>
 
@@ -195,41 +193,41 @@ function ExploreServicesPage() {
               <div className="category-buttons">
                 <button
                   className={`category-btn ${
-                    selectedCategory === "Furniture" ? "active" : ""
+                    selectedCategory === 'Furniture' ? 'active' : ''
                   }`}
-                  onClick={() => setSelectedCategory("Furniture")}
+                  onClick={() => setSelectedCategory('Furniture')}
                 >
                   Furniture
                 </button>
                 <button
                   className={`category-btn ${
-                    selectedCategory === "Electronics" ? "active" : ""
+                    selectedCategory === 'Electronics' ? 'active' : ''
                   }`}
-                  onClick={() => setSelectedCategory("Electronics")}
+                  onClick={() => setSelectedCategory('Electronics')}
                 >
                   Electronics
                 </button>
                 <button
                   className={`category-btn ${
-                    selectedCategory === "Clothing" ? "active" : ""
+                    selectedCategory === 'Clothing' ? 'active' : ''
                   }`}
-                  onClick={() => setSelectedCategory("Clothing")}
+                  onClick={() => setSelectedCategory('Clothing')}
                 >
                   Clothing
                 </button>
                 <button
                   className={`category-btn ${
-                    selectedCategory === "Appliances" ? "active" : ""
+                    selectedCategory === 'Appliances' ? 'active' : ''
                   }`}
-                  onClick={() => setSelectedCategory("Appliances")}
+                  onClick={() => setSelectedCategory('Appliances')}
                 >
                   Appliances
                 </button>
                 <button
                   className={`category-btn ${
-                    selectedCategory === "all" ? "active" : ""
+                    selectedCategory === 'all' ? 'active' : ''
                   }`}
-                  onClick={() => setSelectedCategory("all")}
+                  onClick={() => setSelectedCategory('all')}
                 >
                   All
                 </button>
@@ -277,17 +275,17 @@ function ExploreServicesPage() {
               <div className="location-buttons">
                 <button
                   className={`location-btn ${
-                    locationFilter === "nearby" ? "active" : ""
+                    locationFilter === 'nearby' ? 'active' : ''
                   }`}
-                  onClick={() => setLocationFilter("nearby")}
+                  onClick={() => setLocationFilter('nearby')}
                 >
                   Nearby
                 </button>
                 <button
                   className={`location-btn ${
-                    locationFilter === "online" ? "active" : ""
+                    locationFilter === 'online' ? 'active' : ''
                   }`}
-                  onClick={() => setLocationFilter("online")}
+                  onClick={() => setLocationFilter('online')}
                 >
                   Online
                 </button>
@@ -319,7 +317,9 @@ function ExploreServicesPage() {
                     <span className="rating-value">{service.rating}</span>
                   </div>
                   <div className="service-actions">
-                    <button className="btn btn-view-details">View Details</button>
+                    <button className="btn btn-view-details">
+                      View Details
+                    </button>
                     <button className="btn btn-request">Request</button>
                   </div>
                 </div>

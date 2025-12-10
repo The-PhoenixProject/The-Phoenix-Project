@@ -1,0 +1,54 @@
+.parallax-divider {
+  width: 100%;
+  height: 60vh;
+  /* !!! IMPORTANT: Update the image path below !!! */
+  background-image: url('/public/assets/landingImgs/Gemini2.png'); 
+  background-size: cover;
+  background-position: center;
+  /* This creates the classic parallax scrolling effect */
+  background-attachment: fixed; 
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  padding: 3rem;
+}
+
+/* Add an overlay style if needed to darken the image for better text contrast */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); 
+  z-index: 1;
+}
+
+/* Content inside parallax */
+.parallax-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Start position (translated down 40px and centered) */
+  transform: translate(-50%, -50%) translateY(40px);  
+  z-index: 2; /* Ensure content is above the overlay/background */
+  /* --- IMPORTANT: Replace 'var(--white)' with a specific color like 'white' or '#fff' if you aren't using CSS variables --- */
+  color: white; 
+  text-align: center;
+  opacity: 0;
+  /* Apply the transition for smooth animation */
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 90%; /* Ensure it doesn't span the full screen width unnecessarily */
+}
+
+/* When visible */
+.parallax-content.visible {
+  opacity: 1;
+  /* Final position (centered with no vertical offset) */
+  transform: translate(-50%, -50%) translateY(0);
+}

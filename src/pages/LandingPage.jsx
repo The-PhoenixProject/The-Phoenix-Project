@@ -7,6 +7,7 @@ import FeaturesSection from "../components/landing/FeaturesSection";
 import MarketPlace from "../components/landing/MarketPlaceSection";
 import Testimonials from "../components/landing/TestimonialsSection";
 import CallToAction from "../components/landing/CallToActionSection";
+import ParallaxDivider from "../components/landing/parallax";
 export default function LandingPage() {
   const [showPopup, setShowPopup] = useState(false);
   return (
@@ -17,11 +18,12 @@ export default function LandingPage() {
       {showPopup && <LearnMore onClose={() => setShowPopup(false)} />}
       </div>
 
+      <ParallaxDivider />
       <AboutSection />
       <FeaturesSection />
       <MarketPlace />
       <Testimonials />
-      <CallToAction />
+      {/* <CallToAction /> */}
       <Footer />
     </>
   );

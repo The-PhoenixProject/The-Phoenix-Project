@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { maintenanceAPI } from "../services/api";
-import toast from "react-hot-toast";
-import "./MyMaintenanceRequestsPage.css";
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { maintenanceAPI } from '../services/api';
+import toast from 'react-hot-toast';
+import './MyMaintenanceRequestsPage.css';
 
 function MyMaintenanceRequestsPage() {
   const { token } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState('all');
 
   const loadRequests = useCallback(async () => {
     if (!token) {
-      toast.error("Authentication required");
+      toast.error('Authentication required');
       setLoading(false);
       return;
     }
@@ -21,12 +21,12 @@ function MyMaintenanceRequestsPage() {
     try {
       setLoading(true);
       const response = await maintenanceAPI.getMyRequests(token);
-      
+
       // Handle different response structures
       const requestsData = response?.data || response || [];
       setRequests(Array.isArray(requestsData) ? requestsData : []);
     } catch (error) {
-      console.error("Failed to load requests:", error);
+      console.error('Failed to load requests:', error);
       toast.error(`Failed to load requests: ${error.message}`);
       setRequests([]);
     } finally {
@@ -39,23 +39,25 @@ function MyMaintenanceRequestsPage() {
   }, [loadRequests]);
 
   const handleDeleteRequest = async (requestId) => {
-    if (!window.confirm("Are you sure you want to delete this request?")) return;
+    if (!window.confirm('Are you sure you want to delete this request?'))
+      return;
 
     try {
       await maintenanceAPI.deleteRequest(requestId, token);
-      toast.success("Request deleted successfully");
+      toast.success('Request deleted successfully');
       loadRequests();
     } catch (error) {
-      console.error("Error deleting request:", error);
+      console.error('Error deleting request:', error);
       toast.error(`Error deleting request: ${error.message}`);
     }
   };
 
-  const filteredRequests = requests.filter(req => {
-    if (activeTab === "all") return true;
-    if (activeTab === "active") return ["New", "Matched", "In Progress"].includes(req.status);
-    if (activeTab === "completed") return req.status === "Completed";
-    if (activeTab === "disputed") return req.status === "Disputed";
+  const filteredRequests = requests.filter((req) => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'active')
+      return ['New', 'Matched', 'In Progress'].includes(req.status);
+    if (activeTab === 'completed') return req.status === 'Completed';
+    if (activeTab === 'disputed') return req.status === 'Disputed';
     return true;
   });
 
@@ -78,7 +80,7 @@ function MyMaintenanceRequestsPage() {
             Track and manage all your maintenance requests
           </p>
         </div>
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <Link to="/maintenance" className="btn btn-primary-orange">
             + Create New Request
           </Link>
@@ -88,26 +90,26 @@ function MyMaintenanceRequestsPage() {
       {/* Tabs */}
       <div className="requests-tabs">
         <button
-          className={`tab ${activeTab === "all" ? "active" : ""}`}
-          onClick={() => setActiveTab("all")}
+          className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
         >
           All ({requests.length})
         </button>
         <button
-          className={`tab ${activeTab === "active" ? "active" : ""}`}
-          onClick={() => setActiveTab("active")}
+          className={`tab ${activeTab === 'active' ? 'active' : ''}`}
+          onClick={() => setActiveTab('active')}
         >
           Active
         </button>
         <button
-          className={`tab ${activeTab === "completed" ? "active" : ""}`}
-          onClick={() => setActiveTab("completed")}
+          className={`tab ${activeTab === 'completed' ? 'active' : ''}`}
+          onClick={() => setActiveTab('completed')}
         >
           Completed
         </button>
         <button
-          className={`tab ${activeTab === "disputed" ? "active" : ""}`}
-          onClick={() => setActiveTab("disputed")}
+          className={`tab ${activeTab === 'disputed' ? 'active' : ''}`}
+          onClick={() => setActiveTab('disputed')}
         >
           Disputed
         </button>
@@ -119,26 +121,33 @@ function MyMaintenanceRequestsPage() {
           filteredRequests.map((request) => (
             <div key={request._id} className="request-card">
               <div className="request-header">
-                <h3>{request.itemName || "Unnamed Request"}</h3>
-                <span className={`status-badge status-${request.status?.toLowerCase().replace(/\s+/g, '-')}`}>
-                  {request.status || "Unknown"}
+                <h3>{request.itemName || 'Unnamed Request'}</h3>
+                <span
+                  className={`status-badge status-${request.status
+                    ?.toLowerCase()
+                    .replace(/\s+/g, '-')}`}
+                >
+                  {request.status || 'Unknown'}
                 </span>
               </div>
 
               <div className="request-category">
-                <span className="badge-category">{request.category || "General"}</span>
+                <span className="badge-category">
+                  {request.category || 'General'}
+                </span>
               </div>
 
               <p className="request-description">
-                {request.description?.substring(0, 100) || "No description"}...
+                {request.description?.substring(0, 100) || 'No description'}...
               </p>
 
               <div className="request-info">
                 <div className="info-item">
-                  <strong>Budget:</strong> {request.budget || "Not specified"}
+                  <strong>Budget:</strong> {request.budget || 'Not specified'}
                 </div>
                 <div className="info-item">
-                  <strong>Location:</strong> {request.location || "Not specified"}
+                  <strong>Location:</strong>{' '}
+                  {request.location || 'Not specified'}
                 </div>
                 <div className="info-item">
                   <strong>Offers:</strong> {request.offers?.length || 0}
@@ -150,13 +159,13 @@ function MyMaintenanceRequestsPage() {
               </div>
 
               <div className="request-actions">
-                <Link 
+                <Link
                   to={`/maintenance/requests/${request._id}`}
                   className="btn btn-view"
                 >
                   View Details
                 </Link>
-                {request.status === "New" && (
+                {request.status === 'New' && (
                   <button
                     className="btn btn-delete"
                     onClick={() => handleDeleteRequest(request._id)}
@@ -239,7 +248,7 @@ function MyMaintenanceRequestsPage() {
           background: white;
           border-radius: 12px;
           padding: 1.5rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
           transition: all 0.3s;
           display: flex;
           flex-direction: column;
@@ -247,7 +256,7 @@ function MyMaintenanceRequestsPage() {
 
         .request-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
 
         .request-header {
@@ -273,11 +282,26 @@ function MyMaintenanceRequestsPage() {
           white-space: nowrap;
         }
 
-        .status-new { background: #e3f2fd; color: #1976d2; }
-        .status-matched { background: #f3e5f5; color: #7b1fa2; }
-        .status-in-progress { background: #e8f5e9; color: #388e3c; }
-        .status-completed { background: #c8e6c9; color: #2e7d32; }
-        .status-disputed { background: #ffebee; color: #c62828; }
+        .status-new {
+          background: #e3f2fd;
+          color: #1976d2;
+        }
+        .status-matched {
+          background: #f3e5f5;
+          color: #7b1fa2;
+        }
+        .status-in-progress {
+          background: #e8f5e9;
+          color: #388e3c;
+        }
+        .status-completed {
+          background: #c8e6c9;
+          color: #2e7d32;
+        }
+        .status-disputed {
+          background: #ffebee;
+          color: #c62828;
+        }
 
         .request-category {
           margin-bottom: 1rem;
