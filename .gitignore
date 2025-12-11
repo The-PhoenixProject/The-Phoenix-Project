@@ -34,6 +34,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# Backend runtime artifacts
-backend/uploads/
-backend/logs/
+# Backend
+backend/

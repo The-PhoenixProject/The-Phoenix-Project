@@ -3,7 +3,7 @@
   --color-primary-green: #386641;
   --color-secondary-green: #6A994E;
   --color-tertiary-green: #A7C957;
-  --color-background-light: #e7e9e36b;
+  --color-background-light: #f7faf9;
   --color-text-dark: #2F3E46;
   --color-text-light: #5A6D65;
   --color-border-light: #D4D8CB;
@@ -13,15 +13,15 @@
 }
 
 .homepage-container {
-  /* background: var(--color-background-light); */
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  background: linear-gradient(135deg, #f7faf9 0%, #eef3f1 100%);
 }
 
 .homepage-container .container-fluid {
-  padding: 0 16px !important;
-  max-width: 1400px !important;
+  padding: 0 14px !important;
+  max-width: 1360px !important;
   margin: 0 auto;
 }
 
@@ -29,21 +29,71 @@
   margin: 0;
 }
 
+@media (min-width: 992px) {
+  .homepage-container {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+  }
+
+  .homepage-container .container-fluid {
+    height: 100%;
+  }
+
+  .homepage-container .row.g-4 {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 18px;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .homepage-container .col-lg-3 {
+    flex: 0 0 26%;
+    max-width: 26%;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    align-self: flex-start;
+    z-index: 2;
+    scrollbar-width: none;
+    padding-bottom: 28px;
+    scroll-padding-bottom: 28px;
+  }
+
+  .homepage-container .col-lg-3::-webkit-scrollbar {
+    display: none;
+  }
+
+  .homepage-container .col-lg-6 {
+    flex: 0 0 48%;
+    max-width: 48%;
+    padding: 18px 12px 40px;
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+}
+
 /* Main Feed Layout */
 .homepage-container .col-lg-3 {
-  padding: 20px 8px;
-  position: sticky;
-  top: 0;
-  height: calc(100vh - 40px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  padding: 16px 10px;
+  padding-bottom: 28px;
+  scroll-padding-bottom: 28px;
 }
 
 .homepage-container .col-lg-6 {
-  padding: 20px 15px;
-  max-width: 680px;
+  padding: 16px 12px;
+  max-width: 720px;
   margin: 0 auto;
   width: 100%;
+  padding-bottom: 32px;
+  scroll-padding-bottom: 24px;
 }
 
 /* Mobile Toggle Buttons */
@@ -103,6 +153,9 @@
 /* Posts Feed */
 .homepage-container .posts-feed {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* Edit Modal */
