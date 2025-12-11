@@ -193,7 +193,7 @@
 }
 
 .post-card .post-actions .btn:hover {
-  background: var(--color-hover-bg);
+  /* background: var(--color-hover-bg); */
   color: var(--color-primary-green);
 }
 
