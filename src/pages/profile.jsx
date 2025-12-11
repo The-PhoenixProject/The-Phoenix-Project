@@ -218,21 +218,6 @@
 //         }
         
 //         // Fetch posts - with error handling
-//         try { 
-//           const postsRes = await postAPI.getMyPosts(token); 
-//           // Handle different response structures
-//           const postsData = postsRes?.posts || postsRes?.data?.posts || postsRes?.data || [];
-//           setPosts(Array.isArray(postsData) ? postsData : []); 
-//         } catch (err) { 
-//           console.warn("Failed to load posts:", err); 
-//           if (checkSessionAndRedirect(err)) return;
-//           setPosts([]);
-//         }
-//       } catch (err) {
-//         console.error("Failed to load profile:", err);
-//         if (!checkSessionAndRedirect(err)) {
-//           setError(err.message || "Failed to load profile");
-//         }
 //       } finally { 
 //         setLoading(false); 
 //       }
@@ -1747,7 +1732,7 @@ export default function ProfilePage() {
                 
                 try { 
                     const postsRes = await postAPI.getMyPosts(token); 
-                    setPosts(postsRes.posts || []); 
+                    setPosts(postsRes.data || postsRes.posts || []); 
                 } catch (err) { 
                     console.warn("Failed to load posts:", err); 
                 }
