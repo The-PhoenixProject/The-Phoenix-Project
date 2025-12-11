@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { maintenanceAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
-import './ExploreServicesPage.css';
+import '../styles/Mantainance/ExploreServicesPage.css';
 
 // ✅ IMPROVED: Better placeholder images with category icons
 const CATEGORY_ICONS = {

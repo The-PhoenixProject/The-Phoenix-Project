@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { maintenanceAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import './MyMaintenanceRequestsPage.css';
+import '../styles/Mantainance/MyMaintenanceRequestsPage.css';
 
 function MyMaintenanceRequestsPage() {
   const { token } = useAuth();
