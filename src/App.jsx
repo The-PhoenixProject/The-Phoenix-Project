@@ -392,6 +392,8 @@ import Signup from "./components/Signup";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import OtpVerification from "./components/OtpVervication";
+///
+import PublicProfilePage from "./pages/PublicProfilePage";
 
 // Main Pages
 import LandingPage from "./pages/LandingPage";
@@ -603,6 +605,8 @@ function App() {
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
                         <Route path="/otp-verification" element={<OtpVerification />} />
+                        //
+                        <Route path="/profile/:userId" element={<PublicProfilePage />} />
                         
                         {/* ✅ HOME & FEED - Protected Routes */}
                         <Route 

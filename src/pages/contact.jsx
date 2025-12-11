@@ -130,12 +130,12 @@ export default function ContactUs() {
                   <Button
                     type="submit"
                     className="w-100 rounded-pill border-0"
-                    style={{ backgroundColor: "#EC744A" }}
+                    style={{ backgroundColor: " #386641" }}
                     onMouseOver={(e) =>
-                      (e.target.style.backgroundColor = "#e0653a")
+                      (e.target.style.backgroundColor = " #386641;")
                     }
                     onMouseOut={(e) =>
-                      (e.target.style.backgroundColor = "#EC744A")
+                      (e.target.style.backgroundColor = "#386641")
                     }
                     disabled={loading}
                   >
