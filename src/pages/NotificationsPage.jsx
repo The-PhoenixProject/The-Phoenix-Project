@@ -1,60 +1,209 @@
-// src/pages/NotificationsPage.jsx - BACKEND INTEGRATED VERSION
-import React, { useState, useEffect } from "react";
+// src/pages/NotificationsPage.jsx - FIXED DISPLAY ISSUE
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { notificationAPI } from "../services/api";
+import { useAuth } from "../hooks/useAuth";
 import Swal from "sweetalert2";
+import io from "socket.io-client";
 import "../styles/NotificationsPage.css";
 
 const NotificationsPage = () => {
   const navigate = useNavigate();
+  const { token } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
-  const token = localStorage.getItem("authToken");
+  const socketRef = useRef(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   const PLACEHOLDER_AVATAR = "https://ui-avatars.com/api/?name=User&background=007D6E&color=fff&size=100";
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-  useEffect(() => {
-    fetchNotifications();
-    
-    // ✅ Refresh notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchNotifications = async () => {
-    setLoading(true);
-    try {
-      const response = await notificationAPI.getNotifications(token);
-      const notifs = response.data || [];
-      
-      const transformed = notifs.map(notif => ({
-        id: notif._id,
-        type: notif.type,
-        message: notif.message,
-        isRead: notif.isRead,
-        createdAt: notif.createdAt,
-        sender: notif.sender,
-        relatedId: notif.relatedId,
-        avatar: getImageUrl(notif.sender?.profilePicture)
-      }));
-      
-      setNotifications(transformed);
-    } catch (err) {
-      console.error("Failed to fetch notifications:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getImageUrl = (imagePath) => {
+  const getImageUrl = useCallback((imagePath) => {
     if (!imagePath) return PLACEHOLDER_AVATAR;
     if (imagePath.startsWith('http')) return imagePath;
     if (imagePath.startsWith('/uploads')) return `${API_BASE_URL}${imagePath}`;
     if (imagePath.startsWith('uploads/')) return `${API_BASE_URL}/${imagePath}`;
     return PLACEHOLDER_AVATAR;
-  };
+  }, [API_BASE_URL, PLACEHOLDER_AVATAR]);
+
+  const fetchNotifications = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    
+    console.log('🔄 Fetching notifications from API...');
+    setLoading(true);
+    
+    try {
+      const response = await notificationAPI.getNotifications(token);
+
+      console.log('📥 API Response:', response);
+      
+      // ✅ HANDLE DIFFERENT RESPONSE STRUCTURES
+      let notifs = [];
+      if (response.data?.data) {
+        notifs = response.data.data;
+      } else if (response.data) {
+        notifs = Array.isArray(response.data) ? response.data : [];
+      } else if (response) {
+        notifs = Array.isArray(response) ? response : [];
+      }
+      
+      console.log('📋 Notifications found:', notifs.length);
+      
+      // ✅ TRANSFORM NOTIFICATIONS
+      const transformed = notifs.map(notif => {
+        console.log('🔍 Processing notification:', notif);
+        
+        return {
+          id: notif._id || notif.id,
+          type: notif.type || 'system',
+          message: notif.message || 'New notification',
+          isRead: notif.isRead || false,
+          createdAt: notif.createdAt || new Date(),
+          sender: notif.sender || {},
+          relatedId: notif.relatedId,
+          avatar: getImageUrl(notif.sender?.profilePicture)
+        };
+      });
+      
+      console.log('✅ Transformed notifications:', transformed);
+      setNotifications(transformed);
+      
+    } catch (err) {
+      console.error("❌ Failed to fetch notifications:", err);
+      console.error("Error details:", err.response || err);
+      
+      // Show user-friendly error
+      if (err.response?.status === 401) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Session Expired',
+          text: 'Please log in again',
+          confirmButtonColor: '#007D6E'
+        }).then(() => {
+          navigate('/login');
+        });
+      }
+      
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, getImageUrl, navigate]);
+
+  // ✅ SOCKET.IO CONNECTION
+  useEffect(() => {
+    if (!token) return;
+
+    const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    
+    console.log("🔌 Connecting to Socket.IO at:", SOCKET_URL);
+    
+    const newSocket = io(SOCKET_URL, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
+    });
+
+    newSocket.on('connect', () => {
+      console.log("✅ Socket.IO connected:", newSocket.id);
+      setIsConnected(true);
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error("❌ Socket.IO connection error:", error.message);
+      setIsConnected(false);
+    });
+
+    newSocket.on('disconnect', (reason) => {
+      console.log("🔌 Socket.IO disconnected:", reason);
+      setIsConnected(false);
+    });
+
+    // ✅ LISTEN FOR NEW NOTIFICATIONS
+    newSocket.on('notification:new', (data) => {
+      console.log("🔔 New notification received:", data);
+      
+      const newNotification = {
+        id: data.notification.id || data.notification._id,
+        type: data.notification.type,
+        message: data.notification.message,
+        isRead: false,
+        createdAt: data.notification.createdAt,
+        sender: data.notification.sender,
+        relatedId: data.notification.relatedId,
+        avatar: getImageUrl(data.notification.sender?.profilePicture)
+      };
+
+      setNotifications(prev => [newNotification, ...prev]);
+
+      // Show browser notification
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("Phoenix Project", {
+          body: data.notification.message,
+          icon: newNotification.avatar,
+          tag: newNotification.id
+        });
+      }
+
+      // Show toast notification
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'New Notification',
+        text: data.notification.message,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+    });
+
+    // ✅ DEBUG: Log all socket events
+    newSocket.onAny((event, ...args) => {
+      console.log(`📡 Socket Event: ${event}`, args);
+    });
+
+    socketRef.current = newSocket;
+
+    // Request browser notification permission
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
+    return () => {
+      console.log("🔌 Disconnecting Socket.IO");
+      newSocket.offAny();
+      newSocket.disconnect();
+    };
+  }, [token, API_BASE_URL, getImageUrl]);
+
+  // ✅ INITIAL FETCH
+  useEffect(() => {
+    console.log('🎯 Initial useEffect triggered, token:', !!token);
+    
+    if (!token) {
+      console.log('⚠️ No token found, redirecting to login');
+      setLoading(false);
+      navigate('/login');
+      return;
+    }
+    
+    fetchNotifications();
+    
+    // Refresh every 30 seconds as backup
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing notifications...');
+      fetchNotifications();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [token, fetchNotifications, navigate]);
 
   const getNotificationIcon = (type) => {
     const icons = {
@@ -71,6 +220,8 @@ const NotificationsPage = () => {
   };
 
   const formatTime = (date) => {
+    if (!date) return "Just now";
+    
     const now = new Date();
     const notifDate = new Date(date);
     const diffMs = now - notifDate;
@@ -88,6 +239,7 @@ const NotificationsPage = () => {
   const handleMarkAsRead = async (notifId) => {
     try {
       await notificationAPI.markAsRead(notifId, token);
+
       setNotifications(prev => prev.map(n => 
         n.id === notifId ? { ...n, isRead: true } : n
       ));
@@ -136,6 +288,7 @@ const NotificationsPage = () => {
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
+  // ✅ LOADING STATE
   if (loading && notifications.length === 0) {
     return (
       <div className="container py-5">
@@ -166,10 +319,23 @@ const NotificationsPage = () => {
               <h3 className="mb-0" style={{ color: '#007D6E' }}>
                 <i className="bi bi-bell-fill me-2"></i>
                 Notifications
+                {isConnected && (
+                  <span className="badge bg-success ms-2" style={{ fontSize: '0.6rem' }}>
+                    <i className="bi bi-circle-fill me-1" style={{ fontSize: '0.4rem' }}></i>
+                    Live
+                  </span>
+                )}
+                {!isConnected && (
+                  <span className="badge bg-warning ms-2" style={{ fontSize: '0.6rem' }}>
+                    <i className="bi bi-circle-fill me-1" style={{ fontSize: '0.4rem' }}></i>
+                    Offline
+                  </span>
+                )}
               </h3>
               <p className="text-muted mb-0">
-                {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
+                {loading ? 'Loading...' : unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
               </p>
+              {/* debug info removed */}
             </div>
           </div>
           
@@ -179,8 +345,9 @@ const NotificationsPage = () => {
               onClick={fetchNotifications}
               style={{ borderRadius: '12px' }}
               title="Refresh"
+              disabled={loading}
             >
-              <i className="bi bi-arrow-clockwise"></i>
+              <i className={`bi bi-arrow-clockwise ${loading ? 'spinner-border spinner-border-sm' : ''}`}></i>
             </button>
             {unreadCount > 0 && (
               <button 
@@ -229,6 +396,14 @@ const NotificationsPage = () => {
                 <p className="text-muted">
                   {filter === 'unread' ? "You're all caught up!" : "No notifications yet"}
                 </p>
+                {notifications.length > 0 && (
+                  <button 
+                    className="btn btn-outline-success mt-3"
+                    onClick={() => setFilter('all')}
+                  >
+                    Show All Notifications
+                  </button>
+                )}
               </div>
             </div>
           ) : (
@@ -243,7 +418,8 @@ const NotificationsPage = () => {
                     borderRadius: '16px',
                     borderLeft: !notif.isRead ? `4px solid ${iconData.color}` : 'none',
                     cursor: 'pointer',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    backgroundColor: !notif.isRead ? '#f0f9f7' : 'white'
                   }}
                   onClick={() => !notif.isRead && handleMarkAsRead(notif.id)}
                 >
@@ -282,7 +458,9 @@ const NotificationsPage = () => {
                       </div>
 
                       <div className="flex-grow-1">
-                        <p className="mb-1">{notif.message}</p>
+                        <p className="mb-1" style={{ fontWeight: !notif.isRead ? 'bold' : 'normal' }}>
+                          {notif.message}
+                        </p>
                         <small className="text-muted">
                           <i className="bi bi-clock me-1"></i>
                           {formatTime(notif.createdAt)}
@@ -322,6 +500,8 @@ const NotificationsPage = () => {
             })
           )}
         </div>
+
+        {/* debug panel removed */}
       </div>
     </div>
   );

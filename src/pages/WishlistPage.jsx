@@ -4,7 +4,7 @@ import { Trash2, MessageCircle, ArrowLeft, ShoppingBag } from 'lucide-react';
 import { productAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
-import ProductModal from '../components/ProductModal';  
+import ProductModal from '../components/marketplace/ProductModal';  
 import toast from 'react-hot-toast';
 import '../styles/MarketPlace/WishList.css';
 

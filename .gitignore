@@ -6,11 +6,22 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+*.eslintcache
+.vercel
+.turbo
+.vite
+.cache
+tmp
+coverage
+.nyc_output
 
 node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*.local
+.env.local
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +33,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Backend runtime artifacts
+backend/uploads/
+backend/logs/
+Backend2/
+backend/
+

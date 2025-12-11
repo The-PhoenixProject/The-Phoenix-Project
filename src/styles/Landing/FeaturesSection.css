@@ -1,21 +1,49 @@
-.featuresSection{
-    padding:2rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
-    width: 80%;
+.featuresSection {
+  padding: 2.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  width: 90%;
+  max-width: 1200px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(15, 159, 136, 0.06), rgba(7, 99, 84, 0.04));
+  border: 1px solid #e5ece8;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
 }
 
-.FeatureCard{
-    width: 220px;
-    min-Width: 200px;
-    padding: 2rem;
-    background: rgba(255,255,255,0.9);
-    border-radius: 20;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    text-align: center;
-    cursor: grab;
-    backdrop-filter: blur(10px);
+.FeatureCard {
+  width: 220px;
+  min-width: 200px;
+  padding: 1.6rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  cursor: grab;
+  backdrop-filter: blur(10px);
+  border: 1px solid #e7eeea;
+}
+
+.FeatureCard h3 {
+  color: #1f2a36;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.FeatureCard p {
+  color: #4b5560;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .featuresSection {
+    width: 100%;
+    padding: 1.5rem;
+  }
+
+  .FeatureCard {
+    width: 200px;
+  }
 }

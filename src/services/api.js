@@ -1,56 +1,42 @@
 // src/services/api.js - COMPLETE FIXED VERSION
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const apiCall = async (endpoint, options = {}) => {
   try {
     const userHeaders = options.headers || {};
     const isForm = options.body instanceof FormData;
-    const headers = {
-      ...(isForm ? {} : { "Content-Type": "application/json" }),
-      ...userHeaders,
-    };
+    const headers = { ...(isForm ? {} : { 'Content-Type': 'application/json' }), ...userHeaders };
 
     const maskToken = (h) => {
       if (!h) return null;
       try {
-        const t = h.replace(/^Bearer\s+/i, "");
-        return `${t.slice(0, 6)}...${t.slice(-4)}`;
-      } catch {
-        return "***";
-      }
+        const t = h.replace(/^Bearer\s+/i, '');
+        return `${t.slice(0,6)}...${t.slice(-4)}`;
+      } catch { return '***'; }
     };
-    console.debug("API Request ->", {
-      endpoint: `${API_BASE_URL}${endpoint}`,
-      method: options.method || "GET",
-      headers: {
-        ...headers,
-        Authorization: userHeaders.Authorization
-          ? `Bearer ${maskToken(userHeaders.Authorization)}`
-          : undefined,
-      },
-    });
+    console.debug('API Request ->', { endpoint: `${API_BASE_URL}${endpoint}`, method: options.method || 'GET', headers: { ...headers, Authorization: userHeaders.Authorization ? `Bearer ${maskToken(userHeaders.Authorization)}` : undefined } });
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
     const text = await response.text();
     let data = {};
-    try {
-      data = text ? JSON.parse(text) : {};
-    } catch {
-      data = { message: text };
-    }
+    try { data = text ? JSON.parse(text) : {}; } catch { data = { message: text }; }
 
     if (!response.ok) {
-      console.log("API error payload:", data);
+      // Allow callers to suppress noisy error logging for optional endpoints
+      if (options && options.suppressErrors) {
+        // Keep this quiet in development logs (use debug level)
+        console.debug('API suppressed error for', endpoint, data);
+        // Return parsed payload to let caller decide; do not throw
+        return data;
+      }
+      console.log('API error payload:', data);
       throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
     return data;
   } catch (error) {
-    console.error("API Error:", error);
+    console.error('API Error:', error);
     throw error;
   }
 };
@@ -58,66 +44,39 @@ const apiCall = async (endpoint, options = {}) => {
 /* ======================================== AUTH API ======================================== */
 export const authAPI = {
   signup: async ({ email, password, fullName, location }) => {
-    return apiCall("/auth/signup", {
-      method: "POST",
+    return apiCall('/auth/signup', {
+      method: 'POST',
       body: JSON.stringify({ email, password, fullName, location }),
     });
   },
   resendOTP: async (email) =>
-    apiCall("/auth/resend-otp", {
-      method: "POST",
-      body: JSON.stringify({ email }),
-    }),
+    apiCall('/auth/resend-otp', { method: 'POST', body: JSON.stringify({ email }) }),
   verifyOTP: async (email, otp) =>
-    apiCall("/auth/verify-otp", {
-      method: "POST",
-      body: JSON.stringify({ email, otp }),
-    }),
+    apiCall('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ email, otp }) }),
   login: async (email, password) =>
-    apiCall("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    }),
+    apiCall('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   socialLogin: async (idToken) =>
-    apiCall("/auth/social-login", {
-      method: "POST",
-      body: JSON.stringify({ idToken }),
-    }),
+    apiCall('/auth/social-login', { method: 'POST', body: JSON.stringify({ idToken }) }),
   forgotPassword: async (email) =>
-    apiCall("/auth/forgot-password", {
-      method: "POST",
-      body: JSON.stringify({ email }),
-    }),
+    apiCall('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
   resetPassword: async (email, otp, newPassword) =>
-    apiCall("/auth/reset-password", {
-      method: "POST",
-      body: JSON.stringify({ email, otp, newPassword }),
-    }),
+    apiCall('/auth/reset-password', { method: 'POST', body: JSON.stringify({ email, otp, newPassword }) }),
   getMe: async (token) =>
-    apiCall("/users/me", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+    apiCall('/users/me', { method: 'GET', headers: { Authorization: `Bearer ${token}` } }),
   updateProfile: async (data, token) =>
-    apiCall("/users/me", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+    apiCall('/users/me', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
     }),
   logout: async (token, refreshToken) =>
-    apiCall("/auth/logout", {
-      method: "POST",
+    apiCall('/auth/logout', {
+      method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify({ refreshToken }),
     }),
   refreshToken: async (refreshToken) =>
-    apiCall("/auth/refresh-token", {
-      method: "POST",
-      body: JSON.stringify({ refreshToken }),
-    }),
+    apiCall('/auth/refresh-token', { method: 'POST', body: JSON.stringify({ refreshToken }) }),
 };
 
 /* ======================================== PRODUCT API ======================================== */
@@ -125,932 +84,885 @@ export const productAPI = {
   getAllProducts: async (filters = {}, token) => {
     const queryParams = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== "" && value !== null) {
-        if (Array.isArray(value))
-          value.forEach((v) => queryParams.append(key, v));
+      if (value !== undefined && value !== '' && value !== null) {
+        if (Array.isArray(value)) value.forEach(v => queryParams.append(key, v));
         else queryParams.append(key, value);
       }
     });
     return apiCall(`/products?${queryParams.toString()}`, {
-      method: "GET",
+      method: 'GET',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
   },
   getProductById: async (id, token) =>
-    apiCall(`/products/${id}`, {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    }),
+    apiCall(`/products/${id}`, { method: 'GET', headers: token ? { Authorization: `Bearer ${token}` } : {} }),
   createProduct: async (formData, token) => {
     try {
-      console.debug("productAPI.createProduct -> token present:", !!token);
+      console.debug('productAPI.createProduct -> token present:', !!token);
       const response = await fetch(`${API_BASE_URL}/products`, {
-        method: "POST",
+        method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(
-          data.message || `HTTP error! status: ${response.status}`
-        );
+      if (!response.ok) throw new Error(data.message || `HTTP error! status: ${response.status}`);
       return data;
     } catch (error) {
-      console.error("Create product error:", error);
+      console.error('Create product error:', error);
       throw error;
     }
   },
   getMyProducts: async (status, token) => {
-    const query = status ? `?status=${status}` : "";
-    return apiCall(`/products/my/products${query}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const query = status ? `?status=${status}` : '';
+    return apiCall(`/products/my/products${query}`, { method: 'GET', headers: { Authorization: `Bearer ${token}` } });
   },
   updateProduct: async (id, formData, token) => {
     try {
-      console.debug(
-        "productAPI.updateProduct -> id:",
-        id,
-        "token present:",
-        !!token
-      );
+      console.debug('productAPI.updateProduct -> id:', id, 'token present:', !!token);
       const response = await fetch(`${API_BASE_URL}/products/${id}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(
-          data.message || `HTTP error! status: ${response.status}`
-        );
+      if (!response.ok) throw new Error(data.message || `HTTP error! status: ${response.status}`);
       return data;
     } catch (error) {
-      console.error("Update product error:", error);
+      console.error('Update product error:', error);
       throw error;
     }
   },
   deleteProduct: async (id, token) =>
-    apiCall(`/products/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+    apiCall(`/products/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
   toggleWishlist: async (productId, token) =>
-    apiCall(`/products/${productId}/wishlist`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+    apiCall(`/products/${productId}/wishlist`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
   getWishlist: async (token) =>
-    apiCall("/products/my/wishlist", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-  // ✅ NEW: Get user products
-  getUserProducts: async (userId, token) => {
-    console.debug(
-      "getUserProducts -> userId:",
-      userId,
-      "token present:",
-      !!token
-    );
-    return apiCall(`/products/user/${userId}`, {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  },
+    apiCall('/products/my/wishlist', { method: 'GET', headers: { Authorization: `Bearer ${token}` } }),
 };
 
 /* ======================================== POST API ======================================== */
 export const postAPI = {
   getMyPosts: async (token) =>
-    apiCall("/posts/my", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+    apiCall('/posts/my', { method: 'GET', headers: { Authorization: `Bearer ${token}` } }),
   createPost: async (formData, token) => {
     try {
       const response = await fetch(`${API_BASE_URL}/posts`, {
-        method: "POST",
+        method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to create post");
+      if (!response.ok) throw new Error(data.message || 'Failed to create post');
       return data;
     } catch (error) {
-      console.error("Create post error:", error);
+      console.error('Create post error:', error);
       throw error;
     }
   },
   getFeedPosts: async (token) =>
-    apiCall("/posts/feed", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+    apiCall('/posts/feed', { method: 'GET', headers: { Authorization: `Bearer ${token}` } }),
   likePost: async (postId, token) =>
-    apiCall(`/posts/${postId}/like`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+    apiCall(`/posts/${postId}/like`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
   commentPost: async (postId, commentData, token) =>
     apiCall(`/posts/${postId}/comment`, {
-      method: "POST",
+      method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(commentData),
     }),
   deletePost: async (postId, token) =>
-    apiCall(`/posts/${postId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+    apiCall(`/posts/${postId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
   updatePost: async (postId, updateData, token) =>
     apiCall(`/posts/${postId}`, {
-      method: "PUT",
+      method: 'PUT',
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(updateData),
     }),
-  // ✅ NEW: Get user posts
-  getUserPosts: async (userId, token) => {
-    console.debug("getUserPosts -> userId:", userId, "token present:", !!token);
-    return apiCall(`/posts/user/${userId}`, {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  },
-};
-
-/* ======================================== USER PROFILE API ======================================== */
-export const userAPI = {
-  // ✅ User profile endpoints
-  getUserProfile: async (userId, token) => {
-    console.debug(
-      "getUserProfile -> userId:",
-      userId,
-      "token present:",
-      !!token
-    );
-    return apiCall(`/users/${userId}`, {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  },
-
-  getUserPosts: async (userId, token) => {
-    console.debug("getUserPosts -> userId:", userId, "token present:", !!token);
-    return apiCall(`/users/${userId}/posts`, {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  },
-
-  getUserProducts: async (userId, token) => {
-    console.debug(
-      "getUserProducts -> userId:",
-      userId,
-      "token present:",
-      !!token
-    );
-    return apiCall(`/users/${userId}/products`, {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  },
-
-  // ✅ Follow/unfollow endpoints
-  followUser: async (userId, token) => {
-    console.debug("followUser -> userId:", userId, "token present:", !!token);
-    return apiCall(`/users/follow/${userId}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
-
-  unfollowUser: async (userId, token) => {
-    console.debug("unfollowUser -> userId:", userId, "token present:", !!token);
-    return apiCall(`/users/unfollow/${userId}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
-
-  getFollowers: async (userId, token) => {
-    console.debug("getFollowers -> userId:", userId, "token present:", !!token);
-    return apiCall(`/users/${userId}/followers`, {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  },
-
-  getFollowing: async (userId, token) => {
-    console.debug("getFollowing -> userId:", userId, "token present:", !!token);
-    return apiCall(`/users/${userId}/following`, {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  },
-
-  // ✅ User management endpoints
-  updateUserProfile: async (userId, userData, token) => {
-    return apiCall(`/users/${userId}`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(userData),
-    });
-  },
-
-  uploadAvatar: async (formData, token) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/me/avatar`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to upload avatar");
-      return data;
-    } catch (error) {
-      console.error("Upload avatar error:", error);
-      throw error;
-    }
-  },
-
-  deleteAvatar: async (token) => {
-    return apiCall("/users/me/avatar", {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
-
-  getSuggestedFriends: async (token) => {
-    return apiCall("/users/suggestions", {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  },
-
-  getTrendingTopics: async () => {
-    return apiCall("/users/trending-topics", { method: "GET" });
-  },
-
-  toggleSavePost: async (postId, token) => {
-    return apiCall(`/users/posts/${postId}/save`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
-
-  getSavedPosts: async (token) => {
-    return apiCall("/users/saved-posts", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
-
-  // ✅ Settings endpoints
-  getSettings: async (token) => {
-    return apiCall("/users/settings", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
-
-  updateSettings: async (settings, token) => {
-    return apiCall("/users/settings", {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(settings),
-    });
-  },
-
-  changePassword: async (currentPassword, newPassword, token) => {
-    return apiCall("/users/change-password", {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ currentPassword, newPassword }),
-    });
-  },
-
-  deleteAccount: async (password, token) => {
-    return apiCall("/users/account", {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ password }),
-    });
-  },
 };
 
 /* ======================================== CHAT API ======================================== */
 export const chatAPI = {
   startConversation: async (sellerId, token) => {
     try {
-      console.log("🔵 Starting conversation with sellerId:", sellerId);
+      console.log('🔵 Starting conversation with sellerId:', sellerId);
       const response = await fetch(`${API_BASE_URL}/conversations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ sellerId }),
       });
       const data = await response.json();
-      console.log("🔵 Conversation response:", data);
-      if (!response.ok)
-        throw new Error(
-          data.message || `HTTP error! status: ${response.status}`
-        );
+      console.log('🔵 Conversation response:', data);
+      if (!response.ok) throw new Error(data.message || `HTTP error! status: ${response.status}`);
       return data;
     } catch (error) {
-      console.error("❌ Start conversation error:", error);
+      console.error('❌ Start conversation error:', error);
       throw error;
     }
   },
   getConversations: async (token) => {
     try {
       const response = await fetch(`${API_BASE_URL}/conversations`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` },
       });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to fetch conversations");
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch conversations');
       return data;
     } catch (error) {
-      console.error("❌ Get conversations error:", error);
+      console.error('❌ Get conversations error:', error);
       throw error;
     }
   },
   getConversationById: async (conversationId, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to fetch conversation");
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch conversation');
       return data;
     } catch (error) {
-      console.error("❌ Get conversation by ID error:", error);
+      console.error('❌ Get conversation by ID error:', error);
       throw error;
     }
   },
   getMessages: async (conversationId, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}/messages`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to fetch messages");
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch messages');
       return data;
     } catch (error) {
-      console.error("❌ Get messages error:", error);
+      console.error('❌ Get messages error:', error);
       throw error;
     }
   },
   sendMessage: async (conversationId, message, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}/messages`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ message }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ message }),
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to send message");
+      if (!response.ok) throw new Error(data.message || 'Failed to send message');
       return data;
     } catch (error) {
-      console.error("❌ Send message error:", error);
+      console.error('❌ Send message error:', error);
       throw error;
     }
   },
   archiveConversation: async (conversationId, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}/archive`,
-        {
-          method: "PATCH",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/archive`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to archive conversation");
+      if (!response.ok) throw new Error(data.message || 'Failed to archive conversation');
       return data;
     } catch (error) {
-      console.error("❌ Archive conversation error:", error);
+      console.error('❌ Archive conversation error:', error);
       throw error;
     }
   },
   unarchiveConversation: async (conversationId, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}/unarchive`,
-        {
-          method: "PATCH",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/unarchive`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to unarchive conversation");
+      if (!response.ok) throw new Error(data.message || 'Failed to unarchive conversation');
       return data;
     } catch (error) {
-      console.error("❌ Unarchive conversation error:", error);
+      console.error('❌ Unarchive conversation error:', error);
       throw error;
     }
   },
   deleteConversation: async (conversationId, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to delete conversation");
+      if (!response.ok) throw new Error(data.message || 'Failed to delete conversation');
       return data;
     } catch (error) {
-      console.error("❌ Delete conversation error:", error);
+      console.error('❌ Delete conversation error:', error);
       throw error;
     }
   },
   deleteMessage: async (messageId, deleteForEveryone, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/messages/${messageId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ deleteForEveryone }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/messages/${messageId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ deleteForEveryone }),
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to delete message");
+      if (!response.ok) throw new Error(data.message || 'Failed to delete message');
       return data;
     } catch (error) {
-      console.error("❌ Delete message error:", error);
+      console.error('❌ Delete message error:', error);
       throw error;
     }
   },
   togglePinMessage: async (conversationId, messageId, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}/messages/${messageId}/pin`,
-        {
-          method: "PATCH",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages/${messageId}/pin`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to toggle pin");
+      if (!response.ok) throw new Error(data.message || 'Failed to toggle pin');
       return data;
     } catch (error) {
-      console.error("❌ Toggle pin error:", error);
+      console.error('❌ Toggle pin error:', error);
       throw error;
     }
   },
   pinConversation: async (conversationId, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}/pin`,
-        {
-          method: "PATCH",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/pin`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to pin conversation");
+      if (!response.ok) throw new Error(data.message || 'Failed to pin conversation');
       return data;
     } catch (error) {
-      console.error("❌ Pin conversation error:", error);
+      console.error('❌ Pin conversation error:', error);
       throw error;
     }
   },
   unpinConversation: async (conversationId, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}/unpin`,
-        {
-          method: "PATCH",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/unpin`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to unpin conversation");
+      if (!response.ok) throw new Error(data.message || 'Failed to unpin conversation');
       return data;
     } catch (error) {
-      console.error("❌ Unpin conversation error:", error);
+      console.error('❌ Unpin conversation error:', error);
       throw error;
     }
   },
   markAsRead: async (conversationId, messageIds, token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/${conversationId}/read`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ messageIds }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/read`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ messageIds }),
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to mark messages as read");
+      if (!response.ok) throw new Error(data.message || 'Failed to mark messages as read');
       return data;
     } catch (error) {
-      console.error("❌ Mark as read error:", error);
+      console.error('❌ Mark as read error:', error);
       throw error;
     }
   },
   getUnreadCount: async (token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/conversations/unread/count`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/conversations/unread/count`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to get unread count");
+      if (!response.ok) throw new Error(data.message || 'Failed to get unread count');
       return data;
     } catch (error) {
-      console.error("❌ Get unread count error:", error);
+      console.error('❌ Get unread count error:', error);
       throw error;
     }
+  }
+};
+
+/* ======================================== USER PROFILE API ======================================== */
+export const userAPI = {
+  getUserProfile: async (userId, token) => {
+    return apiCall(`/users/${userId}`, {
+      method: 'GET',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  },
+  updateUserProfile: async (userId, userData, token) => {
+    return apiCall(`/users/${userId}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(userData),
+    });
+  },
+  uploadAvatar: async (formData, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/me/avatar`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to upload avatar');
+      return data;
+    } catch (error) {
+      console.error('Upload avatar error:', error);
+      throw error;
+    }
+  },
+  deleteAvatar: async (token) => {
+    return apiCall('/users/me/avatar', { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  },
+  getFollowers: async (userId, token) => {
+    return apiCall(`/users/${userId}/followers`, {
+      method: 'GET',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  },
+  getFollowing: async (userId, token) => {
+    return apiCall(`/users/${userId}/following`, {
+      method: 'GET',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  },
+  getSuggestedFriends: async (token) => {
+    return apiCall('/users/suggestions', {
+      method: 'GET',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  },
+  getTrendingTopics: async () => {
+    return apiCall('/users/trending-topics', { method: 'GET' });
+  },
+  toggleSavePost: async (postId, token) => {
+    return apiCall(`/users/posts/${postId}/save`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  getSavedPosts: async (token) => {
+    return apiCall('/users/saved-posts', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  followUser: async (userId, token) => {
+    console.debug('followUser -> userId:', userId, 'token present:', !!token);
+    return apiCall(`/users/follow/${userId}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  unfollowUser: async (userId, token) => {
+    console.debug('unfollowUser -> userId:', userId, 'token present:', !!token);
+    return apiCall(`/users/unfollow/${userId}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  getSettings: async (token) => {
+    return apiCall('/users/settings', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  updateSettings: async (settings, token) => {
+    return apiCall('/users/settings', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(settings),
+    });
+  },
+  changePassword: async (currentPassword, newPassword, token) => {
+    return apiCall('/users/change-password', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  },
+  deleteAccount: async (password, token) => {
+    return apiCall('/users/account', {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ password }),
+    });
   },
 };
 
 /* ======================================== NOTIFICATION API ======================================== */
 export const notificationAPI = {
   getNotifications: async (token) => {
-    return apiCall("/notifications", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
+    return apiCall('/notifications', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` }
     });
   },
+  
+  getUnreadCount: async (token) => {
+    return apiCall('/notifications/unread-count', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  },
+  
   markAsRead: async (notificationId, token) => {
     return apiCall(`/notifications/${notificationId}/read`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` }
     });
   },
+  
   markAllAsRead: async (token) => {
-    return apiCall("/notifications/read-all", {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
+    return apiCall('/notifications/read-all', {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` }
     });
   },
+  
   deleteNotification: async (notificationId, token) => {
     return apiCall(`/notifications/${notificationId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
     });
-  },
-  getUnreadCount: async (token) => {
-    return apiCall("/notifications/unread/count", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  },
+  }
 };
 
 /* ======================================== MAINTENANCE & REPAIR HUB API ======================================== */
 export const maintenanceAPI = {
-  // ==========================================
-  // Maintenance Requests
-  // ==========================================
-  /**
-   * Get all maintenance requests (browse marketplace)
-   */
-  getAllRequests: async (token) =>
-    apiCall("/maintenance/requests", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  /**
-   * Get single request with full details
-   */
-  getRequestById: async (requestId, token) =>
-    apiCall(`/maintenance/requests/${requestId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  /**
-   * Create a new maintenance request
-   */
-  createRequest: async (requestData, token) =>
-    apiCall("/maintenance/requests", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(requestData),
-    }),
-
-  /**
-   * Delete own maintenance request
-   */
-  deleteRequest: async (requestId, token) =>
-    apiCall(`/maintenance/requests/${requestId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  /**
-   * Get all requests created by current user
-   */
-  getMyRequests: async (token) =>
-    apiCall("/maintenance/my-requests", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  // ==========================================
-  // Service Offers & Applications
-  // ==========================================
-
-  /**
-   * Service provider submits an offer for a request
-   */
-  applyToRequest: async (requestId, offerData, token) =>
-    apiCall(`/maintenance/requests/${requestId}/apply`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(offerData),
-    }),
-
-  /**
-   * Requester accepts a service offer
-   */
-  acceptOffer: async (requestId, offerId, token) =>
-    apiCall(`/maintenance/requests/${requestId}/offers/${offerId}/accept`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  /**
-   * Requester rejects a service offer
-   */
-  rejectOffer: async (requestId, offerId, token) =>
-    apiCall(`/maintenance/requests/${requestId}/offers/${offerId}/reject`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  // ==========================================
-  // Work Status Management
-  // ==========================================
-
-  /**
-   * Update work status (start work, mark complete, etc.)
-   */
-  updateWorkStatus: async (requestId, status, token) =>
-    apiCall(`/maintenance/requests/${requestId}/status`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ status }),
-    }),
-
-  /**
-   * Requester confirms work completion and releases payment
-   */
-  confirmWorkCompletion: async (requestId, token) =>
-    apiCall(`/maintenance/requests/${requestId}/confirm`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  /**
-   * Get all jobs accepted by current user (as service provider)
-   */
-  getMyJobs: async (token) =>
-    apiCall("/maintenance/my-jobs", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  // ==========================================
-  // Disputes
-  // ==========================================
-
-  /**
-   * Open a dispute for a request
-   */
-  openDispute: async (requestId, reason, token) =>
-    apiCall(`/maintenance/requests/${requestId}/dispute`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ reason }),
-    }),
-
-  /**
-   * Resolve a dispute (Admin only)
-   */
-  resolveDispute: async (requestId, resolution, refundAmount, token) =>
-    apiCall(`/maintenance/requests/${requestId}/dispute/resolve`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ resolution, refundAmount }),
-    }),
-
-  // ==========================================
-  // Reviews & Ratings
-  // ==========================================
-
-  /**
-   * Submit a review after service completion
-   */
-  submitReview: async (requestId, rating, review, token) =>
-    apiCall(`/maintenance/requests/${requestId}/review`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ rating, review }),
-    }),
-
-  // ==========================================
-  // Service Offers (Provider Profile)
-  // ==========================================
-
-  /**
-   * Get all service offers (service provider listings)
-   */
-  getAllOffers: async (token) =>
-    apiCall("/maintenance/offers", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  /**
-   * Create a service offer (list your service)
-   */
-  createOffer: async (offerData, token) =>
-    apiCall("/maintenance/offers", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(offerData),
-    }),
-
-  /**
-   * Delete own service offer
-   */
-  deleteOffer: async (offerId, token) =>
-    apiCall(`/maintenance/offers/${offerId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  /**
-   * Update own service offer
-   */
-  updateOffer: async (offerId, offerData, token) =>
-    apiCall(`/maintenance/offers/${offerId}`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(offerData),
-    }),
-
-  /**
-   * Get single service offer details
-   */
-  getOfferById: async (offerId, token) =>
-    apiCall(`/maintenance/offers/${offerId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  // ==========================================
-  // Additional Helper Functions
-  // ==========================================
-
-  /**
-   * Upload before/after photos for completed work
-   */
-  uploadWorkPhotos: async (requestId, formData, token) => {
+  getAllRequests: async (token) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/maintenance/requests/${requestId}/photos`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
         }
-      );
+      });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Failed to upload photos");
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch requests');
       return data;
     } catch (error) {
-      console.error("Upload work photos error:", error);
+      console.error('❌ Get all requests error:', error);
       throw error;
     }
   },
 
-  /**
-   * Get request statistics (for requester dashboard)
-   */
-  getRequestStats: async (token) =>
-    apiCall("/maintenance/requests/stats", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  /**
-   * Get provider statistics (for provider dashboard)
-   */
-  getProviderStats: async (token) =>
-    apiCall("/maintenance/provider/stats", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
-  /**
-   * Search maintenance requests with filters
-   */
-  searchRequests: async (filters, token) => {
-    const queryParams = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== "" && value !== null) {
-        queryParams.append(key, value);
-      }
-    });
-    return apiCall(`/maintenance/requests/search?${queryParams.toString()}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  getRequestById: async (requestId, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch request');
+      return data;
+    } catch (error) {
+      console.error('❌ Get request by ID error:', error);
+      throw error;
+    }
   },
+
+  createRequest: async (requestData, token) => {
+    try {
+      console.log('📤 Creating request:', requestData);
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(requestData)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to create request');
+      console.log('✅ Request created:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ Create request error:', error);
+      throw error;
+    }
+  },
+
+  deleteRequest: async (requestId, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to delete request');
+      return data;
+    } catch (error) {
+      console.error('❌ Delete request error:', error);
+      throw error;
+    }
+  },
+
+  getMyRequests: async (token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/my-requests`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch my requests');
+      return data;
+    } catch (error) {
+      console.error('❌ Get my requests error:', error);
+      throw error;
+    }
+  },
+
+  applyToRequest: async (requestId, offerData, token) => {
+    try {
+      console.log('📤 Applying to request:', requestId, offerData);
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}/apply`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(offerData)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to submit offer');
+      console.log('✅ Offer submitted:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ Apply to request error:', error);
+      throw error;
+    }
+  },
+
+  acceptOffer: async (requestId, offerId, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}/offers/${offerId}/accept`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to accept offer');
+      return data;
+    } catch (error) {
+      console.error('❌ Accept offer error:', error);
+      throw error;
+    }
+  },
+
+  rejectOffer: async (requestId, offerId, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}/offers/${offerId}/reject`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to reject offer');
+      return data;
+    } catch (error) {
+      console.error('❌ Reject offer error:', error);
+      throw error;
+    }
+  },
+
+  updateWorkStatus: async (requestId, status, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}/status`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ status })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to update status');
+      return data;
+    } catch (error) {
+      console.error('❌ Update work status error:', error);
+      throw error;
+    }
+  },
+
+  confirmWorkCompletion: async (requestId, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}/confirm`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to confirm completion');
+      return data;
+    } catch (error) {
+      console.error('❌ Confirm completion error:', error);
+      throw error;
+    }
+  },
+
+  getMyJobs: async (token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/my-jobs`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch my jobs');
+      return data;
+    } catch (error) {
+      console.error('❌ Get my jobs error:', error);
+      throw error;
+    }
+  },
+
+  openDispute: async (requestId, reason, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}/dispute`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ reason })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to open dispute');
+      return data;
+    } catch (error) {
+      console.error('❌ Open dispute error:', error);
+      throw error;
+    }
+  },
+
+  submitReview: async (requestId, rating, review, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/${requestId}/review`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ rating, review })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to submit review');
+      return data;
+    } catch (error) {
+      console.error('❌ Submit review error:', error);
+      throw error;
+    }
+  },
+ getMyOffers: async (token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/my-offers`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch my offers');
+      return data;
+    } catch (error) {
+      console.error('❌ Get my offers error:', error);
+      throw error;
+    }
+  },
+  getAllOffers: async (token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/offers`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch offers');
+      return data;
+    } catch (error) {
+      console.error('❌ Get all offers error:', error);
+      throw error;
+    }
+  },
+
+  createOffer: async (offerData, token) => {
+    try {
+      console.log('📤 Creating offer:', offerData);
+      const response = await fetch(`${API_BASE_URL}/maintenance/offers`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(offerData)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to create offer');
+      console.log('✅ Offer created:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ Create offer error:', error);
+      throw error;
+    }
+  },
+
+  deleteOffer: async (offerId, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/offers/${offerId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to delete offer');
+      return data;
+    } catch (error) {
+      console.error('❌ Delete offer error:', error);
+      throw error;
+    }
+  },
+
+  updateOffer: async (offerId, offerData, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/offers/${offerId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(offerData)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to update offer');
+      return data;
+    } catch (error) {
+      console.error('❌ Update offer error:', error);
+      throw error;
+    }
+  },
+
+  getOfferById: async (offerId, token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/offers/${offerId}`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch offer');
+      return data;
+    } catch (error) {
+      console.error('❌ Get offer by ID error:', error);
+      throw error;
+    }
+  },
+
+  getProviderStats: async (token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/provider/stats`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch provider stats');
+      return data;
+    } catch (error) {
+      console.error('❌ Get provider stats error:', error);
+      throw error;
+    }
+  },
+
+  getRequestStats: async (token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/maintenance/requests/stats`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch request stats');
+      return data;
+    } catch (error) {
+      console.error('❌ Get request stats error:', error);
+      throw error;
+    }
+  }
 };
 
 /* ======================================== ECO POINTS API ======================================== */
 export const ecoPointsAPI = {
   getEcoStats: async (token) => {
     const response = await fetch(`${API_BASE_URL}/eco-points/stats`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await response.json();
-    if (!response.ok)
-      throw new Error(data.message || "Failed to get eco stats");
+    if (!response.ok) throw new Error(data.message || 'Failed to get eco stats');
     return data;
   },
   getLeaderboard: async (limit = 10) => {
-    const response = await fetch(
-      `${API_BASE_URL}/eco-points/leaderboard?limit=${limit}`,
-      { method: "GET" }
-    );
+    const response = await fetch(`${API_BASE_URL}/eco-points/leaderboard?limit=${limit}`, { method: 'GET' });
     const data = await response.json();
-    if (!response.ok)
-      throw new Error(data.message || "Failed to get leaderboard");
+    if (!response.ok) throw new Error(data.message || 'Failed to get leaderboard');
     return data;
   },
   getLevelProgress: async (token) => {
     const response = await fetch(`${API_BASE_URL}/eco-points/progress`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await response.json();
-    if (!response.ok)
-      throw new Error(data.message || "Failed to get level progress");
+    if (!response.ok) throw new Error(data.message || 'Failed to get level progress');
     return data;
   },
   updateStreak: async (token) => {
     const response = await fetch(`${API_BASE_URL}/eco-points/streak`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await response.json();
-    if (!response.ok)
-      throw new Error(data.message || "Failed to update streak");
+    if (!response.ok) throw new Error(data.message || 'Failed to update streak');
     return data;
   },
   getPointsConfig: async () => {
-    const response = await fetch(`${API_BASE_URL}/eco-points/config`, {
-      method: "GET",
-    });
+    const response = await fetch(`${API_BASE_URL}/eco-points/config`, { method: 'GET' });
     const data = await response.json();
-    if (!response.ok)
-      throw new Error(data.message || "Failed to get points config");
+    if (!response.ok) throw new Error(data.message || 'Failed to get points config');
     return data;
   },
 };

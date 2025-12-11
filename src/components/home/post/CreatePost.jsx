@@ -12,7 +12,7 @@ const CreatePost = ({ currentUser, onCreatePost, isCreating }) => {
   
   const fileInputRef = useRef(null);
 
-  const PLACEHOLDER_AVATAR = "https://t3.ftcdn.net/jpg/11/61/33/36/360_F_1161333642_i694dqMuUwQEpEPdQOhuxdRC9WHPREFJ.jpg";
+  const PLACEHOLDER_AVATAR = "https://ui-avatars.com/api/?name=User&background=007D6E&color=fff&size=100";
 
   const categories = [
     { value: "recycling", label: "♻️ Recycling", icon: "bi-recycle" },

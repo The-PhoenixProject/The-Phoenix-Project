@@ -1,6 +1,6 @@
-// Chat.jsx - COMPLETE FIX WITH STATUS & MESSAGES
-import { useState, useEffect, useRef } from 'react'
-import { useLocation} from 'react-router-dom'
+// Chat.jsx - FIXED: Enhanced with proper notifications and persistent conversations
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useLocation } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import { chatAPI } from '../../services/api'
 import { useAuth } from '../../hooks/useAuth'
@@ -38,54 +38,249 @@ function Chat() {
   const [connectionStatus, setConnectionStatus] = useState('disconnected')
   const [onlineUsers, setOnlineUsers] = useState(new Set())
   
+  // ✅ NEW: Notification state
+  const [notifications, setNotifications] = useState([])
+  const [showNotificationBadge, setShowNotificationBadge] = useState(false)
+  const [notificationSound] = useState(new Audio('/notification.mp3')) // Add this sound file to your public folder
+  
   const [chatListWidth, setChatListWidth] = useState(350)
   const [profileWidth, setProfileWidth] = useState(320)
-  const [isResizingChatList, setIsResizingChatList] = useState(false)
-  const [isResizingProfile, setIsResizingProfile] = useState(false)
+  const [_isResizingChatList, _setIsResizingChatList] = useState(false)
+  const [_isResizingProfile, _setIsResizingProfile] = useState(false)
   
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
   const [isTablet, setIsTablet] = useState(() => window.innerWidth >= 768 && window.innerWidth < 1024)
 
-  // ==========================================
-  // Socket.IO Setup
-  // ==========================================
+  // Track if we've handled navigation
+  const hasHandledNavigation = useRef(false)
 
+  // ✅ FIX #1: Add or update conversation in sidebar function
+  const addOrUpdateConversation = useCallback((conversationData) => {
+    console.log('📝 Adding/updating conversation in sidebar:', conversationData.id)
+    
+    setConversations(prev => {
+      const exists = prev.some(conv => String(conv.id) === String(conversationData.id))
+      
+      if (exists) {
+        // Update existing conversation
+        return prev.map(conv => 
+          String(conv.id) === String(conversationData.id)
+            ? { 
+                ...conv, 
+                ...conversationData,
+                avatar: getAvatarUrl(conversationData.avatar),
+                status: onlineUsers.has(conversationData.userId) ? 'Online' : 'Offline'
+              }
+            : conv
+        )
+      } else {
+        // Add new conversation at the top
+        return [
+          {
+            ...conversationData,
+            avatar: getAvatarUrl(conversationData.avatar),
+            status: onlineUsers.has(conversationData.userId) ? 'Online' : 'Offline',
+            messages: conversationData.messages || [],
+            pinnedMessages: conversationData.pinnedMessages || [],
+            deletedForMeMessages: conversationData.deletedForMeMessages || [],
+            unread: 0,
+            archived: false,
+            isActive: false
+          },
+          ...prev
+        ]
+      }
+    })
+  }, [onlineUsers])
+
+  // ✅ NEW: Show notification badge for unread messages
   useEffect(() => {
-    if (!token) return
+    const hasUnread = conversations.some(conv => 
+      !showArchived && 
+      conv.archived !== true && 
+      conv.unread > 0 && 
+      (!selectedChat || conv.id !== selectedChat.id)
+    )
+    setShowNotificationBadge(hasUnread)
+  }, [conversations, selectedChat, showArchived])
 
+  // ✅ NEW: Play notification sound
+  const playNotificationSound = useCallback(() => {
+    try {
+      notificationSound.currentTime = 0
+      notificationSound.play().catch(() => {})
+    } catch (err) {
+      console.log('Notification sound error:', err)
+    }
+  }, [notificationSound])
+
+  // ✅ NEW: Show browser notification
+  const showBrowserNotification = (title, body, icon = '/logo.png') => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body, icon })
+    } else if ('Notification' in window && Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          new Notification(title, { body, icon })
+        }
+      })
+    }
+  }
+
+  // Enhanced Socket.IO Setup with better error handling
+  useEffect(() => {
+    if (!token) {
+      // console.log('⏸️  No token, skipping socket connection')
+      return
+    }
+
+    // console.log('🔌 Initializing Socket.IO connection...')
+    
     const socket = io(API_URL, {
       auth: { token },
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5
+      reconnectionAttempts: 5,
+      transports: ['websocket', 'polling']
     })
 
     socketRef.current = socket
 
-    // Connection handlers
     socket.on('connect', () => {
-      console.log('✅ Socket connected')
+      // console.log('✅ Socket connected successfully')
+      // console.log('   Socket ID:', socket.id)
       setConnectionStatus('connected')
       
+      // Join all conversation rooms
       conversations.forEach(conv => {
         socket.emit('conversation:join', conv.id)
+        // console.log('   Joined conversation:', conv.id)
       })
     })
 
     socket.on('disconnect', () => {
-      console.log('❌ Socket disconnected')
+      // console.log('❌ Socket disconnected')
       setConnectionStatus('disconnected')
     })
 
-    socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error)
+    socket.on('connect_error', () => {
+      // console.error('❌ Socket connection error')
       setConnectionStatus('error')
     })
 
-    // User online/offline status
+    // ✅ FIX #3: Enhanced Message received handler with proper notifications
+    socket.on('message:received', ({ conversationId, message }) => {
+      console.log('📨 Message received:', { conversationId, from: message.sender })
+      
+      const isFromMe = message.senderId === currentUser?.id
+      const isInActiveChat = selectedChat?.id === conversationId
+      
+      // Update conversations list with proper unread count
+      setConversations(prev => prev.map(conv => {
+        if (conv.id === conversationId) {
+          const shouldIncrement = !isFromMe && !isInActiveChat
+          return {
+            ...conv,
+            lastMessage: message.text,
+            time: message.timestampDate,
+            timestampDate: message.timestampDate,
+            unread: shouldIncrement ? (conv.unread || 0) + 1 : (conv.unread || 0)
+          }
+        }
+        return conv
+      }))
+
+      // Update active chat messages if this is the selected conversation
+      if (isInActiveChat && !isFromMe) {
+        setSelectedChat(prev => {
+          const messageExists = prev.messages?.some(m => m.id === message.id)
+          if (messageExists) return prev
+          
+          return {
+            ...prev,
+            messages: [...(prev.messages || []), message],
+            isTyping: false
+          }
+        })
+      }
+      
+      // ✅ CRITICAL: Show notification ONLY if NOT from me AND NOT in active chat
+      if (!isFromMe && !isInActiveChat) {
+        const conversation = conversations.find(c => c.id === conversationId)
+        const senderName = conversation?.name || message.sender || 'Someone'
+        
+        // Play sound
+        playNotificationSound()
+        
+        // Show browser notification
+        showBrowserNotification(
+          `New message from ${senderName}`,
+          message.text.length > 50 ? message.text.substring(0, 50) + '...' : message.text
+        )
+        
+        // Add to notifications list
+        setNotifications(prev => [{
+          id: `msg-${Date.now()}`,
+          type: 'message',
+          title: `New message from ${senderName}`,
+          message: message.text,
+          conversationId,
+          timestamp: new Date(),
+          read: false
+        }, ...prev.slice(0, 9)])
+        
+        console.log('🔔 Notification shown for message from', senderName)
+      }
+    })
+
+    // ✅ ENHANCED: Notification handler
+    socket.on('notification:new', (notification) => {
+      // console.log('🔔 New notification received:', notification)
+      
+      // Acknowledge receipt
+      socket.emit('notification:ack', { 
+        notificationId: notification.id || notification.messageId 
+      })
+      
+      // If it's a message notification and not in current chat
+      if (notification.type === 'message' && selectedChat?.id !== notification.conversationId) {
+        playNotificationSound()
+        
+        showBrowserNotification(
+          `New message from ${notification.from}`,
+          notification.preview || 'You have a new message'
+        )
+      }
+      
+      // Add to notifications list
+      setNotifications(prev => [{
+        id: notification.messageId || `notif-${Date.now()}`,
+        type: notification.type,
+        title: notification.type === 'message' ? `New message from ${notification.from}` : 'New notification',
+        message: notification.preview || notification.message,
+        conversationId: notification.conversationId,
+        timestamp: new Date(notification.timestamp),
+        read: false
+      }, ...prev.slice(0, 9)])
+    })
+
+    // ✅ NEW: Handle new notification event
+    socket.on('new:notification', (notification) => {
+      // console.log('🔔 Direct notification event:', notification)
+      
+      if (notification.type === 'message' && selectedChat?.id !== notification.conversationId) {
+        playNotificationSound()
+        
+        showBrowserNotification(
+          `New message from ${notification.senderName}`,
+          notification.preview || 'You have a new message'
+        )
+      }
+    })
+
     socket.on('user:online', ({ userId }) => {
-      console.log('🟢 User online:', userId)
+      // console.log('🟢 User online:', userId)
       setOnlineUsers(prev => new Set([...prev, userId]))
       
       setConversations(prev => prev.map(conv => 
@@ -98,7 +293,7 @@ function Chat() {
     })
 
     socket.on('user:offline', ({ userId }) => {
-      console.log('🔴 User offline:', userId)
+      // console.log('🔴 User offline:', userId)
       setOnlineUsers(prev => {
         const updated = new Set(prev)
         updated.delete(userId)
@@ -114,52 +309,18 @@ function Chat() {
       }
     })
 
-    // Message handlers
-    socket.on('message:received', ({ conversationId, message }) => {
-      console.log('📨 New message received:', message)
-      
-      setConversations(prev => prev.map(conv => {
-        if (conv.id === conversationId) {
-          return {
-            ...conv,
-            lastMessage: message.text,
-            time: message.timestampDate,
-            timestampDate: message.timestampDate,
-            unread: selectedChat?.id === conversationId ? 0 : (conv.unread || 0) + 1
-          }
-        }
-        return conv
-      }))
-
-      if (selectedChat?.id === conversationId) {
-        setSelectedChat(prev => ({
-          ...prev,
-          messages: [...(prev.messages || []), message],
-          isTyping: false
-        }))
-      }
-    })
-
-    // Typing indicators
     socket.on('typing:start', ({ conversationId, userId: typingUserId }) => {
       if (selectedChat?.id === conversationId && typingUserId !== currentUser?.id) {
-        setSelectedChat(prev => ({
-          ...prev,
-          isTyping: true
-        }))
+        setSelectedChat(prev => ({ ...prev, isTyping: true }))
       }
     })
 
     socket.on('typing:stop', ({ conversationId }) => {
       if (selectedChat?.id === conversationId) {
-        setSelectedChat(prev => ({
-          ...prev,
-          isTyping: false
-        }))
+        setSelectedChat(prev => ({ ...prev, isTyping: false }))
       }
     })
 
-    // Read receipts
     socket.on('messages:read', ({ conversationId, readBy }) => {
       if (selectedChat?.id === conversationId) {
         setSelectedChat(prev => ({
@@ -172,7 +333,6 @@ function Chat() {
       }
     })
 
-    // Message deleted
     socket.on('message:deleted', ({ conversationId, messageId }) => {
       if (selectedChat?.id === conversationId) {
         setSelectedChat(prev => ({
@@ -186,7 +346,6 @@ function Chat() {
       }
     })
 
-    // Message pinned
     socket.on('message:pinned', ({ conversationId, messageId }) => {
       if (selectedChat?.id === conversationId) {
         setSelectedChat(prev => ({
@@ -196,32 +355,74 @@ function Chat() {
       }
     })
 
-    // Notifications
-    socket.on('notification:new', (notification) => {
-      console.log('🔔 New notification:', notification)
+    // ✅ NEW: Handle new message event
+    socket.on('new:message', ({ conversationId, message, senderId }) => {
+      // console.log('📬 New message event:', { conversationId, senderName })
+      
+      if (senderId !== currentUser?.id && selectedChat?.id !== conversationId) {
+        playNotificationSound()
+        
+        // Update unread count for the conversation
+        setConversations(prev => prev.map(conv => {
+          if (conv.id === conversationId) {
+            return {
+              ...conv,
+              unread: (conv.unread || 0) + 1,
+              lastMessage: message.text,
+              timestampDate: message.timestampDate
+            }
+          }
+          return conv
+        }))
+      }
     })
 
+    // Pong response for testing
+    socket.on('pong', () => {
+      // console.log('🏓 Pong received:', data.timestamp)
+    })
+
+    // Cleanup
     return () => {
+      // console.log('🔌 Cleaning up socket connection')
       socket.disconnect()
     }
-  }, [token, currentUser, selectedChat?.id, conversations])
+  }, [token, currentUser, selectedChat?.id, conversations, selectedChat?.userId, playNotificationSound])
 
-  // Join conversation room when selected
+  // Test Socket.IO connection on mount
   useEffect(() => {
-    if (socketRef.current && selectedChat) {
-      socketRef.current.emit('conversation:join', selectedChat.id)
-      
-      return () => {
-        if (socketRef.current) {
-          socketRef.current.emit('conversation:leave', selectedChat.id)
-        }
+    if (socketRef.current?.connected) {
+      // console.log('🏓 Testing Socket.IO with ping...')
+      socketRef.current.emit('ping')
+    }
+  }, [socketRef.current?.connected])
+
+  useEffect(() => {
+    if (!selectedChat?.id) {
+      return
+    }
+    
+    if (!socketRef.current) {
+      return
+    }
+    
+    const chatId = selectedChat.id
+    
+    // console.log('Joining conversation:', chatId)
+    socketRef.current.emit('conversation:join', chatId)
+    
+    // When chat is selected, mark all messages as read
+    setConversations(prev => prev.map(conv => 
+      conv.id === chatId ? { ...conv, unread: 0 } : conv
+    ))
+    
+    return () => {
+      if (socketRef.current) {
+        console.log('Leaving conversation:', chatId)
+        socketRef.current.emit('conversation:leave', chatId)
       }
     }
   }, [selectedChat?.id])
-
-  // ==========================================
-  // Existing Effects
-  // ==========================================
 
   useEffect(() => {
     const handleResize = () => {
@@ -245,30 +446,45 @@ function Chat() {
     return () => window.removeEventListener('resize', handleResize)
   }, [chatListWidth, profileWidth])
 
+  const fetchConversations = useCallback(async () => {
+    if (!token) return
+    setLoading(true)
+    try {
+      const response = await chatAPI.getConversations(token)
+      if (response.success && Array.isArray(response.data)) {
+        setConversations(response.data.map(conv => ({
+          ...conv,
+          id: String(conv.id),
+          avatar: getAvatarUrl(conv.avatar),
+          messages: conv.messages || [],
+          pinnedMessages: conv.pinnedMessages || [],
+          deletedForMeMessages: conv.deletedForMeMessages || [],
+          status: onlineUsers.has(conv.userId) ? 'Online' : 'Offline'
+        })))
+      }
+      setError(null)
+    } catch (err) {
+      console.error('Failed to load chats:', err)
+      setError('Failed to load chats')
+    } finally {
+      setLoading(false)
+    }
+  }, [token, onlineUsers])
+
   useEffect(() => {
     if (token) {
       fetchConversations()
       fetchPinnedChats()
+      
+      // Request notification permission
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission()
+      }
     } else {
       setError('Please login to view conversations')
       setLoading(false)
     }
-  }, [token])
-
-  // Handle navigation from product card
-  useEffect(() => {
-    const conversationId = location.state?.conversationId
-    
-    if (conversationId && conversations.length > 0 && !selectedChat) {
-      const targetConversation = conversations.find(
-        conv => String(conv.id) === String(conversationId)
-      )
-      
-      if (targetConversation) {
-        handleChatSelect(targetConversation)
-      }
-    }
-  }, [location.state, conversations, selectedChat])
+  }, [fetchConversations, token])
 
   const fetchPinnedChats = async () => {
     try {
@@ -293,86 +509,7 @@ function Chat() {
     }
   }
 
-  useEffect(() => {
-    if (isMobile) {
-      if (isResizingChatList) setIsResizingChatList(false)
-      if (isResizingProfile) setIsResizingProfile(false)
-      return
-    }
-
-    const handleMouseMove = (e) => {
-      if (isResizingChatList) {
-        const newWidth = e.clientX
-        const minWidth = isTablet ? 200 : 250
-        const maxWidth = isTablet ? 400 : 600
-        if (newWidth >= minWidth && newWidth <= maxWidth) {
-          setChatListWidth(newWidth)
-        }
-      }
-      if (isResizingProfile) {
-        const newWidth = window.innerWidth - e.clientX
-        const minWidth = isTablet ? 200 : 250
-        const maxWidth = isTablet ? 400 : 600
-        if (newWidth >= minWidth && newWidth <= maxWidth) {
-          setProfileWidth(newWidth)
-        }
-      }
-    }
-
-    const handleMouseUp = () => {
-      setIsResizingChatList(false)
-      setIsResizingProfile(false)
-    }
-
-    if (isResizingChatList || isResizingProfile) {
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
-      document.body.style.cursor = 'col-resize'
-      document.body.style.userSelect = 'none'
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-      document.body.style.cursor = ''
-      document.body.style.userSelect = ''
-    }
-  }, [isResizingChatList, isResizingProfile, isMobile, isTablet])
-
-  // ==========================================
-  // API Functions
-  // ==========================================
-
-  const fetchConversations = async () => {
-    if (!token) return
-    setLoading(true)
-    try {
-      const response = await chatAPI.getConversations(token)
-      if (response.success && Array.isArray(response.data)) {
-        setConversations(response.data.map(conv => ({
-          ...conv,
-          id: String(conv.id),
-          avatar: getAvatarUrl(conv.avatar),
-          messages: conv.messages || [],
-          pinnedMessages: conv.pinnedMessages || [],
-          deletedForMeMessages: conv.deletedForMeMessages || [],
-          status: onlineUsers.has(conv.userId) ? 'Online' : 'Offline'
-        })))
-      }
-      setError(null)
-    } catch (err) {
-      console.error('Failed to load chats:', err)
-      setError('Failed to load chats')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // ==========================================
-  // Chat Selection & Management
-  // ==========================================
-
-  const handleChatSelect = async (chat) => {
+  const handleChatSelect = useCallback(async (chat) => {
     try {
       const convResponse = await chatAPI.getConversationById(chat.id, token)
       
@@ -389,7 +526,7 @@ function Chat() {
           messages: messagesResponse.data.messages || [],
           pinnedMessages: messagesResponse.data.pinnedMessages || [],
           deletedForMeMessages: messagesResponse.data.deletedForMeMessages || [],
-          unread: 0,
+          unread: 0, // Reset unread when opening chat
           status: onlineUsers.has(chat.userId) ? 'Online' : 'Offline'
         }
         
@@ -416,7 +553,99 @@ function Chat() {
         isActive: String(conv.id) === String(chat.id)
       })))
     }
-  }
+  }, [token, onlineUsers])
+
+  // Handle navigation from product page
+  useEffect(() => {
+    if (hasHandledNavigation.current) return
+    
+    const conversationId = location.state?.conversationId
+    const conversationData = location.state?.conversationData
+    const openImmediately = location.state?.openImmediately
+    
+    if (!conversationId || !openImmediately) {
+      return
+    }
+    
+    console.log('🎯 Handling navigation to conversation:', conversationId)
+    console.log('📦 Conversation data:', conversationData)
+    
+    hasHandledNavigation.current = true
+    
+    if (conversationData) {
+      console.log('✅ Using provided conversation data')
+      
+      const formattedConversation = {
+        ...conversationData,
+        id: String(conversationData.id || conversationId),
+        avatar: getAvatarUrl(conversationData.avatar),
+        messages: conversationData.messages || [],
+        pinnedMessages: conversationData.pinnedMessages || [],
+        deletedForMeMessages: conversationData.deletedForMeMessages || [],
+        isActive: true,
+        unread: 0,
+        archived: false,
+        name: conversationData.name || 'Unknown User',
+        userId: conversationData.userId,
+        status: onlineUsers.has(conversationData.userId) ? 'Online' : 'Offline',
+        lastMessage: conversationData.lastMessage || 'Start chatting...',
+        time: conversationData.time || new Date(),
+        timestampDate: conversationData.timestampDate || new Date()
+      }
+      
+      setSelectedChat(formattedConversation)
+      
+      // ✅ FIX #2: Use new function to add/update conversation
+      addOrUpdateConversation(formattedConversation)
+      return
+    }
+    
+    const targetConversation = conversations.find(
+      conv => String(conv.id) === String(conversationId)
+    )
+    
+    if (targetConversation) {
+      console.log('✅ Found conversation in list, opening it')
+      handleChatSelect(targetConversation)
+    } else {
+      console.log('⚠️ Conversation not in list, fetching it...')
+      const fetchAndOpenConversation = async () => {
+        try {
+          const convResponse = await chatAPI.getConversationById(conversationId, token)
+          if (convResponse.success) {
+            const messagesResponse = await chatAPI.getMessages(conversationId, token)
+            
+            const fullData = {
+              ...convResponse.data,
+              id: String(convResponse.data.id || conversationId),
+              avatar: getAvatarUrl(convResponse.data.avatar),
+              messages: messagesResponse.success ? messagesResponse.data.messages : [],
+              pinnedMessages: messagesResponse.success ? messagesResponse.data.pinnedMessages : [],
+              deletedForMeMessages: messagesResponse.success ? messagesResponse.data.deletedForMeMessages : [],
+              isActive: true,
+              unread: 0,
+              archived: false,
+              name: convResponse.data.name || 'Unknown User',
+              userId: convResponse.data.userId,
+              status: onlineUsers.has(convResponse.data.userId) ? 'Online' : 'Offline',
+              lastMessage: convResponse.data.lastMessage || 'Start chatting...',
+              time: convResponse.data.time || new Date(),
+              timestampDate: convResponse.data.timestampDate || new Date()
+            }
+            
+            setSelectedChat(fullData)
+            
+            // ✅ FIX #2: Use new function to add/update conversation
+            addOrUpdateConversation(fullData)
+          }
+        } catch (error) {
+          console.error('❌ Failed to fetch conversation:', error)
+        }
+      }
+      
+      fetchAndOpenConversation()
+    }
+  }, [conversations, handleChatSelect, location.state?.conversationData, location.state?.conversationId, location.state?.openImmediately, onlineUsers, token, addOrUpdateConversation])
 
   const handleArchiveChat = async (chatId) => {
     try {
@@ -504,29 +733,81 @@ function Chat() {
     setDeleteConfirm(null)
   }
 
-  // ==========================================
-  // Message Handling
-  // ==========================================
-
   const handleSendMessage = async (text) => {
     if (!selectedChat || !text.trim() || !socketRef.current) return
 
     try {
+      // Create optimistic message for immediate display
+      const optimisticMessage = {
+        id: `temp-${Date.now()}`,
+        text: text,
+        senderId: currentUser?.id,
+        sender: currentUser?.fullName || 'You',
+        senderAvatar: currentUser?.profilePicture,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestampDate: new Date(),
+        isOwn: true,
+        read: false,
+        isDeleted: false
+      }
+
+      // Update UI immediately (optimistic update)
+      setSelectedChat(prev => ({
+        ...prev,
+        messages: [...(prev.messages || []), optimisticMessage],
+        lastMessage: text,
+        time: new Date(),
+        timestampDate: new Date()
+      }))
+
+      // Update conversations list
+      setConversations(prev => prev.map(c =>
+        String(c.id) === String(selectedChat.id)
+          ? { 
+              ...c, 
+              lastMessage: text, 
+              time: new Date(), 
+              timestampDate: new Date(),
+              unread: 0 // Reset unread for own messages
+            }
+          : c
+      ))
+
+      // ✅ FIXED: Emit message via Socket.IO (this now saves to database AND sends notification)
+      console.log('📤 Emitting message via Socket.IO to conversation:', selectedChat.id)
+      socketRef.current.emit('message:send', {
+        conversationId: selectedChat.id,
+        message: text,
+        recipientId: selectedChat.userId
+      })
+
+      // Also send via API to ensure persistence
+      console.log('💾 Saving message to database via API...')
       const res = await chatAPI.sendMessage(selectedChat.id, text, token)
+      
       if (res.success && res.data?.message) {
-        const newMsg = res.data.message
+        const persistedMessage = res.data.message
+
+        // Replace optimistic message with real message from server
         setSelectedChat(prev => ({
           ...prev,
-          messages: [...(prev.messages || []), newMsg]
+          messages: prev.messages.map(m =>
+            m.id === optimisticMessage.id ? persistedMessage : m
+          )
         }))
-        setConversations(prev => prev.map(c =>
-          c.id === selectedChat.id
-            ? { ...c, lastMessage: text, time: new Date(), timestampDate: new Date() }
-            : c
-        ))
+        
+        console.log('✅ Message saved via API')
+      } else {
+        console.log('⚠️ API save response:', res)
+        // Keep optimistic message - it will be replaced when socket event arrives
       }
     } catch (err) {
       console.error('Send failed:', err)
+      // Remove optimistic message on error
+      setSelectedChat(prev => ({
+        ...prev,
+        messages: prev.messages.filter(m => !m.id.startsWith('temp-'))
+      }))
     }
   }
 
@@ -540,9 +821,10 @@ function Chat() {
     }
   }
 
-  // ==========================================
-  // Render
-  // ==========================================
+  // ✅ NEW: Clear notifications for a conversation
+  const clearConversationNotifications = (conversationId) => {
+    setNotifications(prev => prev.filter(notif => notif.conversationId !== conversationId))
+  }
 
   if (loading) {
     return (
@@ -584,6 +866,13 @@ function Chat() {
         </div>
       )}
 
+      {/* ✅ Notification Badge */}
+      {showNotificationBadge && (
+        <div className="notification-badge-global">
+          <span>New messages</span>
+        </div>
+      )}
+
       <div 
         className={`resizable-panel chat-list-wrapper ${isMobile ? 'mobile' : ''} ${isTablet ? 'tablet' : ''}`}
         style={{ 
@@ -597,7 +886,10 @@ function Chat() {
             : conversations.filter(conv => conv.archived !== true)
           }
           selectedChatId={selectedChat?.id}
-          onChatSelect={handleChatSelect}
+          onChatSelect={(chat) => {
+            handleChatSelect(chat)
+            clearConversationNotifications(chat.id)
+          }}
           showArchived={showArchived}
           onToggleArchived={() => {
             setShowArchived(!showArchived)
@@ -615,11 +907,13 @@ function Chat() {
             setSelectedChat(conversation)
             setProfileTab('summary')
             setIsProfileOpen(true)
+            clearConversationNotifications(conversation.id)
           }}
           onViewProducts={(conversation) => {
             setSelectedChat(conversation)
             setProfileTab('products')
             setIsProfileOpen(true)
+            clearConversationNotifications(conversation.id)
           }}
           pinnedChats={pinnedChats}
           onPinChat={async (chatId) => {
@@ -649,7 +943,7 @@ function Chat() {
             className="resize-handle resize-handle-right"
             onMouseDown={(e) => {
               e.preventDefault()
-              setIsResizingChatList(true)
+              _setIsResizingChatList(true)
             }}
           />
         )}
@@ -670,7 +964,7 @@ function Chat() {
                   className="resize-handle resize-handle-left"
                   onMouseDown={(e) => {
                     e.preventDefault()
-                    setIsResizingProfile(true)
+                    _setIsResizingProfile(true)
                   }}
                 />
               )}
@@ -735,7 +1029,7 @@ function Chat() {
                       className="resize-handle resize-handle-left"
                       onMouseDown={(e) => {
                         e.preventDefault()
-                        setIsResizingProfile(true)
+                        _setIsResizingProfile(true)
                       }}
                     />
                   )}
@@ -758,6 +1052,19 @@ function Chat() {
             </svg>
             <h3>{showArchived ? 'No archived conversation selected' : 'No conversation selected'}</h3>
             <p>{showArchived ? 'Select an archived conversation to view messages' : 'Select a conversation to start chatting'}</p>
+            {notifications.length > 0 && (
+              <div className="notifications-preview">
+                <p className="notifications-title">Recent notifications:</p>
+                {notifications.slice(0, 3).map(notif => (
+                  <div key={notif.id} className="notification-preview">
+                    <span className="notification-dot"></span>
+                    <span className="notification-text">
+                      {notif.title}: {notif.message}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

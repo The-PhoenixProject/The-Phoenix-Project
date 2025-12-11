@@ -4,6 +4,7 @@
   min-height: 100vh;
   background: #e7e9e36b;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #f7faf9 0%, #eef3f1 100%);
 }
 
 /* Logo Header - Top Left Corner */

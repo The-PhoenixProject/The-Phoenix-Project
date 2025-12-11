@@ -11,9 +11,29 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('authToken'));
 
+  // Clear all auth data function
+  const clearAllAuthData = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('rememberMe');
+    sessionStorage.clear();
+    
+    // Clear any cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+  };
+
   // ---------- 1. Sign Up ----------
   const signup = async (email, password, fullName, location) => {
     try {
+      // Clear any existing data before signup
+      clearAllAuthData();
+      
       const response = await authAPI.signup({
         email,
         password,
@@ -53,6 +73,9 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Invalid response from server');
       }
 
+      // ✅ Clear old data before storing new
+      clearAllAuthData();
+
       // ✅ Store tokens from response.data
       if (response.data.accessToken) {
         localStorage.setItem('authToken', response.data.accessToken);
@@ -73,6 +96,9 @@ export const AuthProvider = ({ children }) => {
       // ✅ Clear sessionStorage AFTER successful verification
       sessionStorage.removeItem('otpEmail');
       
+      // Trigger storage event for other tabs/windows
+      window.dispatchEvent(new Event('storage'));
+      
       return { success: true, user: response.data.user };
     } catch (err) {
       console.error('OTP verification error:', err);
@@ -83,6 +109,9 @@ export const AuthProvider = ({ children }) => {
   // ---------- 4. Login ---------- ✅ FIXED
   const login = async (email, password, rememberMe) => {
     try {
+      // Clear any existing data before login
+      clearAllAuthData();
+      
       const response = await authAPI.login(email, password);
 
       console.log('✅ Login Response:', response); // Debug log
@@ -108,6 +137,10 @@ export const AuthProvider = ({ children }) => {
       if (rememberMe) localStorage.setItem('rememberMe', 'true');
 
       setCurrentUser(response.data.user);
+      
+      // Trigger storage event for other tabs/windows
+      window.dispatchEvent(new Event('storage'));
+      
       return { success: true, user: response.data.user };
     } catch (err) {
       console.error('Login error:', err);
@@ -118,6 +151,9 @@ export const AuthProvider = ({ children }) => {
   // ---------- 5. Google ---------- ✅ FIXED
   const signInWithGoogle = async () => {
     try {
+      // Clear any existing data before login
+      clearAllAuthData();
+      
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const response = await authAPI.socialLogin(idToken);
@@ -143,6 +179,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       setCurrentUser(response.data.user);
+      
+      // Trigger storage event for other tabs/windows
+      window.dispatchEvent(new Event('storage'));
+      
       return {
         success: true,
         user: response.data.user,
@@ -158,6 +198,9 @@ export const AuthProvider = ({ children }) => {
   // ---------- 6. Facebook ---------- ✅ FIXED
   const signInWithFacebook = async () => {
     try {
+      // Clear any existing data before login
+      clearAllAuthData();
+      
       const result = await signInWithPopup(auth, facebookProvider);
       const idToken = await result.user.getIdToken();
       const response = await authAPI.socialLogin(idToken);
@@ -183,6 +226,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       setCurrentUser(response.data.user);
+      
+      // Trigger storage event for other tabs/windows
+      window.dispatchEvent(new Event('storage'));
+      
       return {
         success: true,
         user: response.data.user,
@@ -206,23 +253,52 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
- // ---------- 8. Logout ----------
-const logout = async () => {
-  try {
-    await signOut(auth);
-    localStorage.clear();       // ← MUST BE HERE
-    sessionStorage.clear();     // ← MUST BE HERE
-    setToken(null);
-    setCurrentUser(null);
-    return { success: true };
-  } catch (err) {
-    console.error('Logout error:', err);
-    throw err;
-  }
-};
+  // ---------- 8. Logout ----------
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      
+      // Clear all auth data
+      clearAllAuthData();
+      
+      setToken(null);
+      setCurrentUser(null);
+      
+      // Trigger storage event for other tabs/windows
+      window.dispatchEvent(new Event('storage'));
+      
+      return { success: true };
+    } catch (err) {
+      console.error('Logout error:', err);
+      throw err;
+    }
+  };
 
   // ---------- Firebase auth state + Load persisted user ---------- ✅ ENHANCED
   useEffect(() => {
+    // Handle storage changes (other tabs/windows)
+    const handleStorageChange = (e) => {
+      if (e.key === 'authToken' || e.key === 'user' || e.key === null) {
+        const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('authToken');
+        
+        if (storedUser && storedToken) {
+          try {
+            setCurrentUser(JSON.parse(storedUser));
+            setToken(storedToken);
+          } catch (error) {
+            console.error('Error parsing stored user:', error);
+            clearAllAuthData();
+          }
+        } else {
+          setCurrentUser(null);
+          setToken(null);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
     // ✅ Try to load user from localStorage on mount
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('authToken');
@@ -233,7 +309,7 @@ const logout = async () => {
         setToken(storedToken);
       } catch (error) {
         console.error('Error parsing stored user:', error);
-        localStorage.removeItem('user');
+        clearAllAuthData();
       }
     }
 
@@ -242,7 +318,11 @@ const logout = async () => {
       else if (!storedUser) setCurrentUser(null); // Only set to null if no stored user
       setLoading(false);
     });
-    return unsub;
+    
+    return () => {
+      unsub();
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [token]);
 
   const value = {
@@ -256,6 +336,7 @@ const logout = async () => {
     resetPassword,
     resendOTP,
     verifyOTP,
+    clearAllAuthData,
   };
 
   return (

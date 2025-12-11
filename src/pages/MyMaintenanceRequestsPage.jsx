@@ -1,533 +1,353 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { maintenanceAPI } from "../services/api";
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { maintenanceAPI } from '../services/api';
+import toast from 'react-hot-toast';
+import '../styles/Mantainance/MyMaintenanceRequestsPage.css';
 
-function MaintenanceRequestDetail({ requestId, token, currentUserId }) {
-  const [request, setRequest] = useState(null);
-  const [offers, setOffers] = useState([]);
+function MyMaintenanceRequestsPage() {
+  const { token } = useAuth();
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showOfferForm, setShowOfferForm] = useState(false);
-  const [offerData, setOfferData] = useState({ price: "", message: "" });
+  const [activeTab, setActiveTab] = useState('all');
 
-  const loadRequestDetails = useCallback(async () => {
+  const loadRequests = useCallback(async () => {
+    if (!token) {
+      toast.error('Authentication required');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await maintenanceAPI.getRequestById(requestId, token);
-      const data = response?.data || response || null;
-      setRequest(data);
-      setOffers(data?.offers || []);
+      setLoading(true);
+      const response = await maintenanceAPI.getMyRequests(token);
+
+      // Handle different response structures
+      const requestsData = response?.data || response || [];
+      setRequests(Array.isArray(requestsData) ? requestsData : []);
     } catch (error) {
-      console.error("Failed to load request details:", error);
+      console.error('Failed to load requests:', error);
+      toast.error(`Failed to load requests: ${error.message}`);
+      setRequests([]);
     } finally {
       setLoading(false);
     }
-  }, [requestId, token]);
+  }, [token]);
 
   useEffect(() => {
-    loadRequestDetails();
-  }, [loadRequestDetails]);
+    loadRequests();
+  }, [loadRequests]);
 
-  const handleSubmitOffer = async (e) => {
-    e.preventDefault();
+  const handleDeleteRequest = async (requestId) => {
+    if (!window.confirm('Are you sure you want to delete this request?'))
+      return;
+
     try {
-      await maintenanceAPI.applyToRequest(requestId, offerData, token);
-      alert("Offer submitted successfully!");
-      setShowOfferForm(false);
-      setOfferData({ price: "", message: "" });
-      loadRequestDetails();
+      await maintenanceAPI.deleteRequest(requestId, token);
+      toast.success('Request deleted successfully');
+      loadRequests();
     } catch (error) {
-      alert("Failed to submit offer: " + error.message);
+      console.error('Error deleting request:', error);
+      toast.error(`Error deleting request: ${error.message}`);
     }
   };
 
-  const handleAcceptOffer = async (offerId) => {
-    if (!window.confirm("Accept this offer and start the work?")) return;
-    try {
-      await maintenanceAPI.acceptOffer(requestId, offerId, token);
-      alert("Offer accepted! Payment has been held in escrow.");
-      loadRequestDetails();
-    } catch (error) {
-      alert("Failed to accept offer: " + error.message);
-    }
-  };
+  const filteredRequests = requests.filter((req) => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'active')
+      return ['New', 'Matched', 'In Progress'].includes(req.status);
+    if (activeTab === 'completed') return req.status === 'Completed';
+    if (activeTab === 'disputed') return req.status === 'Disputed';
+    return true;
+  });
 
-  const handleRejectOffer = async (offerId) => {
-    if (!window.confirm("Reject this offer?")) return;
-    try {
-      await maintenanceAPI.rejectOffer(requestId, offerId, token);
-      alert("Offer rejected.");
-      loadRequestDetails();
-    } catch (error) {
-      alert("Failed to reject offer: " + error.message);
-    }
-  };
-
-  const handleStartWork = async () => {
-    try {
-      await maintenanceAPI.updateWorkStatus(requestId, "In Progress", token);
-      alert("Work status updated to In Progress");
-      loadRequestDetails();
-    } catch (error) {
-      alert("Failed to update status: " + error.message);
-    }
-  };
-
-  const handleCompleteWork = async () => {
-    try {
-      await maintenanceAPI.updateWorkStatus(requestId, "Awaiting Confirmation", token);
-      alert("Work marked as complete. Waiting for customer confirmation.");
-      loadRequestDetails();
-    } catch (error) {
-      alert("Failed to mark work complete: " + error.message);
-    }
-  };
-
-  const handleConfirmCompletion = async () => {
-    if (!window.confirm("Confirm that the work is satisfactory? Payment will be released.")) return;
-    try {
-      await maintenanceAPI.confirmWorkCompletion(requestId, token);
-      alert("Work confirmed! Payment has been released to the service provider.");
-      loadRequestDetails();
-    } catch (error) {
-      alert("Failed to confirm work: " + error.message);
-    }
-  };
-
-  const handleOpenDispute = async () => {
-    const reason = prompt("Please describe the issue:");
-    if (!reason) return;
-    try {
-      await maintenanceAPI.openDispute(requestId, reason, token);
-      alert("Dispute opened. Admin will review within 48 hours.");
-      loadRequestDetails();
-    } catch (error) {
-      alert("Failed to open dispute: " + error.message);
-    }
-  };
-
-  const isRequester = request?.user?._id === currentUserId;
-  const isProvider = request?.selectedProvider?._id === currentUserId;
-  const hasAcceptedOffer = offers.some(o => o.status === "accepted");
-
-  if (loading) return <div className="loading">Loading request details...</div>;
-  if (!request) return <div className="error">Request not found</div>;
+  if (loading) {
+    return (
+      <div className="my-requests-page">
+        <div className="loading-state">
+          <p>Loading your maintenance requests...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="maintenance-request-detail">
-      {/* Request Information */}
-      <div className="request-header">
-        <div className="request-title-section">
-          <h2>{request.itemName}</h2>
-          <span className={`status-badge status-${request.status.toLowerCase().replace(/\s+/g, '-')}`}>
-            {request.status}
-          </span>
+    <div className="my-requests-page">
+      <div className="page-header">
+        <div>
+          <h1>My Maintenance Requests</h1>
+          <p className="page-subtitle">
+            Track and manage all your maintenance requests
+          </p>
         </div>
-        <div className="request-meta">
-          <p><strong>Posted by:</strong> {request.user?.fullName}</p>
-          <p><strong>Budget:</strong> {request.budget}</p>
-          <p><strong>Location:</strong> {request.location || "Not specified"}</p>
-          <p><strong>Category:</strong> {request.category}</p>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <Link to="/maintenance" className="btn btn-primary-orange">
+            + Create New Request
+          </Link>
         </div>
       </div>
 
-      {/* Request Details */}
-      <div className="request-body">
-        <div className="request-images">
-          {request.image && (
-            <img src={request.image} alt={request.itemName} className="request-main-image" />
-          )}
-        </div>
-        <div className="request-description">
-          <h3>Description</h3>
-          <p>{request.description}</p>
-        </div>
-        {request.preferredContactTime && (
-          <div className="preferred-time">
-            <h3>Preferred Contact Time</h3>
-            <p>{request.preferredContactTime}</p>
-          </div>
-        )}
+      {/* Tabs */}
+      <div className="requests-tabs">
+        <button
+          className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          All ({requests.length})
+        </button>
+        <button
+          className={`tab ${activeTab === 'active' ? 'active' : ''}`}
+          onClick={() => setActiveTab('active')}
+        >
+          Active
+        </button>
+        <button
+          className={`tab ${activeTab === 'completed' ? 'active' : ''}`}
+          onClick={() => setActiveTab('completed')}
+        >
+          Completed
+        </button>
+        <button
+          className={`tab ${activeTab === 'disputed' ? 'active' : ''}`}
+          onClick={() => setActiveTab('disputed')}
+        >
+          Disputed
+        </button>
       </div>
 
-      {/* Work Progress Section (if work has started) */}
-      {(request.status === "Matched" || request.status === "In Progress" || request.status === "Awaiting Confirmation") && (
-        <div className="work-progress-section">
-          <h3>Work Progress</h3>
-          <div className="progress-timeline">
-            <div className={`timeline-step ${["Matched", "In Progress", "Awaiting Confirmation", "Completed"].includes(request.status) ? "completed" : ""}`}>
-              <span className="step-number">1</span>
-              <span className="step-label">Provider Selected</span>
-            </div>
-            <div className={`timeline-step ${["In Progress", "Awaiting Confirmation", "Completed"].includes(request.status) ? "completed" : ""}`}>
-              <span className="step-number">2</span>
-              <span className="step-label">Work In Progress</span>
-            </div>
-            <div className={`timeline-step ${["Awaiting Confirmation", "Completed"].includes(request.status) ? "completed" : ""}`}>
-              <span className="step-number">3</span>
-              <span className="step-label">Awaiting Confirmation</span>
-            </div>
-            <div className={`timeline-step ${request.status === "Completed" ? "completed" : ""}`}>
-              <span className="step-number">4</span>
-              <span className="step-label">Completed</span>
-            </div>
-          </div>
+      {/* Requests Grid */}
+      <div className="requests-grid">
+        {filteredRequests.length > 0 ? (
+          filteredRequests.map((request) => (
+            <div key={request._id} className="request-card">
+              <div className="request-header">
+                <h3>{request.itemName || 'Unnamed Request'}</h3>
+                <span
+                  className={`status-badge status-${request.status
+                    ?.toLowerCase()
+                    .replace(/\s+/g, '-')}`}
+                >
+                  {request.status || 'Unknown'}
+                </span>
+              </div>
 
-          {/* Provider Actions */}
-          {isProvider && (
-            <div className="provider-actions">
-              {request.status === "Matched" && (
-                <button className="btn btn-primary" onClick={handleStartWork}>
-                  Start Work
-                </button>
-              )}
-              {request.status === "In Progress" && (
-                <button className="btn btn-success" onClick={handleCompleteWork}>
-                  Mark as Complete
-                </button>
-              )}
-            </div>
-          )}
+              <div className="request-category">
+                <span className="badge-category">
+                  {request.category || 'General'}
+                </span>
+              </div>
 
-          {/* Requester Actions */}
-          {isRequester && request.status === "Awaiting Confirmation" && (
-            <div className="requester-actions">
-              <button className="btn btn-success" onClick={handleConfirmCompletion}>
-                Confirm Completion & Release Payment
-              </button>
-              <button className="btn btn-danger" onClick={handleOpenDispute}>
-                Open Dispute
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+              <p className="request-description">
+                {request.description?.substring(0, 100) || 'No description'}...
+              </p>
 
-      {/* Offers Section */}
-      <div className="offers-section">
-        <div className="offers-header">
-          <h3>Service Offers ({offers.length})</h3>
-          {!isRequester && !hasAcceptedOffer && request.status === "New" && (
-            <button 
-              className="btn btn-primary-orange" 
-              onClick={() => setShowOfferForm(!showOfferForm)}
-            >
-              {showOfferForm ? "Cancel" : "Submit Offer"}
-            </button>
-          )}
-        </div>
-
-        {/* Submit Offer Form */}
-        {showOfferForm && (
-          <form className="offer-form" onSubmit={handleSubmitOffer}>
-            <div className="form-group">
-              <label>Your Price Offer *</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="e.g. $50"
-                value={offerData.price}
-                onChange={(e) => setOfferData({ ...offerData, price: e.target.value })}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Message *</label>
-              <textarea
-                className="form-control"
-                rows="4"
-                placeholder="Explain your approach, timeline, and experience..."
-                value={offerData.message}
-                onChange={(e) => setOfferData({ ...offerData, message: e.target.value })}
-                required
-              />
-            </div>
-            <button type="submit" className="btn btn-submit">
-              Submit Offer
-            </button>
-          </form>
-        )}
-
-        {/* Offers List */}
-        <div className="offers-list">
-          {offers.length === 0 ? (
-            <p className="no-offers">No offers yet. Be the first to help!</p>
-          ) : (
-            offers.map((offer) => (
-              <div key={offer._id} className={`offer-card ${offer.status}`}>
-                <div className="offer-header">
-                  <div className="provider-info">
-                    <img 
-                      src={offer.provider?.avatar || "/assets/landingImgs/logo-icon.png"} 
-                      alt={offer.provider?.fullName}
-                      className="provider-avatar"
-                    />
-                    <div>
-                      <h4>{offer.provider?.fullName}</h4>
-                      <div className="provider-rating">
-                        ⭐ {offer.provider?.rating || 4.5} ({offer.provider?.reviewCount || 0} reviews)
-                      </div>
-                    </div>
-                  </div>
-                  <div className="offer-price">
-                    <strong>{offer.price}</strong>
-                    <span className={`offer-status status-${offer.status}`}>
-                      {offer.status}
-                    </span>
-                  </div>
+              <div className="request-info">
+                <div className="info-item">
+                  <strong>Budget:</strong> {request.budget || 'Not specified'}
                 </div>
-                <div className="offer-body">
-                  <p>{offer.message}</p>
-                  <span className="offer-date">
-                    Submitted {new Date(offer.createdAt).toLocaleDateString()}
-                  </span>
+                <div className="info-item">
+                  <strong>Location:</strong>{' '}
+                  {request.location || 'Not specified'}
                 </div>
-                {isRequester && offer.status === "pending" && !hasAcceptedOffer && (
-                  <div className="offer-actions">
-                    <button 
-                      className="btn btn-accept" 
-                      onClick={() => handleAcceptOffer(offer._id)}
-                    >
-                      Accept Offer
-                    </button>
-                    <button 
-                      className="btn btn-reject" 
-                      onClick={() => handleRejectOffer(offer._id)}
-                    >
-                      Reject
-                    </button>
-                    <button className="btn btn-chat">
-                      Chat with Provider
-                    </button>
-                  </div>
+                <div className="info-item">
+                  <strong>Offers:</strong> {request.offers?.length || 0}
+                </div>
+              </div>
+
+              <div className="request-date">
+                Posted: {new Date(request.createdAt).toLocaleDateString()}
+              </div>
+
+              <div className="request-actions">
+                <Link
+                  to={`/maintenance/requests/${request._id}`}
+                  className="btn btn-view"
+                >
+                  View Details
+                </Link>
+                {request.status === 'New' && (
+                  <button
+                    className="btn btn-delete"
+                    onClick={() => handleDeleteRequest(request._id)}
+                  >
+                    Delete
+                  </button>
                 )}
               </div>
-            ))
-          )}
-        </div>
+            </div>
+          ))
+        ) : (
+          <div className="no-requests">
+            <p>No maintenance requests found.</p>
+            <Link to="/maintenance" className="btn btn-primary-orange">
+              Create Your First Request
+            </Link>
+          </div>
+        )}
       </div>
 
-      {/* CSS Styles */}
       <style jsx>{`
-        .maintenance-request-detail {
-          max-width: 1000px;
+        .my-requests-page {
+          padding: 2rem;
+          max-width: 1200px;
           margin: 0 auto;
-          padding: 2rem;
         }
 
-        .request-header {
-          background: white;
-          border-radius: 12px;
-          padding: 2rem;
-          margin-bottom: 2rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .request-title-section {
+        .page-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 1rem;
+          margin-bottom: 2rem;
         }
 
-        .request-title-section h2 {
+        .page-header h1 {
           margin: 0;
+          font-size: 2rem;
           color: #2c3e50;
         }
 
-        .status-badge {
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-size: 0.9rem;
-          font-weight: 600;
+        .page-subtitle {
+          margin: 0.5rem 0 0 0;
+          color: #7f8c8d;
         }
 
-        .status-new { background: #e3f2fd; color: #1976d2; }
-        .status-pending { background: #fff3e0; color: #f57c00; }
-        .status-matched { background: #f3e5f5; color: #7b1fa2; }
-        .status-in-progress { background: #e8f5e9; color: #388e3c; }
-        .status-awaiting-confirmation { background: #fff9c4; color: #f57f17; }
-        .status-completed { background: #c8e6c9; color: #2e7d32; }
-
-        .request-meta p {
-          margin: 0.5rem 0;
-          color: #666;
-        }
-
-        .request-body {
-          background: white;
-          border-radius: 12px;
-          padding: 2rem;
-          margin-bottom: 2rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .request-main-image {
-          width: 100%;
-          max-height: 400px;
-          object-fit: cover;
-          border-radius: 8px;
-          margin-bottom: 1.5rem;
-        }
-
-        .work-progress-section {
-          background: white;
-          border-radius: 12px;
-          padding: 2rem;
-          margin-bottom: 2rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .progress-timeline {
+        .requests-tabs {
           display: flex;
-          justify-content: space-between;
-          margin: 2rem 0;
-          position: relative;
+          gap: 1rem;
+          margin-bottom: 2rem;
+          border-bottom: 2px solid #ecf0f1;
         }
 
-        .progress-timeline::before {
-          content: '';
-          position: absolute;
-          top: 20px;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: #e0e0e0;
-          z-index: 0;
+        .tab {
+          padding: 0.75rem 1.5rem;
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-weight: 500;
+          color: #7f8c8d;
+          border-bottom: 3px solid transparent;
+          transition: all 0.3s;
         }
 
-        .timeline-step {
+        .tab:hover {
+          color: #2c3e50;
+        }
+
+        .tab.active {
+          color: #ff6b35;
+          border-bottom-color: #ff6b35;
+        }
+
+        .requests-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 2rem;
+        }
+
+        .request-card {
+          background: white;
+          border-radius: 12px;
+          padding: 1.5rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          gap: 0.5rem;
-          position: relative;
-          z-index: 1;
         }
 
-        .step-number {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: #e0e0e0;
-          color: #666;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
+        .request-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
 
-        .timeline-step.completed .step-number {
-          background: #4caf50;
-          color: white;
-        }
-
-        .step-label {
-          font-size: 0.85rem;
-          color: #666;
-          text-align: center;
-        }
-
-        .provider-actions, .requester-actions {
-          display: flex;
-          gap: 1rem;
-          margin-top: 1rem;
-        }
-
-        .offers-section {
-          background: white;
-          border-radius: 12px;
-          padding: 2rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .offers-header {
+        .request-header {
           display: flex;
           justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
-        }
-
-        .offer-form {
-          background: #f8f9fa;
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-bottom: 2rem;
-        }
-
-        .offer-card {
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          padding: 1.5rem;
+          align-items: start;
           margin-bottom: 1rem;
-        }
-
-        .offer-card.accepted {
-          border-color: #4caf50;
-          background: #f1f8f4;
-        }
-
-        .offer-card.rejected {
-          opacity: 0.6;
-        }
-
-        .offer-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
-        }
-
-        .provider-info {
-          display: flex;
           gap: 1rem;
-          align-items: center;
         }
 
-        .provider-avatar {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          object-fit: cover;
+        .request-header h3 {
+          margin: 0;
+          font-size: 1.2rem;
+          color: #2c3e50;
+          flex: 1;
         }
 
-        .provider-rating {
-          font-size: 0.9rem;
-          color: #666;
+        .status-badge {
+          padding: 0.4rem 0.8rem;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          white-space: nowrap;
         }
 
-        .offer-price {
-          text-align: right;
+        .status-new {
+          background: #e3f2fd;
+          color: #1976d2;
         }
-
-        .offer-price strong {
-          display: block;
-          font-size: 1.5rem;
-          color: #ff6b35;
+        .status-matched {
+          background: #f3e5f5;
+          color: #7b1fa2;
         }
-
-        .offer-status {
-          font-size: 0.85rem;
-          padding: 0.25rem 0.75rem;
-          border-radius: 12px;
+        .status-in-progress {
+          background: #e8f5e9;
+          color: #388e3c;
         }
-
-        .offer-status.status-pending {
-          background: #fff3e0;
-          color: #f57c00;
-        }
-
-        .offer-status.status-accepted {
+        .status-completed {
           background: #c8e6c9;
           color: #2e7d32;
         }
-
-        .offer-status.status-rejected {
-          background: #ffcdd2;
+        .status-disputed {
+          background: #ffebee;
           color: #c62828;
         }
 
-        .offer-actions {
+        .request-category {
+          margin-bottom: 1rem;
+        }
+
+        .badge-category {
+          display: inline-block;
+          background: #ecf0f1;
+          color: #2c3e50;
+          padding: 0.3rem 0.8rem;
+          border-radius: 12px;
+          font-size: 0.8rem;
+        }
+
+        .request-description {
+          color: #7f8c8d;
+          margin: 0.5rem 0 1rem 0;
+          flex-grow: 1;
+        }
+
+        .request-info {
+          background: #f8f9fa;
+          padding: 1rem;
+          border-radius: 8px;
+          margin: 1rem 0;
+          font-size: 0.9rem;
+        }
+
+        .info-item {
+          margin: 0.4rem 0;
+          color: #555;
+        }
+
+        .info-item strong {
+          color: #2c3e50;
+        }
+
+        .request-date {
+          font-size: 0.8rem;
+          color: #95a5a6;
+          margin-bottom: 1rem;
+        }
+
+        .request-actions {
           display: flex;
-          gap: 0.75rem;
-          margin-top: 1rem;
+          gap: 0.5rem;
         }
 
         .btn {
@@ -536,53 +356,123 @@ function MaintenanceRequestDetail({ requestId, token, currentUserId }) {
           border-radius: 6px;
           cursor: pointer;
           font-weight: 500;
-          transition: all 0.3s;
-        }
-
-        .btn-primary { background: #1976d2; color: white; }
-        .btn-primary-orange { background: #ff6b35; color: white; }
-        .btn-success { background: #4caf50; color: white; }
-        .btn-danger { background: #f44336; color: white; }
-        .btn-accept { background: #4caf50; color: white; }
-        .btn-reject { background: #f44336; color: white; }
-        .btn-chat { background: #9c27b0; color: white; }
-        .btn-submit { background: #ff6b35; color: white; }
-
-        .btn:hover {
-          opacity: 0.9;
-          transform: translateY(-2px);
-        }
-
-        .no-offers {
+          text-decoration: none;
+          display: inline-block;
           text-align: center;
-          color: #999;
-          padding: 2rem;
+          transition: all 0.3s;
+          flex: 1;
         }
 
-        .form-group {
-          margin-bottom: 1rem;
+        .btn-view {
+          background: #ff6b35;
+          color: white;
         }
 
-        .form-group label {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-weight: 500;
+        .btn-view:hover {
+          background: #e55a24;
         }
 
-        .form-control {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid #ddd;
-          border-radius: 6px;
-          font-size: 1rem;
+        .btn-delete {
+          background: #e74c3c;
+          color: white;
         }
 
-        textarea.form-control {
-          resize: vertical;
+        .btn-delete:hover {
+          background: #c0392b;
+        }
+
+        .btn-primary-orange {
+          background: #ff6b35;
+          color: white;
+        }
+
+        .btn-primary-orange:hover {
+          background: #e55a24;
+        }
+
+        .no-requests {
+          grid-column: 1 / -1;
+          text-align: center;
+          padding: 3rem 2rem;
+          background: #f8f9fa;
+          border-radius: 12px;
+        }
+
+        .no-requests p {
+          color: #7f8c8d;
+          margin-bottom: 1.5rem;
+        }
+
+        .loading-state {
+          text-align: center;
+          padding: 3rem;
+          color: #7f8c8d;
+        }
+
+        @media (max-width: 1024px) {
+          .requests-tabs {
+            gap: 0.75rem;
+          }
+
+          .tab {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .requests-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .page-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+          }
+
+          .requests-tabs {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 0.5rem;
+          }
+
+          .tab {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .requests-tabs {
+            gap: 0.4rem;
+          }
+
+          .tab {
+            padding: 0.5rem 0.8rem;
+            font-size: 0.85rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .requests-tabs {
+            gap: 0.3rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .tab {
+            padding: 0.5rem 0.6rem;
+            font-size: 0.8rem;
+            min-width: auto;
+          }
         }
       `}</style>
     </div>
   );
 }
 
-export default MaintenanceRequestDetail;
+export default MyMaintenanceRequestsPage;

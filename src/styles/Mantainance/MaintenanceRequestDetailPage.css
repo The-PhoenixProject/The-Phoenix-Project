@@ -1,0 +1,587 @@
+.maintenance-request-detail {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #ff6b35;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.breadcrumb a:hover {
+  color: #e55a25;
+  text-decoration: underline;
+}
+
+/* Request Header */
+.request-header {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.request-title-section {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.request-title-section h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status-new { background: #e3f2fd; color: #1976d2; }
+.status-pending { background: #fff3e0; color: #f57c00; }
+.status-matched { background: #f3e5f5; color: #7b1fa2; }
+.status-in-progress { background: #e8f5e9; color: #388e3c; }
+.status-awaiting-confirmation { background: #fff9c4; color: #f57f17; }
+.status-completed { background: #c8e6c9; color: #2e7d32; }
+.status-disputed { background: #ffcdd2; color: #c62828; }
+
+.urgent-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  background: #ffebee;
+  color: #c62828;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.request-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.meta-item {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.meta-item strong {
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.budget-amount {
+  color: #ff6b35;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.category-badge {
+  background: #e0e0e0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+/* Request Body */
+.request-body {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.request-main-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.request-description h3,
+.preferred-time h3 {
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+}
+
+.request-description p,
+.preferred-time p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.preferred-time {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Work Progress Section */
+.work-progress-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.work-progress-section h3 {
+  color: #2c3e50;
+  margin: 0 0 2rem 0;
+}
+
+.progress-timeline {
+  display: flex;
+  justify-content: space-between;
+  margin: 2rem 0;
+  position: relative;
+}
+
+.progress-timeline::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e0e0e0;
+  z-index: 0;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.timeline-step.completed .step-number {
+  background: #4caf50;
+  color: white;
+}
+
+.step-label {
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+}
+
+.requester-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Offers Section */
+.offers-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.offers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.offers-header h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.offer-form {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #ff6b35;
+}
+
+textarea.form-control {
+  resize: vertical;
+}
+
+.offer-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s;
+}
+
+.offer-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.offer-card.accepted {
+  border-color: #4caf50;
+  background: #f1f8f4;
+}
+
+.offer-card.rejected {
+  opacity: 0.6;
+}
+
+.offer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.provider-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.provider-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.provider-info h4 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.provider-rating {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.offer-price {
+  text-align: right;
+}
+
+.offer-price strong {
+  display: block;
+  font-size: 1.5rem;
+  color: #ff6b35;
+}
+
+.offer-status {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  display: inline-block;
+  margin-top: 0.25rem;
+}
+
+.offer-status.status-pending {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.offer-status.status-accepted {
+  background: #c8e6c9;
+  color: #2e7d32;
+}
+
+.offer-status.status-rejected {
+  background: #ffcdd2;
+  color: #c62828;
+}
+
+.offer-body p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.offer-date {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.offer-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.btn-primary { background: #1976d2; color: white; }
+.btn-primary-orange { background: #ff6b35; color: white; }
+.btn-success { background: #4caf50; color: white; }
+.btn-danger { background: #f44336; color: white; }
+.btn-accept { background: #4caf50; color: white; }
+.btn-reject { background: #f44336; color: white; }
+.btn-chat { background: #9c27b0; color: white; }
+.btn-submit { background: #ff6b35; color: white; width: 100%; }
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.no-offers {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+/* Loading & Error States */
+.loading, .error {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #c62828;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .maintenance-request-detail {
+    padding: 1.5rem;
+  }
+
+  .request-header,
+  .request-body,
+  .work-progress-section,
+  .offers-section {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .maintenance-request-detail {
+    padding: 1rem;
+  }
+
+  .request-header,
+  .request-body,
+  .work-progress-section,
+  .offers-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .request-title-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .request-title-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .request-meta {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .request-main-image {
+    max-height: 250px;
+  }
+
+  .offer-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .offer-price {
+    text-align: left;
+  }
+
+  .offer-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .progress-timeline {
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 1.5rem 0;
+  }
+
+  .progress-timeline::before {
+    left: 20px;
+    right: auto;
+    width: 2px;
+    height: 100%;
+    top: 0;
+  }
+
+  .timeline-step {
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .step-label {
+    text-align: left;
+  }
+
+  .requester-actions {
+    flex-direction: column;
+  }
+
+  .requester-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .maintenance-request-detail {
+    padding: 0.75rem;
+  }
+
+  .request-header,
+  .request-body,
+  .work-progress-section,
+  .offers-section {
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .request-title-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .request-description h3,
+  .preferred-time h3 {
+    font-size: 1.1rem;
+  }
+
+  .request-main-image {
+    max-height: 200px;
+  }
+
+  .offer-card {
+    padding: 1rem;
+  }
+
+  .provider-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .step-number {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .maintenance-request-detail {
+    padding: 0.5rem;
+  }
+
+  .request-header,
+  .request-body,
+  .work-progress-section,
+  .offers-section {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .request-title-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .status-badge,
+  .urgent-badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .offer-form {
+    padding: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+}
