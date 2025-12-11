@@ -36,11 +36,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Auth Pages
 import AuthPage from './pages/AuthPage';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import ForgotPassword from './components/ForgotPassword';
-import ResetPassword from './components/ResetPassword';
-import OtpVerification from './components/OtpVervication';
+import Login from './components/register/Login';
+import Signup from './components/register/Signup';
+import ForgotPassword from './components/register/ForgotPassword';
+import ResetPassword from './components/register/ResetPassword';
+import OtpVerification from './components/register/OtpVervication';
 
 // Main Pages
 import LandingPage from './pages/LandingPage';

@@ -3,7 +3,7 @@
   --color-primary-green: #386641;
   --color-secondary-green: #6A994E;
   --color-tertiary-green: #A7C957;
-  --color-background-light: #e7e9e36b;
+  --color-background-light: #f7faf9;
   --color-text-dark: #2F3E46;
   --color-text-light: #5A6D65;
   --color-border-light: #D4D8CB;
@@ -33,22 +33,22 @@
 /* Desktop: Card styling */
 @media (min-width: 992px) {
   .post-card {
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     border: 1px solid var(--color-border-light) !important;
     margin: 0 0 16px 0 !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06) !important;
     overflow: hidden !important;
   }
   
   .post-card:hover {
     background: var(--color-white) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08) !important;
     transform: translateY(-2px) !important;
   }
 }
 /* Card Body */
 .post-card .card-body {
-  padding: 16px !important;
+  padding: 18px !important;
   overflow: visible !important;
 }
 
@@ -193,7 +193,7 @@
 }
 
 .post-card .post-actions .btn:hover {
-  background: var(--color-hover-bg);
+  /* background: var(--color-hover-bg); */
   color: var(--color-primary-green);
 }
 

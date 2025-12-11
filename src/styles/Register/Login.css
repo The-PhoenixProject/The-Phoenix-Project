@@ -12,8 +12,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #e7e9e36b;
-    padding: 1rem;
+    background: linear-gradient(135deg, #f7faf9 0%, #eef3f1 100%);
+    padding: 1.5rem;
     box-sizing: border-box;
     min-height: 100vh;
     width: 100%;
@@ -122,10 +122,22 @@
 /* --- 6. Form Card --- */
 .login-form-wrapper {
     background: #ffffff;
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 1.75rem;
+    border-radius: 1rem;
+    border: 1px solid #e5ece8;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), 0 5px 15px rgba(0, 0, 0, 0.04);
     width: 100%;
+}
+
+.login-form-wrapper .login-input-field {
+    background-color: #fff;
+}
+
+.login-social-buttons .social-btn,
+.login-social-buttons .btn-google,
+.login-social-buttons .btn-facebook {
+    border: 1px solid #e5ece8;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
 }
 
 .login-form-inner-content {

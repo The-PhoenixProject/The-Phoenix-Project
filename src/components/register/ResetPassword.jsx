@@ -1,9 +1,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authAPI } from '../services/api'; 
+import { authAPI } from '../../services/api'; 
 import toast from 'react-hot-toast';
-import '../styles/Register/ResetPassword.css';
+import '../../styles/Register/ResetPassword.css';
 
 const ResetPassword = () => {
   const navigate = useNavigate();

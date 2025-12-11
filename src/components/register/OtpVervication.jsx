@@ -1,9 +1,9 @@
 
 import { useState, useRef, useEffect } from 'react';
  import { useNavigate } from 'react-router-dom';
- import { useAuth } from '../hooks/useAuth';
+ import { useAuth } from '../../hooks/useAuth';
  import toast from 'react-hot-toast';
- import '../styles/Register/OtpVervication.css';
+ import '../../styles/Register/OtpVervication.css';
 
 
 const OtpVerification = () => {

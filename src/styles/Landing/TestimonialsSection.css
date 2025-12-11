@@ -1,5 +1,6 @@
 .testimonials-section {
   padding: 4rem 0;
+  background: linear-gradient(180deg, #f9fbfa 0%, #f1f5f3 100%);
 }
 
 .section-title {
@@ -14,9 +15,10 @@
 .testimonial-card {
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
   padding: 24px;
   max-width: 360px;
+  border: 1px solid #e7eeea;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -43,7 +45,7 @@
   margin: 0;
   font-weight: 600;
   font-size: 1rem;
-  color: #222;
+  color: #1f2a36;
 }
 
 .testimonial-stars {
@@ -54,7 +56,7 @@
 
 .testimonial-text {
   font-size: 0.95rem;
-  color: #333;
+  color: #4b5560;
   line-height: 1.6;
   margin-top: 10px;
 }
