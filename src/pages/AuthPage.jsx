@@ -1,8 +1,8 @@
 // src/pages/AuthPage.jsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from '../components/Login';    
-import Signup from '../components/Signup';   
+import Login from '../components/register/Login';    
+import Signup from '../components/register/Signup';   
 import '../styles/Register/AuthPage.css';
 
 const AuthPage = () => {

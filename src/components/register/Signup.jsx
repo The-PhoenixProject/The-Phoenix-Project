@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEye, FaEyeSlash, FaGoogle, FaFacebookF } from 'react-icons/fa';
-import '../styles/Register/Signup.css';
+import '../../styles/Register/Signup.css';
 
 // --- Framer Motion Variants ---
 const centerLogoVariants = {
