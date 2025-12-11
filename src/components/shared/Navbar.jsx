@@ -1,4 +1,4 @@
-// CustomNavbar.jsx
+CustomNavbar.jsx
 import React from 'react';
 import {
   Navbar,
@@ -257,3 +257,4 @@ export default function CustomNavbar() {
     </Navbar>
   );
 }
+

@@ -18,7 +18,7 @@ export default function HeroSection({ onLearnMoreClick }) {
             <Button  className="greenBtn me-2" onClick={onLearnMoreClick}
         >Learn More</Button>
             
-            <Button as={Link} to="/home" className="greenBtnWithoutBg">Get Started</Button>
+            <Button as={Link} to="/login" className="greenBtnWithoutBg">Get Started</Button>
           </div>
           <div className="col">
             <img src={logoBig} alt="Hero" className="img-fluid mt-4 biglogo" />
