@@ -9,7 +9,7 @@ export default function HeroSection({ onLearnMoreClick }) {
     <section className="  mb-5  w-100 d-flex  align-items-center justify-content-center py-4">
       <div className="w-75 d-flex   align-items-center justify-content-between row hero-section">
           <div className="w-50 col-md-6 col-12 wid">
-            <h1 >
+            <h1 className="hero-title">
               Rebuild. Reuse. the Planet with Phoenix.
             </h1>
             <p className="text-muted my-3">

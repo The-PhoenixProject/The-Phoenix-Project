@@ -6,12 +6,6 @@
   --primary-green-dark: #005a4f;
   --primary-green-light: #7fc89a;
 
-  /* Accent Colors - Orange */
-  --accent-orange: #ec744a;
-  --accent-orange-hover: #d8653a;
-  --accent-orange-light: #f5a082;
-  --accent-orange-dark: #c55a2e;
-
   /* Neutral Colors */
   --white: #ffffff;
   --black: #000000;
@@ -56,14 +50,6 @@
   /* Hover States */
   --hover-overlay: rgba(0, 0, 0, 0.02);
   --hover-overlay-dark: rgba(0, 0, 0, 0.05);
-
-  /* HEAD-specific variables for compatibility */
-  --green-light: #68DCA8;
-  --green-dark: #38765A;
-  --orange: #EC744A;
-  --dark: #1F2937;
-  --home-bg: #F8F6F1;
-  --gradient: linear-gradient(90deg #38765A ,#1F2937 );
 
   
   /* Primary Brand Colors-------new */
@@ -116,102 +102,7 @@ body {
   overflow-x: hidden;
 }
 
-.navLinks{
-  color: var(--color-text-light) !important;
-}
-/* Hero Section */
-.hero-section {
-  /* background: linear-gradient(
-    180deg,
-    var(--primary-green-start) 0%,
-    var(--primary-green-end) 45%,
-    var(--primary-green-light) 55%,
-    var(--white) 60%,
-    var(--white) 100%
-  ); */
-  /* padding: 80px 20px; */
-  text-align: center;
-  color: var(--color-primary-green);
-  position: relative;
-}
 
-.hero-content {
-  width: 100%;
-  margin: 0;
-}
-
-.hero-title {
-  font-size: 3.5rem;
-  /* font-weight: bold; */
-  margin-bottom: 20px;
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  margin-bottom: 40px;
-  opacity: 0.9;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 40px;
-}
-
-.hero-links {
-  display: flex;
-  gap: 30px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 40px;
-  background: var(--white);
-  padding: 30px 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.hero-link {
-  color: var(--primary-green-start);
-  text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 600;
-  padding: 12px 24px;
-  border: 2px solid var(--primary-green-start);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  background: transparent;
-  display: inline-block;
-}
-
-.hero-link:hover {
-  background: var(--primary-green-start);
-  color: var(--white);
-  border-color: var(--primary-green-start);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 125, 110, 0.3);
-}
-
-.btn-primary-orange {
-  background-color: var(--accent-orange);
-  color: var(--white);
-  border: none;
-  padding: 15px 40px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  display: inline-block;
-}
-
-.btn-primary-orange:hover {
-  background-color: var(--accent-orange-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px var(--shadow-md);
-}
 
 /* Tabs */
 .tabs-container {
@@ -946,16 +837,7 @@ body {
     font-size: 2rem;
   }
 
-  .hero-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .btn-primary-orange {
-    width: 100%;
-    max-width: 300px;
-  }
-
+  
   .tabs {
     flex-wrap: wrap;
     gap: 10px;
@@ -1004,9 +886,7 @@ body {
 
 /* HEAD-specific styles for compatibility-------mariam mamdouh */
 
-/* .nav-bg{
-  background-color: var(--color-background-light) !important;
-} */
+
  a{
   text-decoration: none !important;
  }
@@ -1018,6 +898,8 @@ body {
   color:var(--black) !important;
 }
 
+
+
 .greenBtn {
   background-color: var(--color-primary-green) !important;
   border: none !important;
@@ -1027,7 +909,7 @@ body {
 .greenBtn:hover {
   background-color: var(--color-secondary-green) !important;
   color: white !important;
-  border: 1px solid white !important;
+  /* border: 1px solid white !important; */
 }
 
 
@@ -1042,14 +924,21 @@ body {
   color: white !important;
   border: 1px solid var(--color-primary-green) !important;
 }
-
-.title-color{
-  color: var(--color-primary-green) !important;
+.navLinks{
+  color: var(--color-text-light) !important;
+}
+/* Hero Section */
+.hero-section {
+  text-align: center;
+  color: var(--color-primary-green);
+  position: relative;
 }
 
-.bg-second{
-  background-color: white !important;
+.hero-content {
+  width: 100%;
+  margin: 0;
 }
+
 
 
 footer {
