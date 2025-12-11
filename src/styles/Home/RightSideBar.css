@@ -16,28 +16,41 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-left: 8px;
-  overflow: visible !important; /* NO SCROLLBARS */
-  max-height: 100vh;
+  gap: 18px;
+  padding: 8px 6px 28px;
+  overflow: visible !important;
+  align-items: center;
 }
 
 .right-sidebar-container .card {
   background: var(--color-white);
   border: 1px solid var(--color-border-light) !important;
-  border-radius: 12px !important;
+  border-radius: 14px !important;
   margin-bottom: 0;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
   overflow: visible !important;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 6px;
 }
 
 .right-sidebar-container .card-header {
-  padding: 16px 16px 0 16px !important; /* Reduced */
+  padding: 16px 16px 0 16px !important;
+  width: 100%;
 }
 
 .right-sidebar-container .card-body {
-  padding: 12px 16px 16px 16px !important; /* Reduced */
+  padding: 14px 16px 18px 16px !important;
+  width: 100%;
+}
+
+.eco-tips-card,
+.friends-card,
+.hashtags-card,
+.right-sidebar-container .card-body > .d-flex {
+  width: 100%;
 }
 
 .right-sidebar-container .card-header h6 {

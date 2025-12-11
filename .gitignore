@@ -37,3 +37,6 @@ dist-ssr
 # Backend runtime artifacts
 backend/uploads/
 backend/logs/
+Backend2/
+backend/
+

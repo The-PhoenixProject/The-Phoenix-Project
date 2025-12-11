@@ -26,11 +26,12 @@
 .sidebar-container .card:first-child {
   background: var(--color-white);
   border: 1px solid var(--color-border-light) !important;
-  border-radius: 12px !important;
+  border-radius: 14px !important;
   margin-bottom: 0;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
   overflow: visible !important;
+  padding: 14px;
 }
 
 .sidebar-container .card-body {
@@ -129,14 +130,15 @@
 .sidebar-container .card:last-child {
   background: var(--color-white);
   border: 1px solid var(--color-border-light) !important;
-  border-radius: 12px !important;
+  border-radius: 14px !important;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   min-height: 550px; /* Reduced from 400px */
   max-height: calc(100vh - 400px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
   overflow: visible !important;
+  padding: 10px;
 }
 
 .sidebar-container .card:last-child .card-body {

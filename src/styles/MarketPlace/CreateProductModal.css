@@ -1,16 +1,35 @@
 /* styles/MarketPlace/CreateProductModal.css - Enhanced Version */
 
+/* Override overlay to match site backdrop */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 33, 32, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+}
+
 .create-product-modal {
-  width: 90%;
-  max-width: 700px;
-  max-height: 90vh;
+  width: 92%;
+  max-width: 640px;
+  max-height: calc(100vh - 120px);
+  margin: 32px auto;
   overflow-y: auto;
-  background: white;
-  border-radius: 24px;
-  box-shadow: 
-    0 24px 64px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff !important;
+  border-radius: 22px;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.16),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e6ece8;
+  opacity: 1;
+  mix-blend-mode: normal;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 @keyframes slideUp {
@@ -42,10 +61,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 28px 32px;
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-  border-bottom: 3px solid rgba(0, 125, 110, 0.1);
-  border-radius: 24px 24px 0 0;
+  padding: 16px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 22px 22px 0 0;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -53,22 +72,20 @@
 
 .modal-header h2 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 900;
-  background: linear-gradient(135deg, #007D6E 0%, #5EB47C 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
+  font-size: 23px;
+  font-weight: 800;
+  color: #1f2a36;
+  letter-spacing: -0.1px;
+  line-height: 1.2;
 }
 
 .btn-close {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
+  background: #f3f4f6;
+  color: #4b5563;
   border: none;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,7 +96,9 @@
 
 
 .create-product-form {
-  padding: 32px;
+  padding: 20px 22px 26px;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbfa 100%);
+  border-radius: 0 0 22px 22px;
 }
 
 .form-group {
@@ -107,11 +126,11 @@
 .form-group label {
   display: block;
   margin-bottom: 10px;
-  font-weight: 800;
-  color: #374151;
-  font-size: 13px;
+  font-weight: 700;
+  color: #1f2a36;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
 }
 
 .form-group input,
@@ -119,27 +138,28 @@
 .form-group textarea {
   width: 100%;
   padding: 14px 16px;
-  border: 2px solid #e5e7eb;
+  border: 1px solid #dfe5eb;
   border-radius: 12px;
   font-size: 15px;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: white;
   color: #1f2937;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .form-group input:hover,
 .form-group select:hover,
 .form-group textarea:hover {
-  border-color: #007D6E;
+  border-color: #0f9f88;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #007D6E;
-  box-shadow: 0 0 0 4px rgba(0, 125, 110, 0.1);
+  border-color: #0f9f88;
+  box-shadow: 0 0 0 3px rgba(15, 159, 136, 0.15);
   transform: translateY(-2px);
 }
 
@@ -153,7 +173,7 @@
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 16px;
   animation: fadeInUp 0.4s ease-out both;
 }
 
@@ -195,7 +215,7 @@
 .image-upload-area {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
 .upload-btn {
@@ -203,29 +223,30 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 20px;
-  border: 3px dashed #d1d5db;
-  border-radius: 16px;
+  padding: 14px;
+  min-height: 120px;
+  border: 2px dashed #cbd5de;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: #6b7280;
   font-weight: 700;
   font-size: 15px;
-  background: #fafafa;
+  background: #f9fbfa;
 }
 
 .upload-btn:hover {
-  border-color: #007D6E;
-  background: #ecfdf5;
-  color: #007D6E;
+  border-color: #0f9f88;
+  background: #e8fbf6;
+  color: #0f9f88;
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 125, 110, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 125, 110, 0.08);
 }
 
 .image-previews {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
 }
 
 .image-preview {
@@ -313,24 +334,27 @@
 
 .modal-actions {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: flex-end;
-  margin-top: 32px;
-  padding-top: 28px;
-  border-top: 3px solid #f3f4f6;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 2px solid #f3f4f6;
+  position: sticky;
+  bottom: 0;
+  background: #ffffff;
 }
 
 .btn-cancel,
 .btn-submit {
-  padding: 14px 32px;
-  border-radius: 14px;
+  padding: 12px 26px;
+  border-radius: 12px;
   font-weight: 800;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .btn-cancel {
@@ -388,11 +412,11 @@
 @media (max-width: 768px) {
   .create-product-modal {
     width: 95%;
-    max-height: 95vh;
+    max-height: calc(100vh - 60px);
   }
 
   .modal-header {
-    padding: 20px 24px;
+    padding: 18px 20px;
   }
 
   .modal-header h2 {
@@ -400,7 +424,7 @@
   }
 
   .create-product-form {
-    padding: 24px;
+    padding: 18px 20px 22px;
   }
 
   .form-row {
