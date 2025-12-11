@@ -74,15 +74,9 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  /* box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); */
 }
 
-.btn-close:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  transform: rotate(90deg) scale(1.1);
-  box-shadow: 0 6px 24px rgba(220, 38, 38, 0.3);
-}
 
 .create-product-form {
   padding: 32px;

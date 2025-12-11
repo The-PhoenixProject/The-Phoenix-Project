@@ -91,6 +91,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-background-light) !important;
   color: var(--text-primary);
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 .app-container {
@@ -969,3 +972,5 @@ footer {
     margin-bottom: 0.5rem;
   }
 }
+
+

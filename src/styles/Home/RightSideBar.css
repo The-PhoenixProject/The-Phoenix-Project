@@ -1,108 +1,306 @@
+/* RightSideBar.css - SINGLE SCROLL & IMPROVED */
+:root {
+  --color-primary-green: #386641;
+  --color-secondary-green: #6A994E;
+  --color-tertiary-green: #A7C957;
+  --color-background-light: #e7e9e36b;
+  --color-text-dark: #2F3E46;
+  --color-text-light: #5A6D65;
+  --color-border-light: #D4D8CB;
+  --color-white: #FFFFFF;
+  --color-hover-bg: #f0f2f5;
+}
+
 .right-sidebar-container {
-  position: sticky;
-  top: 100px;
-  height: fit-content;
+  background: transparent;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  
+  gap: 16px;
+  padding-left: 8px;
+  overflow: visible !important; /* NO SCROLLBARS */
+  max-height: 100vh;
 }
 
-
-.friend-item {
-  transition: all 0.3s ease;
-  background-color: white;
-  padding: 0.75rem 1rem;
+.right-sidebar-container .card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border-light) !important;
+  border-radius: 12px !important;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: visible !important;
 }
 
-.friend-item:hover {
-  background-color: rgba(104, 220, 168, 0.1);
-  color: var(--green-dark);
-  cursor:pointer;
+.right-sidebar-container .card-header {
+  padding: 16px 16px 0 16px !important; /* Reduced */
 }
 
-
-
-.friends-card,
-.hashtags-card {
-  border-radius: 0.75rem;
-  overflow: hidden;
-  background-color: var(--home-bg) !important;
-  padding: 1rem;
+.right-sidebar-container .card-body {
+  padding: 12px 16px 16px 16px !important; /* Reduced */
 }
 
-/* .friends-card .card-header,
-.hashtags-card  {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  border-bottom: 1px solid #e9ecef;
-  border-radius: 0.75rem 0.75rem 0 0;
+.right-sidebar-container .card-header h6 {
+  font-size: 0.9375rem !important; /* Reduced */
+  font-weight: 700;
+}
+
+.right-sidebar-container .card-header .bi {
+  font-size: 1rem !important; /* Reduced */
+}
+
+/* Eco Tips - Adjusted */
+/* .eco-tips-card {
+  min-height: 220px; 
 } */
 
-/* .friends-card .card-header h6,
-.hashtags-card .card-header h6 {
-  color: #333;
-  font-size: 0.95rem;
+.eco-tips-card .eco-tip-item {
+  background: var(--color-background-light);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px !important;
+  padding: 12px !important; /* Reduced */
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+  overflow: visible !important;
+}
+
+.eco-tips-card .eco-tip-item:hover {
+  transform: translateX(6px); /* Reduced from 8px */
+  border-color: var(--color-tertiary-green);
+  background: var(--color-white);
+  box-shadow: 0 4px 12px rgba(106, 153, 78, 0.1);
+}
+
+.eco-tips-card .bi {
+  font-size: 20px !important; /* Reduced */
+  min-width: 28px;
+}
+
+.eco-tips-card h6 {
+  font-size: 0.875rem !important; /* Reduced */
   font-weight: 600;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.eco-tips-card p {
+  font-size: 0.8125rem !important; /* Reduced */
+  line-height: 1.4;
   margin: 0;
+}
+
+/* Friends Card - Adjusted */
+/* .friends-card {
+  min-height: 260px; 
 } */
 
-.friends-list {
-  display: flex;
-  flex-direction: column;
+.friends-card .friend-item {
+  background: var(--color-background-light);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px !important;
+  padding: 10px !important; /* Reduced */
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+  overflow: visible !important;
 }
 
-.friend-item img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
+.friends-card .friend-item:hover {
+  background: var(--color-white);
+  transform: translateX(6px); /* Reduced from 8px */
+  border-color: var(--color-secondary-green);
+  box-shadow: 0 4px 12px rgba(106, 153, 78, 0.1);
 }
 
+friends-card .rounded-circle {
+  width: 40px !important; /* Reduced from 48px */
+  height: 40px !important;
+  border: 2px solid var(--color-primary-green); /* Reduced from 2.5px */
+}
 
-.friend-item .btn-sm {
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.35rem 0.8rem;
+.friends-card h6 {
+  font-size: 0.875rem !important; /* Reduced */
+  font-weight: 600;
+  margin-bottom: 2px;
+  line-height: 1.3;
+}
+
+.friends-card small {
+  font-size: 0.75rem !important; /* Reduced */
+  line-height: 1.3;
+}
+
+.friends-card .btn.orangebtn {
+  background: var(--color-secondary-green) !important;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px !important; /* Reduced */
+  font-size: 0.8125rem; /* Reduced */
+  font-weight: 600;
+  min-width: 70px; /* Reduced from 80px */
+  height: fit-content;
   white-space: nowrap;
 }
 
-.hashtags-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.friends-card .btn.orangebtn:hover {
+  background: var(--color-primary-green) !important;
+  transform: scale(1.05);
 }
 
-.hashtag-link {
-  text-decoration: none;
-  color: #ec744a;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  display: inline-block;
-}
-
-.hashtag-link:hover {
-  color: #38765a;
-  text-decoration: underline;
-}
-
-
-/* @media (max-width: 767px) {
-  .right-sidebar-container {
-    gap: 0.75rem;
-  }
-
-  .friend-item {
-    padding: 0.5rem;
-  }
-
-  .friend-item img {
-    width: 36px;
-    height: 36px;
-  }
-
-  .hashtag-link {
-    font-size: 0.85rem;
-  }
+/* Hashtags Card - Adjusted */
+/* .hashtags-card {
+  min-height: 200px; 
 } */
+
+.hashtags-card .hashtag-link {
+  background: var(--color-background-light);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px !important;
+  padding: 10px 12px !important; /* Reduced */
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  overflow: visible !important;
+}
+
+.hashtags-card .hashtag-link:hover {
+  background: var(--color-white);
+  transform: translateX(6px); /* Reduced from 8px */
+  border-color: var(--color-secondary-green);
+  box-shadow: 0 4px 12px rgba(106, 153, 78, 0.1);
+}
+
+.hashtags-card .orangeText {
+  color: var(--color-primary-green) !important;
+  font-size: 0.875rem !important; /* Reduced */
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.hashtags-card .text-muted {
+  font-size: 0.75rem !important; /* Reduced */
+  line-height: 1.3;
+}
+
+/* Loading Spinner */
+.right-sidebar-container .spinner-border {
+  width: 20px !important; /* Reduced */
+  height: 20px !important;
+  border-width: 2px;
+  color: var(--color-secondary-green) !important;
+}
+
+/* Empty State */
+.right-sidebar-container .text-center.text-muted {
+  padding: 30px 0 !important; /* Reduced */
+  font-size: 0.875rem !important; /* Reduced */
+  color: var(--color-text-light) !important;
+}
+
+/* Close button for mobile */
+.right-sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--color-primary-green);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.right-sidebar-close-btn:hover {
+  background: var(--color-secondary-green);
+  transform: scale(1.1);
+}
+
+/* Mobile Responsive */
+@media (max-width: 992px) {
+  .right-sidebar-container {
+    height: 100vh;
+    padding: 0;
+    background: var(--color-white);
+    width: 100% !important;
+    overflow-y: auto !important; /* Allow scroll on mobile only */
+  }
+  
+  /* Add scrollbar back for mobile only */
+  .right-sidebar-container::-webkit-scrollbar {
+    width: 6px;
+    display: block;
+  }
+  
+  .right-sidebar-container::-webkit-scrollbar-track {
+    background: var(--color-background-light);
+    border-radius: 3px;
+    margin: 4px 0;
+  }
+  
+  .right-sidebar-container::-webkit-scrollbar-thumb {
+    background: var(--color-border-light);
+    border-radius: 3px;
+  }
+  
+  .right-sidebar-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-light);
+  }
+  
+  .right-sidebar-close-btn {
+    display: flex;
+  }
+  
+  .right-sidebar-container .card {
+    margin: 0 8px 16px 8px;
+    width: calc(100% - 16px);
+    border-radius: 8px !important;
+  }
+  
+  .right-sidebar-container .card-body {
+    padding: 14px !important;
+  }
+  
+  .eco-tips-card,
+  .friends-card,
+  .hashtags-card {
+    min-height: auto;
+  }
+  
+  .friends-card .rounded-circle {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}
+@media (max-width: 768px) {
+  .right-sidebar-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .right-sidebar-container .card {
+    margin: 0 0 12px 0;
+    width: 100%;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  
+  .right-sidebar-container .card-body {
+    padding: 12px !important;
+  }
+  
+  .friends-card .rounded-circle {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  
+  .friends-card .btn.orangebtn {
+    padding: 4px 8px !important;
+    font-size: 0.75rem;
+    min-width: 60px;
+  }
+}

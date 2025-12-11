@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api'; 
@@ -137,16 +138,23 @@ const ResetPassword = () => {
   // Don't render if redirecting
   if (redirecting) {
     return (
-      <div className="reset-password-container" style={{ 
+      <div className="reset-page" style={{ 
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        minHeight: '100vh' 
+        minHeight: '100vh',
+        background: '#e7e9e36b'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+          <div className="spinner" style={{
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #6A994E',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto'
+          }}></div>
           <p style={{ marginTop: '1rem', color: '#666' }}>Redirecting to login...</p>
         </div>
       </div>
@@ -154,28 +162,27 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="reset-password-container">
-      {/* LEFT SIDE */}
-      <div className="reset-left">
-        <div className="logo-card">
-          <img src="../../public/logo big (1).png" alt="Phoenix Logo" className="logo-image" />
-          <h2 className="logo-title">THE<br/>PHOENIX<br/>PROJECT</h2>
-          <p className="logo-subtitle">RECYCLE · RENEW</p>
+    <div className="reset-page">
+      {/* Logo in Top Left */}
+      <div className="logo-header">
+        <div className="logo-container">
+          <img src="../../public/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="logo" />
+          <h2 className="logo-title">Phoenix</h2>
         </div>
       </div>
+      
+      {/* Main Form Container */}
+      <div className="reset-container">
+        <div className="reset-center-wrapper">
+          <div className="reset-form-container">
+            <h2 className="form-heading">Reset Your Password</h2>
+            <p className="form-subtitle">
+              Enter the code sent to <strong>{email}</strong>
+            </p>
 
-      {/* RIGHT SIDE */}
-      <div className="reset-right">
-        <div className="reset-form-container">
-          <h1 className="form-title">Reset Your Password</h1>
-          <p className="form-subtitle">
-            Enter the code sent to <strong>{email}</strong>
-          </p>
-
-          <form onSubmit={handleSubmit} className="reset-form">
-            {/* OTP INPUT */}
-            <div className="form-group">
-              <label>Verification Code</label>
+            {/* OTP Input Section - Same as OTP Verification Page */}
+            <div className="otp-section">
+              <p className="otp-label">Verification Code</p>
               <div className="otp-input-container">
                 {otp.map((d, i) => (
                   <input
@@ -197,61 +204,65 @@ const ResetPassword = () => {
               {errors.otp && <span className="error-message">{errors.otp}</span>}
             </div>
 
-            {/* NEW PASSWORD */}
-            <div className="form-group">
-              <label htmlFor="newPassword">New Password</label>
-              <div className="password-input-wrapper">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="newPassword"
-                  placeholder="Enter new password"
-                  value={newPassword}
-                  onChange={(e) => {
-                    setNewPassword(e.target.value);
-                    if (errors.password) setErrors({ ...errors, password: '' });
-                  }}
-                  className={errors.password ? 'error' : ''}
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  className="toggle-password"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label="Toggle password visibility"
-                  disabled={loading}
-                >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
-                </button>
+            <form onSubmit={handleSubmit} className="reset-form">
+              {/* NEW PASSWORD */}
+              <div className="form-group">
+                <label htmlFor="newPassword">New Password</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="newPassword"
+                    placeholder="Enter new password"
+                    value={newPassword}
+                    onChange={(e) => {
+                      setNewPassword(e.target.value);
+                      if (errors.password) setErrors({ ...errors, password: '' });
+                    }}
+                    className={errors.password ? 'error' : ''}
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    className="toggle-password"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label="Toggle password visibility"
+                    disabled={loading}
+                  >
+                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                  </button>
+                </div>
+                {errors.password && <span className="error-message">{errors.password}</span>}
               </div>
-              {errors.password && <span className="error-message">{errors.password}</span>}
-            </div>
 
-            {/* CONFIRM PASSWORD */}
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="confirmPassword"
-                placeholder="Confirm new password"
-                value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
-                }}
-                className={errors.confirmPassword ? 'error' : ''}
-                disabled={loading}
-              />
-              {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
-            </div>
+              {/* CONFIRM PASSWORD */}
+              <div className="form-group">
+                <label htmlFor="confirmPassword">Confirm Password</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
+                    }}
+                    className={errors.confirmPassword ? 'error' : ''}
+                    disabled={loading}
+                  />
+                </div>
+                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+              </div>
 
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Resetting Password...' : 'Reset Password'}
-            </button>
-          </form>
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? 'Resetting Password...' : 'Reset Password'}
+              </button>
+            </form>
 
-          <p className="back-link">
-            <a href="/forgot-password">← Didn't receive code?</a>
-          </p>
+            <p className="back-link">
+              <a href="/forgot-password">← Didn't receive code?</a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

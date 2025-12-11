@@ -1,189 +1,315 @@
-.sidebar-custom {
-  position: sticky;
-  top: 100px;
-  height: fit-content;
-  /* background-color: var(--home-bg) !important; */
-  width: 90%;
+/* SideBar.css - SINGLE SCROLL & IMPROVED */
+:root {
+  --color-primary-green: #386641;
+  --color-secondary-green: #6A994E;
+  --color-tertiary-green: #A7C957;
+  --color-background-light: #e7e9e36b;
+  --color-text-dark: #2F3E46;
+  --color-text-light: #5A6D65;
+  --color-border-light: #D4D8CB;
+  --color-white: #FFFFFF;
+  --color-hover-bg: #f0f2f5;
 }
 
-.sidebar-section {
-  margin-bottom: 3rem;
-  background-color: var(--home-bg) !important;
-}
-
-.sidebar-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--dark);
-  margin-bottom: 1.5rem;
-}
-
-.menu-items {
+.sidebar-container {
+  background: transparent;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 16px;
+  padding-right: 8px;
+  overflow: visible !important; /* NO SCROLLBARS */
+  max-height: 100vh;
 }
 
-.menu-item {
+/* Profile Card - Larger */
+.sidebar-container .card:first-child {
+  background: var(--color-white);
+  border: 1px solid var(--color-border-light) !important;
+  border-radius: 12px !important;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: visible !important;
+}
+
+.sidebar-container .card-body {
+  padding: 20px !important; /* Reduced from 24px */
+}
+
+/* Profile Image - Fixed size */
+.sidebar-container .rounded-circle {
+  width: 90px !important; /* Reduced from 100px */
+  height: 90px !important;
+  border: 3px solid var(--color-primary-green);
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+.sidebar-container .card-body {
+  padding: 24px !important;
+}
+
+/* Profile Image - Larger */
+.sidebar-container .rounded-circle {
+  width: 100px !important;
+  height: 100px !important;
+  border: 3px solid var(--color-primary-green);
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+/* User Info - Better spacing */
+.sidebar-container h5 {
+  font-size: 1.125rem !important; /* Reduced from 1.25rem */
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 6px;
+}
+
+.sidebar-container .text-muted.small {
+  color: var(--color-text-light);
+  font-size: 0.8125rem;
+  margin-bottom: 15px;
+}
+
+/* Eco Points Badge - Larger */
+.sidebar-container .rounded[style*="background-color"] {
+  background: linear-gradient(135deg, var(--color-background-light), var(--color-white)) !important;
+  border: 1px solid var(--color-border-light);
+  padding: 15px !important; /* Reduced from 20px */
+  margin-bottom: 15px;
+  border-radius: 10px !important;
+  overflow: visible !important;
+}
+
+.sidebar-container .bi-trophy-fill {
+  color: var(--color-tertiary-green) !important;
+  font-size: 24px !important; /* Reduced from 28px */
+}
+
+.sidebar-container h6[style*="#007D6E"] {
+  color: var(--color-primary-green) !important;
+  font-size: 1.125rem !important; /* Reduced from 1.25rem */
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+/* Stats Section - Larger */
+.sidebar-container .border-top.border-bottom {
+  border-color: var(--color-border-light) !important;
+  padding: 15px 0 !important; /* Reduced from 20px */
+  margin: 15px 0 !important;
+}
+
+.sidebar-container .d-flex.justify-content-around > div {
+  text-align: center;
+  cursor: pointer;
+  padding: 0 10px;
+  transition: all 0.2s;
+  min-width: 60px;
+}
+
+.sidebar-container .d-flex.justify-content-around h6 {
+  color: var(--color-primary-green) !important;
+  font-size: 1rem !important; /* Reduced from 1.125rem */
+  font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.sidebar-container .d-flex.justify-content-around small {
+  color: var(--color-text-light);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Navigation Menu Card */
+.sidebar-container .card:last-child {
+  background: var(--color-white);
+  border: 1px solid var(--color-border-light) !important;
+  border-radius: 12px !important;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 550px; /* Reduced from 400px */
+  max-height: calc(100vh - 400px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: visible !important;
+}
+
+.sidebar-container .card:last-child .card-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px !important; /* Reduced from 20px */
+  overflow: visible !important;
+}
+
+.sidebar-container h6.fw-bold {
+  color: var(--color-text-dark);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  padding: 0 4px;
+  margin-bottom: 12px;
+}
+
+/* Menu Buttons - Adjusted */
+.sidebar-container .btn {
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px !important; /* Reduced from 14px 16px */
+  border-radius: 8px !important;
+  margin-bottom: 6px;
+  font-size: 0.875rem; /* Reduced from 0.9375rem */
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  text-decoration: none;
-  color: var(--dark);
-  border-radius: 0.5rem;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
+  gap: 10px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.menu-item:hover {
-  background-color: rgba(104, 220, 168, 0.1);
-  color: var(--green-dark);
+.sidebar-container .btn-light {
+  background: var(--color-background-light);
+  color: var(--color-text-dark);
 }
 
-.menu-item i {
-  font-size: 1.2rem;
-  color: var(--orange);
+.sidebar-container .btn-light:hover {
+  background: var(--color-hover-bg);
+  color: var(--color-text-dark);
+  transform: translateX(4px);
 }
 
-.hashtags-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+sidebar-container .btn-success {
+  background: var(--color-background-light) !important;
+  color: var(--color-primary-green) !important;
+  border-left: 4px solid var(--color-primary-green) !important;
+  font-weight: 600;
 }
 
-.hashtag-item {
-  text-decoration: none;
-  color: var(--orange);
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
+.sidebar-container .btn-success:hover {
+  background: rgba(56, 102, 65, 0.1) !important;
+  transform: translateX(4px);
 }
 
-.hashtag-item:hover {
-  color: var(--green-dark);
-  text-decoration: underline;
-}
-
-/* Create Post Card */
-.create-post-card {
-  background-color: white;
-  border-radius: 0.75rem;
-}
-
-.user-avatar-create {
+.sidebar-container .bi {
+  font-size: 1.25rem; /* Reduced from 1.375rem */
+  width: 22px;
+  text-align: center;
+  color: inherit;
   flex-shrink: 0;
 }
 
-.create-post-input {
-  font-size: 0.95rem;
-  color: var(--dark);
-  background-color: #f8f9fa;
-  border-radius: 1.5rem !important;
-  padding: 0.75rem 1rem !important;
-  resize: none;
-  transition: all 0.3s ease;
-}
-
-.create-post-input:focus {
-  background-color: white;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(104, 220, 168, 0.1);
-}
-
-.post-action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.post-action-buttons .btn {
-  font-size: 0.9rem;
-  color: var(--dark);
-  background-color: #f8f9fa;
+/* Close button for mobile */
+.sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--color-primary-green);
+  color: white;
   border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  z-index: 10;
+  transition: all 0.2s;
 }
 
-.post-action-buttons .btn:hover {
-  background-color: #e9ecef;
-}
-/* Add this to your global CSS or create a new scrollbar.css file */
-
-/* ✅ Custom Scrollbar for Sidebar and Friends List */
-.sidebar-container::-webkit-scrollbar,
-.right-sidebar-container::-webkit-scrollbar {
-  width: 8px;
+.sidebar-close-btn:hover {
+  background: var(--color-secondary-green);
+  transform: scale(1.1);
 }
 
-.sidebar-container::-webkit-scrollbar-track,
-.right-sidebar-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.sidebar-container::-webkit-scrollbar-thumb,
-.right-sidebar-container::-webkit-scrollbar-thumb {
-  background: #007D6E;
-  border-radius: 10px;
-}
-
-.sidebar-container::-webkit-scrollbar-thumb:hover,
-.right-sidebar-container::-webkit-scrollbar-thumb:hover {
-  background: #005a4d;
-}
-
-/* Firefox scrollbar */
-.sidebar-container,
-.right-sidebar-container {
-  scrollbar-width: thin;
-  scrollbar-color: #007D6E #f1f1f1;
-}
-
-/* ✅ Smooth scrolling behavior */
-.sidebar-container,
-.right-sidebar-container {
-  scroll-behavior: smooth;
-}
-
-/* ✅ Hide scrollbar when not hovering (optional) */
-.sidebar-container:not(:hover)::-webkit-scrollbar-thumb,
-.right-sidebar-container:not(:hover)::-webkit-scrollbar-thumb {
-  background: transparent;
-}
-
-/* ✅ Transition for smooth appearance */
-.sidebar-container::-webkit-scrollbar-thumb,
-.right-sidebar-container::-webkit-scrollbar-thumb {
-  transition: background 0.3s ease;
-}
-
-/* ✅ Custom styles for post feed scrolling */
-.posts-feed {
-  scroll-behavior: smooth;
-}
-
-/* ✅ Prevent horizontal scrolling issues */
-.sidebar-container,
-.right-sidebar-container {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-/* ✅ Ensure cards don't overflow */
-.sidebar-container .card,
-.right-sidebar-container .card {
-  max-width: 100%;
-  overflow: hidden;
-}
-
-/* Responsive Design */
-/* @media (max-width: 991px) {
-  .sidebar-custom,
-  .right-sidebar-container {
-    position: relative;
-    top: auto;
+/* Mobile Responsive */
+@media (max-width: 992px) {
+  .sidebar-container {
+    height: 100vh;
+    padding: 0;
+    background: var(--color-white);
+    width: 100% !important;
+    overflow-y: auto !important; /* Allow scroll on mobile only */
   }
-
-  .sidebar-section {
-    margin-bottom: 2rem;
+  
+  /* Add scrollbar back for mobile only */
+  .sidebar-container::-webkit-scrollbar {
+    width: 6px;
+    display: block;
   }
-} */
+  
+  .sidebar-container::-webkit-scrollbar-track {
+    background: var(--color-background-light);
+    border-radius: 3px;
+    margin: 4px 0;
+  }
+  
+  .sidebar-container::-webkit-scrollbar-thumb {
+    background: var(--color-border-light);
+    border-radius: 3px;
+  }
+  
+  .sidebar-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-light);
+  }
+  
+  .sidebar-close-btn {
+    display: flex;
+  }
+  
+  .sidebar-container .card:first-child {
+    margin-top: 50px;
+  }
+  
+  .sidebar-container .card {
+    border-radius: 8px !important;
+    margin: 0 8px 16px 8px;
+    width: calc(100% - 16px);
+  }
+  
+  .sidebar-container .card-body {
+    padding: 16px !important;
+  }
+  
+  .sidebar-container .rounded-circle {
+    width: 70px !important;
+    height: 70px !important;
+  }
+  
+  .sidebar-container .btn {
+    padding: 10px 12px !important;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .sidebar-container .card {
+    margin: 0 0 12px 0;
+    width: 100%;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  
+  .sidebar-container .card-body {
+    padding: 14px !important;
+  }
+  
+  .sidebar-container .rounded-circle {
+    width: 60px !important;
+    height: 60px !important;
+  }
+}
