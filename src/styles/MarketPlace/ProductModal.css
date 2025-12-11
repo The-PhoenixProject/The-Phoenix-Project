@@ -68,6 +68,12 @@
   grid-template-columns: 1fr 1fr;
   gap: 32px;
   padding: 32px;
+  border-radius: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background: white !important;
 }
 
 /* Product Images */
@@ -75,6 +81,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+ 
 }
 
 .main-image {
@@ -190,12 +201,13 @@
 .product-price {
   font-size: 36px;
   font-weight: 900;
-  background: linear-gradient(135deg, #007D6E 0%, #5EB47C 100%);
+  color: white;
+  white-space: nowrap;
+  letter-spacing: -1px;
+  background: white;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  white-space: nowrap;
-  letter-spacing: -1px;
 }
 
 .product-meta {
@@ -212,6 +224,9 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .condition-badge.new {

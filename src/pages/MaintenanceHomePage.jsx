@@ -83,11 +83,12 @@ function MaintenanceHomePage() {
   return (
     <div className="app-container">
       <HeroSection
+      style={{ width: "100%", maxWidth: "100%" }}
         onRequestClick={handleRequestClick}
         onOfferClick={handleOfferClick}
       />
 
-      <div className="main-content">
+      <div className="main-content" style={{ width: "95%", maxWidth: "100%" }}>
         {activeTab === 'requests' && (
           <div className="content-row">
             <div className="left-panel">
@@ -139,20 +140,7 @@ function MaintenanceHomePage() {
         )}
       </div>
 
-      <footer className="app-footer">
-        <p>Together, we give waste a second chance.</p>
-        <div className="footer-links">
-          <Link to="/profile" className="text-decoration-none">
-            Profile
-          </Link>
-          <Link to="/contact" className="text-decoration-none">
-            Contact
-          </Link>
-          <Link to="/home" className="text-decoration-none">
-            Home
-          </Link>
-        </div>
-      </footer>
+     
     </div>
   );
 }

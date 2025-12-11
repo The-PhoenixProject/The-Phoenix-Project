@@ -121,23 +121,22 @@ body {
 }
 /* Hero Section */
 .hero-section {
-  /* background: linear-gradient(
-    180deg,
-    var(--primary-green-start) 0%,
-    var(--primary-green-end) 45%,
-    var(--primary-green-light) 55%,
-    var(--white) 60%,
-    var(--white) 100%
-  ); */
-  /* padding: 80px 20px; */
   text-align: center;
   color: var(--color-primary-green);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 24px;
 }
 
 .hero-content {
   width: 100%;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .hero-title {
@@ -157,7 +156,6 @@ body {
   gap: 20px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 40px;
 }
 
 .hero-links {
@@ -165,11 +163,25 @@ body {
   gap: 30px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 40px;
+  margin-top: 24px;
   background: var(--white);
   padding: 30px 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 960px;
+}
+
+/* Override landing hero gradient for maintenance page */
+.maintenance-hero {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-height: auto !important;
+}
+
+.maintenance-hero::after {
+  display: none !important;
 }
 
 .hero-link {

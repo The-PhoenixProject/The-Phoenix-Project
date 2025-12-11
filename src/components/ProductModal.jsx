@@ -8,7 +8,7 @@ import { chatAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import '../styles/MarketPlace/ProductModal.css';
 
-const ProductModal = ({ product, onClose, onToggleWishlist }) => {
+const ProductModal = ({ product, onClose, onToggleWishlist, style }) => {
   const { token, currentUser } = useAuth();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
@@ -111,10 +111,10 @@ const ProductModal = ({ product, onClose, onToggleWishlist }) => {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content product-modal" onClick={e => e.stopPropagation()}>
+      <div className="modal-content product-modal"  style={{ padding: "20px" , background: "white" }} onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="btn-close"><X size={24} /></button>
 
-        <div className="modal-body">
+        <div className="modal-body" >
           {/* Images */}
           <div className="product-images">
             <div className="main-image">
@@ -154,11 +154,11 @@ const ProductModal = ({ product, onClose, onToggleWishlist }) => {
                 <h2>{product.title}</h2>
                 <p className="product-category">{product.category}</p>
               </div>
-              <span className="product-price">${Number(product.price).toFixed(2)}</span>
+              <span className="product-price"  style={{ color: "white !important" }}>${Number(product.price).toFixed(2)}</span>
             </div>
 
             <div className="product-meta">
-              <span className={`condition-badge ${product.condition.toLowerCase().replace(' ', '-')}`}>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }} className={`condition-badge ${product.condition.toLowerCase().replace(' ', '-')}`}>
                 {product.condition}
               </span>
               {product.views !== undefined && (
@@ -184,7 +184,7 @@ const ProductModal = ({ product, onClose, onToggleWishlist }) => {
             <div className="product-actions">
               {!isOwnProduct && token && (
                 <>
-                  <button className="btn-primary" onClick={handleChat}>
+                  <button className="btn-primary btn-chat-seller" onClick={handleChat}>
                     <MessageCircle size={20} /> Chat with Seller
                   </button>
                   <button className={`btn-wishlist ${product.isFavorited ? 'active' : ''}`}
