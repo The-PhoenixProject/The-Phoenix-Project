@@ -353,6 +353,20 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .provider-dashboard {
+    padding: 1.5rem;
+  }
+
+  .stats-overview {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .job-details {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .provider-dashboard {
     padding: 1rem;
@@ -364,23 +378,43 @@
     gap: 1rem;
   }
 
+  .dashboard-header h1 {
+    font-size: 1.75rem;
+  }
+
   .stats-overview {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+  }
+
+  .stat-content h3 {
+    font-size: 1.75rem;
   }
 
   .dashboard-tabs {
     flex-direction: column;
+    gap: 0;
+    border-bottom: none;
   }
 
   .tab {
     text-align: left;
     border-left: 3px solid transparent;
-    border-bottom: none;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0.75rem 1rem;
   }
 
   .tab.active {
     border-left-color: #ff6b35;
-    border-bottom-color: transparent;
+    border-bottom-color: #e0e0e0;
+  }
+
+  .job-card {
+    padding: 1.25rem;
   }
 
   .job-header {
@@ -389,14 +423,20 @@
     gap: 1rem;
   }
 
+  .job-title-section h3 {
+    font-size: 1.2rem;
+  }
+
   .job-details {
     grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
 
   .job-timeline {
     flex-direction: column;
     align-items: flex-start;
     padding: 0;
+    margin: 1rem 0;
   }
 
   .job-timeline::before {
@@ -410,6 +450,7 @@
   .timeline-step {
     flex-direction: row;
     gap: 1rem;
+    width: 100%;
   }
 
   .timeline-step span {
@@ -419,9 +460,102 @@
 
   .job-actions {
     flex-direction: column;
+    width: 100%;
   }
 
   .btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .provider-dashboard {
+    padding: 0.75rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+  }
+
+  .stat-content h3 {
+    font-size: 1.5rem;
+  }
+
+  .job-card {
+    padding: 1rem;
+  }
+
+  .job-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .job-title-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .step-dot {
+    width: 18px;
+    height: 18px;
+  }
+
+  .timeline-step span {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .provider-dashboard {
+    padding: 0.5rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .stat-card {
+    padding: 0.75rem;
+  }
+
+  .stat-content h3 {
+    font-size: 1.3rem;
+  }
+
+  .stat-content p {
+    font-size: 0.85rem;
+  }
+
+  .tab {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .job-card {
+    padding: 0.75rem;
+  }
+
+  .job-title-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .status-badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
   }
 }

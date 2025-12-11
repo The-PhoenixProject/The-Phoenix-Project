@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { maintenanceAPI } from '../services/api';
-import { useAuth } from '../hooks/useAuth';
+import { maintenanceAPI } from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
 
 function RepairRequestsList({ onDelete }) {
   const { token } = useAuth();

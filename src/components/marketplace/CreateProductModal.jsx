@@ -1,10 +1,10 @@
 // src/components/CreateProductModal.jsx
 import React, { useState, useEffect } from 'react';
 import { X, Upload, Plus } from 'lucide-react';
-import { productAPI } from '../services/api';
-import { useAuth } from '../hooks/useAuth';
+import { productAPI } from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
-import '../styles/MarketPlace/CreateProductModal.css'
+import './CreateProductModal.css'
 const categories = ['Furniture','Electronics','Home Decor','Books & Media','Sporting Goods','Toys & Games','Crafts & DIY Materials','Jewelry','Miscellaneous'];
 const conditions = ['New', 'Like New', 'Good', 'Fair', 'Used'];
 

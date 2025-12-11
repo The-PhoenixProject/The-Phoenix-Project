@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-function HeroSection({ onRequestClick, onOfferClick }) {
+function MaintenanceHero({ onRequestClick, onOfferClick }) {
   const handleRequestClick = () => {
     if (onRequestClick) {
       onRequestClick();
@@ -51,4 +51,4 @@ function HeroSection({ onRequestClick, onOfferClick }) {
   );
 }
 
-export default HeroSection;
+export default MaintenanceHero;

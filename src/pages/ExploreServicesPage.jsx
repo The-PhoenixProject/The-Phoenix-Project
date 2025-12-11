@@ -367,6 +367,38 @@ function ExploreServicesPage() {
           backdrop-filter: blur(10px);
           border-radius: 20px;
         }
+
+        @media (max-width: 600px) {
+          .service-image-fallback {
+            height: 220px;
+            gap: 0.75rem;
+          }
+
+          .service-icon {
+            font-size: 4rem;
+          }
+
+          .service-category-label {
+            font-size: 1rem;
+            padding: 0.4rem 1rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .service-image-fallback {
+            height: 180px;
+            gap: 0.5rem;
+          }
+
+          .service-icon {
+            font-size: 3.5rem;
+          }
+
+          .service-category-label {
+            font-size: 0.9rem;
+            padding: 0.4rem 1rem;
+          }
+        }
       `}</style>
     </div>
   );

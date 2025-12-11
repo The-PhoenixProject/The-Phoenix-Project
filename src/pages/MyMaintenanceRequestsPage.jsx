@@ -409,6 +409,17 @@ function MyMaintenanceRequestsPage() {
           color: #7f8c8d;
         }
 
+        @media (max-width: 1024px) {
+          .requests-tabs {
+            gap: 0.75rem;
+          }
+
+          .tab {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+          }
+        }
+
         @media (max-width: 768px) {
           .requests-grid {
             grid-template-columns: 1fr;
@@ -418,6 +429,45 @@ function MyMaintenanceRequestsPage() {
             flex-direction: column;
             gap: 1rem;
             align-items: flex-start;
+          }
+
+          .requests-tabs {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 0.5rem;
+          }
+
+          .tab {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .requests-tabs {
+            gap: 0.4rem;
+          }
+
+          .tab {
+            padding: 0.5rem 0.8rem;
+            font-size: 0.85rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .requests-tabs {
+            gap: 0.3rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .tab {
+            padding: 0.5rem 0.6rem;
+            font-size: 0.8rem;
+            min-width: auto;
           }
         }
       `}</style>

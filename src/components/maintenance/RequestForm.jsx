@@ -1,20 +1,20 @@
 import React, { useState } from "react";
-import { maintenanceAPI } from "../services/api";
-import { useAuth } from "../hooks/useAuth";
+import { maintenanceAPI } from "../../services/api";
+import { useAuth } from "../../hooks/useAuth";
 import toast from "react-hot-toast";
 
-function ServiceOfferForm({ onOfferAdded }) {
+function RequestForm({ onRequestAdded }) {
   const { token } = useAuth();
   const [formData, setFormData] = useState({
-    name: "",
+    itemName: "",
     category: "Electronics",
     description: "",
-    startingPrice: "",
+    budget: "",
     location: "",
-    experience: "",
-    specialties: "",
+    preferredContactTime: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
 
   const handleChange = (e) => {
     setFormData({
@@ -27,57 +27,57 @@ function ServiceOfferForm({ onOfferAdded }) {
     e.preventDefault();
     
     if (!token) {
-      toast.error("Please login to submit an offer");
+      toast.error("Please login to submit a request");
       return;
     }
     
     setIsSubmitting(true);
+    setSubmitMessage("");
 
     try {
       // Validate required fields
-      if (!formData.name || !formData.description || !formData.startingPrice) {
+      if (!formData.itemName || !formData.description || !formData.budget) {
         toast.error("Please fill in all required fields.");
         setIsSubmitting(false);
         return;
       }
 
-      // ✅ FIXED: Match backend expected field names
-      const offerData = {
-        name: formData.name,              // Backend expects "name" not "serviceName"
+      // Submit to backend API
+      const requestData = {
+        itemName: formData.itemName,
         category: formData.category,
         description: formData.description,
-        startingPrice: formData.startingPrice,  // Backend expects "startingPrice" not "price"
+        budget: formData.budget,
         location: formData.location || "",
-        experience: formData.experience || "",
-        specialties: formData.specialties || "",
+        preferredContactTime: formData.preferredContactTime || "",
       };
 
-      console.log('📤 Submitting offer data:', offerData);
-
-      const response = await maintenanceAPI.createOffer(offerData, token);
-      
-      console.log('✅ Offer created successfully:', response);
+      await maintenanceAPI.createRequest(requestData, token);
 
       // Reset form
       setFormData({
-        name: "",
+        itemName: "",
         category: "Electronics",
         description: "",
-        startingPrice: "",
+        budget: "",
         location: "",
-        experience: "",
-        specialties: "",
+        preferredContactTime: "",
       });
 
-      toast.success("Service offer submitted successfully!");
+      toast.success("Request submitted successfully!");
 
       // Notify parent component to refresh data
-      if (onOfferAdded) {
-        onOfferAdded();
+      if (onRequestAdded) {
+        onRequestAdded();
       }
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSubmitMessage("");
+      }, 3000);
     } catch (error) {
-      console.error('❌ Error submitting offer:', error);
-      toast.error(error.message || "Error submitting offer. Please try again.");
+      console.error("Error submitting request:", error);
+      toast.error(error.message || "Error submitting request. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -85,28 +85,37 @@ function ServiceOfferForm({ onOfferAdded }) {
 
   const handleCancel = () => {
     setFormData({
-      name: "",
+      itemName: "",
       category: "Electronics",
       description: "",
-      startingPrice: "",
+      budget: "",
       location: "",
-      experience: "",
-      specialties: "",
+      preferredContactTime: "",
     });
+    setSubmitMessage("");
   };
 
   return (
-    <div className="request-form-container" id="offer-service-form">
-      <h3 className="form-title">Offer a Service</h3>
+    <div className="request-form-container" id="request-repair-form">
+      <h3 className="form-title">Request a Repair</h3>
+      {submitMessage && (
+        <div
+          className={`submit-message ${
+            submitMessage.includes("Error") ? "error" : "success"
+          }`}
+        >
+          {submitMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Service Name *</label>
+          <label>Item Name *</label>
           <input
             type="text"
-            name="name"
+            name="itemName"
             className="form-control"
-            placeholder="e.g. Electronics Repair Service"
-            value={formData.name}
+            placeholder="e.g. Vintage Lamp"
+            value={formData.itemName}
             onChange={handleChange}
             required
           />
@@ -124,7 +133,6 @@ function ServiceOfferForm({ onOfferAdded }) {
             <option value="Furniture">Furniture</option>
             <option value="Clothing">Clothing</option>
             <option value="Accessories">Accessories</option>
-            <option value="Appliances">Appliances</option>
             <option value="Other">Other</option>
           </select>
         </div>
@@ -135,7 +143,7 @@ function ServiceOfferForm({ onOfferAdded }) {
             name="description"
             className="form-control"
             rows="4"
-            placeholder="Describe your service and expertise...."
+            placeholder="Describe what needs repair...."
             value={formData.description}
             onChange={handleChange}
             required
@@ -143,13 +151,19 @@ function ServiceOfferForm({ onOfferAdded }) {
         </div>
 
         <div className="form-group">
-          <label>Starting Price *</label>
+          <button type="button" className="btn btn-upload">
+            <i className="bi bi-camera"></i> Upload Photos
+          </button>
+        </div>
+
+        <div className="form-group">
+          <label>Budget *</label>
           <input
             type="text"
-            name="startingPrice"
+            name="budget"
             className="form-control"
-            placeholder="e.g. $25/hour or $50 - $100"
-            value={formData.startingPrice}
+            placeholder="$20 - $30"
+            value={formData.budget}
             onChange={handleChange}
             required
           />
@@ -161,32 +175,20 @@ function ServiceOfferForm({ onOfferAdded }) {
             type="text"
             name="location"
             className="form-control"
-            placeholder="e.g. New York, NY"
+            placeholder="e.g. Before Export"
             value={formData.location}
             onChange={handleChange}
           />
         </div>
 
         <div className="form-group">
-          <label>Years of Experience</label>
+          <label>Preferred Contact Time</label>
           <input
             type="text"
-            name="experience"
+            name="preferredContactTime"
             className="form-control"
-            placeholder="e.g. 5 years"
-            value={formData.experience}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Specialties</label>
-          <input
-            type="text"
-            name="specialties"
-            className="form-control"
-            placeholder="e.g. Vintage electronics, Antique furniture"
-            value={formData.specialties}
+            placeholder="e.g. mm/dd/yyyy"
+            value={formData.preferredContactTime}
             onChange={handleChange}
           />
         </div>
@@ -197,7 +199,7 @@ function ServiceOfferForm({ onOfferAdded }) {
             className="btn btn-submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Submit Offer"}
+            {isSubmitting ? "Submitting..." : "Submit Request"}
           </button>
           <button
             type="button"
@@ -212,4 +214,4 @@ function ServiceOfferForm({ onOfferAdded }) {
   );
 }
 
-export default ServiceOfferForm;
+export default RequestForm;

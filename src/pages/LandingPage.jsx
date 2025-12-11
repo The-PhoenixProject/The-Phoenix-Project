@@ -30,7 +30,6 @@
 import React,{useState} from "react";
 import HeroSection from "../components/landing/HeroSection";
 import AboutSection from "../components/landing/AboutSection";
-import Footer from "../components/shared/Footer";
 import LearnMore from "../components/landing/LearnMore";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import MarketPlace from "../components/landing/MarketPlaceSection";
@@ -39,7 +38,7 @@ import CallToAction from "../components/landing/CallToActionSection";
 // <<<<<<< HEAD
 // import ParallaxDivider from "../components/landing/CallToActionSection";
 // =======
-import ParallaxDivider from "../components/landing/parallax";
+import ParallaxDivider from "../components/landing/ParallaxDivider";
 
 export default function LandingPage() {
   const [showPopup, setShowPopup] = useState(false);
@@ -57,7 +56,6 @@ export default function LandingPage() {
       <MarketPlace />
       <Testimonials />
       {/* <CallToAction /> */}
-      <Footer />
     </>
   );
 }

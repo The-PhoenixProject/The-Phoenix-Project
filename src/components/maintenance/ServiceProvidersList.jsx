@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
-import { maintenanceAPI } from "../services/api";
+import { useAuth } from "../../hooks/useAuth";
+import { maintenanceAPI } from "../../services/api";
 
 function ServiceProvidersList({ onDelete }) {
   const { token, currentUser } = useAuth();

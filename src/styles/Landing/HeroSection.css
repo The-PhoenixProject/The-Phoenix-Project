@@ -1,6 +1,6 @@
 .hero-section {
   width: 100%;
-  max-width: 1200px;
+  max-width: 85%;
   background: linear-gradient(135deg, rgba(15, 159, 136, 0.08), rgba(7, 99, 84, 0.08));
   border: 1px solid #e4ece8;
   border-radius: 20px;
@@ -44,7 +44,7 @@
 }
 
 .hero-section .biglogo {
-  max-width: 360px;
+  max-width: 90%;
   width: 100%;
   filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.15));
 }

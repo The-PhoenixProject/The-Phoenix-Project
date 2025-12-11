@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 // Components
-import HeroSection from "../components/HeroSection";
-import RequestForm from "../components/RequestForm";
-import ServiceOfferForm from "../components/ServiceOfferForm";
-import RepairRequestsList from "../components/RepairRequestsList";
-import ServiceProvidersList from "../components/ServiceProvidersList";
+import MaintenanceHero from "../components/maintenance/MaintenanceHero";
+import RequestForm from "../components/maintenance/RequestForm";
+import ServiceOfferForm from "../components/maintenance/ServiceOfferForm";
+import RepairRequestsList from "../components/maintenance/RepairRequestsList";
+import ServiceProvidersList from "../components/maintenance/ServiceProvidersList";
 
 // Pages
 import MyMaintenanceRequestsPage from "./MyMaintenanceRequestsPage";
@@ -82,7 +82,7 @@ function MaintenanceHomePage() {
 
   return (
     <div className="app-container">
-      <HeroSection
+      <MaintenanceHero
       style={{ width: "100%", maxWidth: "100%" }}
         onRequestClick={handleRequestClick}
         onOfferClick={handleOfferClick}

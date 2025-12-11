@@ -5,9 +5,9 @@ import { Search, SlidersHorizontal, Heart, Plus, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { productAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
-import ProductCard from '../components/ProductCard';
-import ProductModal from '../components/ProductModal';
-import CreateProductModal from '../components/CreateProductModal';
+import ProductCard from '../components/marketplace/ProductCard';
+import ProductModal from '../components/marketplace/ProductModal';
+import CreateProductModal from '../components/marketplace/CreateProductModal';
 import toast from 'react-hot-toast';
 import '../styles/MarketPlace/MarketPlace.css';
 

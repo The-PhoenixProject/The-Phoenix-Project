@@ -3,12 +3,12 @@
 import React, { useState } from 'react';
 import { X, Heart, MessageCircle, MapPin, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { chatAPI } from '../services/api';
+import { useAuth } from '../../hooks/useAuth';
+import { chatAPI } from '../../services/api';
 import toast from 'react-hot-toast';
-import '../styles/MarketPlace/ProductModal.css';
+import './ProductModal.css';
 
-const ProductModal = ({ product, onClose, onToggleWishlist, style }) => {
+const ProductModal = ({ product, onClose, onToggleWishlist }) => {
   const { token, currentUser } = useAuth();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);

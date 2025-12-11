@@ -3,10 +3,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import { chatAPI } from '../services/api';
+import { useAuth } from '../../hooks/useAuth';
+import { chatAPI } from '../../services/api';
 import toast from 'react-hot-toast';
-import '../styles/MarketPlace/ProductCard.css';
+import './ProductCard.css';
 
 const ProductCard = ({ product, onClick, onToggleWishlist }) => {
   const { token, currentUser } = useAuth();
