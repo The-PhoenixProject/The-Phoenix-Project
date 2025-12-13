@@ -1,8 +1,8 @@
-# 🐦‍🔥 The Phoenix Project
+# 🐦‍🔥 The Phoenix Project - Front-end
 
 > *Rising from the ashes of waste, creating value through sustainability*
 
-![Image](https://github.com/user-attachments/assets/46b03239-076b-4ce9-8e4d-136a0ca4ade5)
+<img width="500" height="500" alt="Image" src="https://github.com/user-attachments/assets/3aba9f81-56c3-484b-9a64-481744d597a3" />
 
 ## 👥 Team Members
 - Eyad Mohamed Saad
