@@ -2,7 +2,7 @@
 
 > *Rising from the ashes of waste, creating value through sustainability*
 
-<img width="500" height="500" alt="Image" text-align="center" src="https://github.com/user-attachments/assets/3aba9f81-56c3-484b-9a64-481744d597a3" />
+<img width="500" height="500" alt="Image" margin-right="auto" margin-left="auto" src="https://github.com/user-attachments/assets/3aba9f81-56c3-484b-9a64-481744d597a3" />
 
 ## 👥 Team Members
 - Eyad Mohamed Saad
