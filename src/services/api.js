@@ -4,14 +4,21 @@
 // VITE_API_URL should be the full base URL (e.g., https://your-app.railway.app/api)
 // If it doesn't end with /api, we'll append it
 const getApiBaseUrl = () => {
-  const envUrl = import.meta.env.VITE_API_URL;
+  let envUrl = import.meta.env.VITE_API_URL;
   if (!envUrl) {
     // Development fallback
     return 'http://localhost:3000/api';
   }
   
-  // Remove trailing slash if present
-  const cleanUrl = envUrl.trim().replace(/\/+$/, '');
+  // Clean up common mistakes:
+  // 1. Remove "VITE_API_URL=" if accidentally included
+  envUrl = envUrl.replace(/^VITE_API_URL\s*=\s*/i, '').trim();
+  
+  // 2. Fix missing 't' in https (https:/ -> https://)
+  envUrl = envUrl.replace(/^https:\//, 'https://');
+  
+  // 3. Remove trailing slash if present
+  const cleanUrl = envUrl.replace(/\/+$/, '');
   
   // If the URL already includes /api, use it as is
   if (cleanUrl.endsWith('/api')) {
@@ -23,10 +30,15 @@ const getApiBaseUrl = () => {
 };
 
 const getApiUrl = () => {
-  const envUrl = import.meta.env.VITE_API_URL;
+  let envUrl = import.meta.env.VITE_API_URL;
   if (!envUrl) {
     return 'http://localhost:3000';
   }
+  
+  // Clean up common mistakes (same as getApiBaseUrl)
+  envUrl = envUrl.replace(/^VITE_API_URL\s*=\s*/i, '').trim();
+  envUrl = envUrl.replace(/^https:\//, 'https://');
+  
   // Remove /api suffix if present for base URL usage
   return envUrl.replace(/\/api\/?$/, '');
 };
