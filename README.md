@@ -216,7 +216,7 @@ Guidelines:
 ## Maintainers / Contacts
 
 Team members (Front-end / Project contacts)
-- Eyad Mohamed Saad
+- Eyad Mohamed Saad (Team Lead)
 - Ahmed Mohamed Elsayed
 - Mariam Mamdouh Darwish
 - Rowida Hussein Mahmoud
