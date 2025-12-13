@@ -16,7 +16,7 @@ Table of contents
 - [Tech stack](#tech-stack)
 - [Features](#key-features)
 - [Getting started](#getting-started-local)
-- [Environment variables](#enviroment-variables)
+- [Environment variables](#environment-variables)
 - [Scripts](#available-scripts)
 - [Integration notes (API & Socket.IO)](#Integration-notes-api--socketio)
 - [Routing & authentication](#routing--authentication)
