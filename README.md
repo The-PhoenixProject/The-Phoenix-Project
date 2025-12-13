@@ -2,7 +2,8 @@
 
 > A responsive web client for Phoenix — connecting eco-conscious buyers and sellers to reuse, upcycle, and resell pre-loved items.
 
-Live demo: [demo](https://the-phoenix-project-front-end.vercel.app) 
+Live demo: [demo](https://the-phoenix-project-front-end.vercel.app)
+
 Back-end: https://github.com/The-PhoenixProject/The-Phoenix-Project-Back-end
 
 Status: Active development  
