@@ -12,20 +12,20 @@ Framework: React (adjust if you use another framework)
 ---
 
 Table of contents
-- About
-- Tech stack
-- Features
-- Getting started
-- Environment variables
-- Scripts
-- Integration notes (API & Socket.IO)
-- Routing & authentication
-- Testing
-- Accessibility & performance
-- Deployment
-- Contributing
-- License
-- Maintainers / Contacts
+- [About](#about)
+- [Tech stack](#tech-stack)
+- [Features](#key-features)
+- [Getting started](#getting-started-local)
+- [Environment variables](#enviroment-variables)
+- [Scripts](#available-scripts)
+- [Integration notes (API & Socket.IO)](#Integration-notes-api--socketio)
+- [Routing & authentication](#routing--authentication)
+- [Testing](#testing)
+- [Accessibility & performance](#acessibility--performance)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [Maintainers / Contacts](#maintainers--contacts)
+- [License](#license)
 
 ---
 
