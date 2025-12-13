@@ -1,7 +1,47 @@
 // src/services/api.js - COMPLETE FIXED VERSION
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Handle API URL configuration for both development and production
+// VITE_API_URL should be the full base URL (e.g., https://your-app.railway.app/api)
+// If it doesn't end with /api, we'll append it
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) {
+    // Development fallback
+    return 'http://localhost:3000/api';
+  }
+  
+  // Remove trailing slash if present
+  const cleanUrl = envUrl.trim().replace(/\/+$/, '');
+  
+  // If the URL already includes /api, use it as is
+  if (cleanUrl.endsWith('/api')) {
+    return cleanUrl;
+  }
+  
+  // If it doesn't end with /api, append it
+  return `${cleanUrl}/api`;
+};
+
+const getApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) {
+    return 'http://localhost:3000';
+  }
+  // Remove /api suffix if present for base URL usage
+  return envUrl.replace(/\/api\/?$/, '');
+};
+
+const API_BASE_URL = getApiBaseUrl();
+const API_URL = getApiUrl();
+
+// Debug logging in production to help troubleshoot
+if (import.meta.env.PROD) {
+  console.log('🔧 API Configuration:', {
+    envUrl: import.meta.env.VITE_API_URL,
+    apiBaseUrl: API_BASE_URL,
+    apiUrl: API_URL
+  });
+}
 
 const apiCall = async (endpoint, options = {}) => {
   try {
@@ -16,9 +56,31 @@ const apiCall = async (endpoint, options = {}) => {
         return `${t.slice(0,6)}...${t.slice(-4)}`;
       } catch { return '***'; }
     };
-    console.debug('API Request ->', { endpoint: `${API_BASE_URL}${endpoint}`, method: options.method || 'GET', headers: { ...headers, Authorization: userHeaders.Authorization ? `Bearer ${maskToken(userHeaders.Authorization)}` : undefined } });
+    
+    // Ensure endpoint starts with / to avoid double slashes
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const fullUrl = `${API_BASE_URL}${cleanEndpoint}`;
+    
+    console.debug('API Request ->', { 
+      url: fullUrl,
+      endpoint: cleanEndpoint,
+      fullEndpoint: `${API_BASE_URL}${cleanEndpoint}`, 
+      method: options.method || 'GET', 
+      headers: { ...headers, Authorization: userHeaders.Authorization ? `Bearer ${maskToken(userHeaders.Authorization)}` : undefined },
+      apiBaseUrl: API_BASE_URL,
+      envUrl: import.meta.env.VITE_API_URL,
+      computedUrl: fullUrl
+    });
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+    const response = await fetch(fullUrl, { 
+      method: options.method || 'GET',
+      headers,
+      body: options.body,
+      // Add credentials for CORS
+      credentials: 'include',
+      mode: 'cors'
+    });
+    
     const text = await response.text();
     let data = {};
     try { data = text ? JSON.parse(text) : {}; } catch { data = { message: text }; }
@@ -31,12 +93,29 @@ const apiCall = async (endpoint, options = {}) => {
         // Return parsed payload to let caller decide; do not throw
         return data;
       }
+      
+      // Enhanced error logging for 405 errors
+      if (response.status === 405) {
+        console.error('❌ 405 Method Not Allowed:', {
+          url: fullUrl,
+          method: options.method || 'GET',
+          endpoint,
+          apiBaseUrl: API_BASE_URL,
+          envUrl: import.meta.env.VITE_API_URL,
+          responseText: text
+        });
+      }
+      
       console.log('API error payload:', data);
       throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
     return data;
   } catch (error) {
     console.error('API Error:', error);
+    // If it's a network error, provide more helpful message
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      throw new Error(`Cannot connect to backend. Check that ${API_BASE_URL} is accessible and CORS is configured.`);
+    }
     throw error;
   }
 };
