@@ -21,7 +21,7 @@ Table of contents
 - [Integration notes (API & Socket.IO)](#Integration-notes-api--socketio)
 - [Routing & authentication](#routing--authentication)
 - [Testing](#testing)
-- [Accessibility & performance](#acessibility--performance)
+- [Accessibility & performance](#accessibility--performance)
 - [Deployment](#deployment)
 - [Contributing](#contributing)
 - [Maintainers / Contacts](#maintainers--contacts)
