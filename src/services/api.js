@@ -116,6 +116,9 @@ export const productAPI = {
     const query = status ? `?status=${status}` : '';
     return apiCall(`/products/my/products${query}`, { method: 'GET', headers: { Authorization: `Bearer ${token}` } });
   },
+  getProductsByUser: async (userId, token) => {
+    return apiCall(`/products/user/${userId}`, { method: 'GET', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  },
   updateProduct: async (id, formData, token) => {
     try {
       console.debug('productAPI.updateProduct -> id:', id, 'token present:', !!token);
@@ -144,6 +147,8 @@ export const productAPI = {
 export const postAPI = {
   getMyPosts: async (token) =>
     apiCall('/posts/my', { method: 'GET', headers: { Authorization: `Bearer ${token}` } }),
+  getPostsByUser: async (userId, token) =>
+    apiCall(`/posts/user/${userId}`, { method: 'GET', headers: { Authorization: `Bearer ${token}` } }),
   createPost: async (formData, token) => {
     try {
       const response = await fetch(`${API_BASE_URL}/posts`, {

@@ -140,7 +140,7 @@ const ProductCard = ({ product, onClick, onToggleWishlist }) => {
 
         <div className="product-footer">
           <div className="product-details">
-            <span className="product-price">${Number(product.price).toFixed(2)}</span>
+            <span className="product-price">${Number(product.price || 0).toFixed(2)}</span>
             <span className={`product-condition ${product.condition.toLowerCase().replace(' ', '-')}`}>
               {product.condition}
             </span>

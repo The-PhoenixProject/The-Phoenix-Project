@@ -13,8 +13,8 @@ import {
   Alert,
 } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { authAPI, productAPI, postAPI } from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { authAPI, productAPI, postAPI, userAPI } from "../services/api";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Pencil,
   Plus,
@@ -30,6 +30,7 @@ import {
   Image as ImageIcon,
   X,
   AlertCircle,
+  ChevronRight,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
@@ -71,7 +72,9 @@ const LEVEL_CONFIG = [
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { updateProfileImage } = useUser();
+  const { userId } = useParams();
+  const { user: currentUser, updateProfileImage } = useUser();
+  const isOwnProfile = !userId || userId === currentUser?.id;
 
   const greenGradient = "#007D6E";
   const buttonColor = "#386641";
@@ -286,17 +289,18 @@ export default function ProfilePage() {
   // ✅ Refresh user data function
   const refreshUserData = useCallback(async () => {
     try {
-      const userRes = await authAPI.getMe(token);
-      const u =
-        (userRes &&
-          (userRes.data?.user || userRes.user || userRes.data || userRes)) ||
-        {};
+      let u = {};
+      
+      if (isOwnProfile) {
+        const userRes = await authAPI.getMe(token);
+        u = (userRes && (userRes.data?.user || userRes.user || userRes.data || userRes)) || {};
+      } else {
+        const userRes = await userAPI.getUserProfile(userId, token);
+        u = (userRes && (userRes.data?.user || userRes.user || userRes.data || userRes)) || {};
+      }
 
-      const ecoPoints =
-        u.ecoPoints ?? u.points ?? u.stats?.ecoPoints ?? u.stats?.points ?? 0;
-      const profileImageUrl = getImageUrl(
-        u.profilePicture || u.avatar || u.image
-      );
+      const ecoPoints = u.ecoPoints ?? u.points ?? u.stats?.ecoPoints ?? u.stats?.points ?? 0;
+      const profileImageUrl = getImageUrl(u.profilePicture || u.avatar || u.image);
 
       setUser({
         id: u.id || u._id || u.userId,
@@ -314,13 +318,19 @@ export default function ProfilePage() {
         followingCount: u.followingCount || u.following?.length || 0,
         productsCount: u.productsCount || 0,
       });
+      
+      if (isOwnProfile) {
+         updateProfileImage(profileImageUrl);
+      }
+      
       setFollowers(u.followers || []);
       setFollowing(u.following || []);
-      updateProfileImage(profileImageUrl);
+      
     } catch (err) {
       console.error("Failed to refresh user data:", err);
+      setError("Failed to load user profile");
     }
-  }, [token, getImageUrl, updateProfileImage]);
+  }, [token, getImageUrl, updateProfileImage, userId, isOwnProfile]);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -336,15 +346,25 @@ export default function ProfilePage() {
         await refreshUserData();
 
         try {
-          const productsRes = await productAPI.getMyProducts("", token);
-          setProducts(productsRes.data?.products || []);
+          if (isOwnProfile) {
+            const productsRes = await productAPI.getMyProducts("", token);
+            setProducts(productsRes.data?.products || []);
+          } else {
+             const productsRes = await productAPI.getProductsByUser(userId, token);
+             setProducts(productsRes.data?.products || productsRes.products || []);
+          }
         } catch (err) {
           console.warn("Failed to load products:", err);
         }
 
         try {
-          const postsRes = await postAPI.getMyPosts(token);
-          setPosts(postsRes.data || postsRes.posts || []);
+          if (isOwnProfile) {
+            const postsRes = await postAPI.getMyPosts(token);
+            setPosts(postsRes.data || postsRes.posts || []);
+          } else {
+            const postsRes = await postAPI.getPostsByUser(userId, token);
+            setPosts(postsRes.data || postsRes.posts || []);
+          }
         } catch (err) {
           console.warn("Failed to load posts:", err);
         }
@@ -823,20 +843,22 @@ export default function ProfilePage() {
                     e.target.src = PLACEHOLDER_IMAGE;
                   }}
                 />
-                <Button
-                  size="sm"
-                  style={{
-                    ...styles.smallRoundBtn,
-                    position: "absolute",
-                    bottom: "0",
-                    right: "0",
-                    backgroundColor: buttonColor,
-                    border: "3px solid white",
-                  }}
-                  onClick={() => setShowUploadModal(true)}
-                >
-                  <Camera size={16} color="white" />
-                </Button>
+                {isOwnProfile && (
+                  <Button
+                    size="sm"
+                    style={{
+                      ...styles.smallRoundBtn,
+                      position: "absolute",
+                      bottom: "0",
+                      right: "0",
+                      backgroundColor: buttonColor,
+                      border: "3px solid white",
+                    }}
+                    onClick={() => setShowUploadModal(true)}
+                  >
+                    <Camera size={16} color="white" />
+                  </Button>
+                )}
               </div>
               <h5 className="mb-1 text-white" style={{ marginBottom: "8px" }}>
                 {user.name}
@@ -931,19 +953,21 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
-              <Button
-                style={{ ...accentStyle, width: "100%", marginTop: "12px" }}
-                onClick={() => {
-                  setEditForm({
-                    fullName: user.name,
-                    bio: user.bio,
-                    location: user.location,
-                  });
-                  setEditShow(true);
-                }}
-              >
-                <i className="bi bi-pencil-square me-2"></i>Edit Profile
-              </Button>
+              {isOwnProfile && (
+                <Button
+                  style={{ ...accentStyle, width: "100%", marginTop: "12px" }}
+                  onClick={() => {
+                    setEditForm({
+                      fullName: user.name,
+                      bio: user.bio,
+                      location: user.location,
+                    });
+                    setEditShow(true);
+                  }}
+                >
+                  <i className="bi bi-pencil-square me-2"></i>Edit Profile
+                </Button>
+              )}
             </Card.Body>
           </Card>
 
@@ -1123,8 +1147,8 @@ export default function ProfilePage() {
               </h4>
 
               <div className="d-flex gap-3">
-                {/* زر Create Post - يظهر فقط في تبويب Posts */}
-                {activeTab === "posts" && (
+                {/* زر Create Post - يظهر فقط في تبويب Posts وعندما يكون البروفايل للمستخدم نفسه */}
+                {activeTab === "posts" && isOwnProfile && (
                   <Button
                     style={{ ...accentStyle }}
                     onClick={() => setAddShow(true)}
@@ -1133,8 +1157,8 @@ export default function ProfilePage() {
                   </Button>
                 )}
 
-                {/* زر Add Product - يظهر فقط في تبويب Products */}
-                {activeTab === "products" && (
+                {/* زر Add Product - يظهر فقط في تبويب Products وعندما يكون البروفايل للمستخدم نفسه */}
+                {activeTab === "products" && isOwnProfile && (
                   <Button
                     style={{ ...accentStyle }}
                     onClick={() => {
@@ -1248,15 +1272,19 @@ export default function ProfilePage() {
                         className="text-muted mb-4"
                         style={{ marginBottom: "20px" }}
                       >
-                        Share your eco-friendly journey with the community!
+                        {isOwnProfile 
+                          ? "Share your eco-friendly journey with the community!"
+                          : "This user hasn't shared any posts yet."}
                       </p>
-                      <Button
-                        style={accentStyle}
-                        onClick={() => setAddShow(true)}
-                      >
-                        <i className="bi bi-plus-circle me-2"></i>Create First
-                        Post
-                      </Button>
+                      {isOwnProfile && (
+                        <Button
+                          style={accentStyle}
+                          onClick={() => setAddShow(true)}
+                        >
+                          <i className="bi bi-plus-circle me-2"></i>Create First
+                          Post
+                        </Button>
+                      )}
                     </Card.Body>
                   </Card>
                 ) : (
@@ -1288,34 +1316,38 @@ export default function ProfilePage() {
                                 </div>
                               </div>
                               <div className="d-flex gap-2 ms-3">
-                                <Button
-                                  size="sm"
-                                  variant="outline-primary"
-                                  style={{
-                                    borderRadius: "8px",
-                                    padding: "6px 10px",
-                                    minWidth: "40px",
-                                    height: "40px",
-                                  }}
-                                  onClick={() => handleEditPost(post)}
-                                  title="Edit post"
-                                >
-                                  <Edit size={16} />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline-danger"
-                                  style={{
-                                    borderRadius: "8px",
-                                    padding: "6px 10px",
-                                    minWidth: "40px",
-                                    height: "40px",
-                                  }}
-                                  onClick={() => handleDeletePost(post._id)}
-                                  title="Delete post"
-                                >
-                                  <Trash2 size={16} />
-                                </Button>
+                                {isOwnProfile && (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="outline-primary"
+                                      style={{
+                                        borderRadius: "8px",
+                                        padding: "6px 10px",
+                                        minWidth: "40px",
+                                        height: "40px",
+                                      }}
+                                      onClick={() => handleEditPost(post)}
+                                      title="Edit post"
+                                    >
+                                      <Edit size={16} />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline-danger"
+                                      style={{
+                                        borderRadius: "8px",
+                                        padding: "6px 10px",
+                                        minWidth: "40px",
+                                        height: "40px",
+                                      }}
+                                      onClick={() => handleDeletePost(post._id)}
+                                      title="Delete post"
+                                    >
+                                      <Trash2 size={16} />
+                                    </Button>
+                                  </>
+                                )}
                               </div>
                             </div>
 
@@ -1456,41 +1488,43 @@ export default function ProfilePage() {
                                 <Leaf size={12} /> Eco
                               </Badge>
                             )}
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "10px",
-                                right: "10px",
-                                display: "flex",
-                                gap: "6px",
-                              }}
-                            >
-                              <Button
-                                size="sm"
+                            {isOwnProfile && (
+                              <div
                                 style={{
-                                  ...styles.actionCircle,
-                                  backgroundColor: greenGradient,
-                                  border: "none",
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditProduct(product);
+                                  position: "absolute",
+                                  top: "10px",
+                                  right: "10px",
+                                  display: "flex",
+                                  gap: "6px",
                                 }}
                               >
-                                <Pencil size={16} color="white" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="danger"
-                                style={styles.actionCircle}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteProduct(product._id);
-                                }}
-                              >
-                                <Trash2 size={16} />
-                              </Button>
-                            </div>
+                                <Button
+                                  size="sm"
+                                  style={{
+                                    ...styles.actionCircle,
+                                    backgroundColor: greenGradient,
+                                    border: "none",
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditProduct(product);
+                                  }}
+                                >
+                                  <Pencil size={16} color="white" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="danger"
+                                  style={styles.actionCircle}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteProduct(product._id);
+                                  }}
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </div>
+                            )}
                           </div>
                           <Card.Body style={{ padding: "16px" }}>
                             <Card.Title
@@ -2405,133 +2439,161 @@ export default function ProfilePage() {
         </Modal.Footer>
       </Modal>
 
-      {/* Followers Modal - محسن */}
+      {/* Followers Modal - Enhanced Design */}
       <Modal
         show={showFollowersModal}
         onHide={() => setShowFollowersModal(false)}
         centered
         size="md"
+        contentClassName="border-0 shadow-lg"
+        style={{ backdropFilter: "blur(5px)" }}
       >
-        <Modal.Header closeButton style={styles.modalHeader}>
-          <Modal.Title style={{ fontSize: "1.25rem" }}>
-            <i className="bi bi-people-fill me-2"></i>
+        <Modal.Header closeButton style={{ ...styles.modalHeader, borderBottom: "1px solid #f0f0f0" }}>
+          <Modal.Title style={{ fontSize: "1.25rem", fontWeight: "700", color: "#2c3e50" }}>
+            <i className="bi bi-people-fill me-2" style={{ color: greenGradient }}></i>
             {followersType === "followers" ? "Followers" : "Following"}
-            <Badge bg="light" text="dark" className="ms-2">
+            <Badge 
+              bg="light" 
+              text="dark" 
+              className="ms-2"
+              style={{ fontSize: "0.8rem", verticalAlign: "middle", border: "1px solid #eee" }}
+            >
               {followersType === "followers" ? followers.length : following.length}
             </Badge>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body
           style={{
-            padding: "16px",
-            maxHeight: "400px",
+            padding: "0",
+            maxHeight: "500px",
             overflowY: "auto",
+            backgroundColor: "#fff",
           }}
         >
           {(followersType === "followers" ? followers : following).length ===
           0 ? (
-            <div className="text-center py-5">
+            <div className="text-center py-5 px-4">
               <div
                 style={{
-                  width: "80px",
-                  height: "80px",
+                  width: "100px",
+                  height: "100px",
                   borderRadius: "50%",
-                  backgroundColor: "#e9ecef",
+                  background: "linear-gradient(135deg, #f6f8f9 0%, #e5ebee 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  margin: "0 auto 16px",
+                  margin: "0 auto 20px",
+                  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.05)"
                 }}
               >
-                <i className="bi bi-people" style={{ fontSize: "2rem", color: "#adb5bd" }}></i>
+                <i className="bi bi-people" style={{ fontSize: "2.5rem", color: "#bdc3c7" }}></i>
               </div>
-              <h6 className="text-muted">No {followersType} yet</h6>
-              <p className="text-muted small mt-2">
+              <h5 className="text-dark fw-bold mb-2">No connections yet</h5>
+              <p className="text-muted small mx-auto" style={{ maxWidth: "250px" }}>
                 {followersType === "followers" 
-                  ? "You don't have any followers yet." 
-                  : "You're not following anyone yet."}
+                  ? "When people follow you, they'll appear here. Share your profile!" 
+                  : "You haven't followed anyone yet. Explore the community to find eco-champions!"}
               </p>
             </div>
           ) : (
-            <div>
+            <div style={{ padding: "16px" }}>
               {(followersType === "followers" ? followers : following).map((u) => (
                 <div
                   key={u._id}
-                  className="d-flex align-items-center justify-content-between p-3 mb-2 rounded"
+                  className="d-flex align-items-center justify-content-between p-3 mb-3 rounded-3"
                   style={{
-                    backgroundColor: "#f8f9fa",
-                    border: "1px solid #e9ecef",
-                    transition: "all 0.2s ease",
+                    backgroundColor: "#fff",
+                    border: "1px solid #f0f2f5",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                    cursor: "pointer"
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#e9ecef";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.06)";
+                    e.currentTarget.style.borderColor = "transparent";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "#f8f9fa";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.02)";
+                    e.currentTarget.style.borderColor = "#f0f2f5";
+                  }}
+                  onClick={() => {
+                    navigate(`/profile/${u._id}`);
+                    setShowFollowersModal(false);
                   }}
                 >
-                  <div className="d-flex align-items-center">
-                    <img
-                      src={getImageUrl(u.profilePicture)}
-                      alt={u.fullName}
-                      className="rounded-circle me-3"
-                      style={{
-                        width: "48px",
-                        height: "48px",
-                        objectFit: "cover",
-                        border: "2px solid #dee2e6",
-                      }}
-                      onError={(e) => {
-                        e.target.src = PLACEHOLDER_IMAGE;
-                      }}
-                    />
-                    <div>
-                      <h6 className="mb-0 fw-bold" style={{ fontSize: "14px" }}>
+                  <div className="d-flex align-items-center flex-grow-1">
+                    <div className="position-relative">
+                      <img
+                        src={getImageUrl(u.profilePicture)}
+                        alt={u.fullName}
+                        className="rounded-circle"
+                        style={{
+                          width: "56px",
+                          height: "56px",
+                          objectFit: "cover",
+                          border: "2px solid #fff",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                        }}
+                        onError={(e) => {
+                          e.target.src = PLACEHOLDER_IMAGE;
+                        }}
+                      />
+                      {/* Optional: Add active status indicator here if available */}
+                    </div>
+                    <div className="ms-3">
+                      <h6 className="mb-0 fw-bold text-dark" style={{ fontSize: "15px", letterSpacing: "-0.3px" }}>
                         {u.fullName}
                       </h6>
-                      <small className="text-muted" style={{ fontSize: "12px" }}>
-                        {u.email}
-                      </small>
+                      <p className="text-muted mb-0 text-truncate" style={{ fontSize: "13px", maxWidth: "180px" }}>
+                        @{u.email?.split('@')[0] || "user"}
+                      </p>
+                      {u.level && (
+                        <span className="badge bg-light text-secondary mt-1 border" style={{ fontSize: "10px", fontWeight: "normal" }}>
+                          {u.level}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <Button
                     size="sm"
-                    variant="outline-primary"
-                    onClick={() => navigate(`/profile/${u._id}`)}
+                    variant="link"
+                    className="rounded-pill px-3 text-decoration-none"
                     style={{
-                      borderRadius: "8px",
-                      padding: "6px 12px",
-                      fontSize: "12px",
-                      borderColor: buttonColor,
-                      color: buttonColor,
-                      minWidth: "100px",
+                      backgroundColor: "rgba(56, 102, 65, 0.08)",
+                      color: greenGradient,
+                      fontWeight: "600",
+                      fontSize: "13px",
+                      height: "36px",
+                      display: "flex",
+                      alignItems: "center",
+                      border: "none"
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = buttonColor;
-                      e.currentTarget.style.color = "white";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                      e.currentTarget.style.color = buttonColor;
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/profile/${u._id}`);
+                      setShowFollowersModal(false);
                     }}
                   >
-                    View Profile
+                    Visit
+                    <ChevronRight size={14} className="ms-1" />
                   </Button>
                 </div>
               ))}
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer style={{ ...styles.modalFooter, justifyContent: "center" }}>
+        <Modal.Footer style={{ borderTop: "1px solid #f0f0f0", padding: "12px 20px" }}>
           <Button
             variant="light"
             onClick={() => setShowFollowersModal(false)}
+            className="w-100 rounded-pill"
             style={{
-              ...styles.actionButton,
               backgroundColor: "#f8f9fa",
-              color: "#495057",
-              border: "1px solid #dee2e6",
-              minWidth: "120px",
+              color: "#555",
+              border: "1px solid #e9ecef",
+              fontWeight: "500"
             }}
           >
             Close
