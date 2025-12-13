@@ -35,12 +35,17 @@ const API_BASE_URL = getApiBaseUrl();
 const API_URL = getApiUrl();
 
 // Debug logging in production to help troubleshoot
-if (import.meta.env.PROD) {
-  console.log('🔧 API Configuration:', {
-    envUrl: import.meta.env.VITE_API_URL,
-    apiBaseUrl: API_BASE_URL,
-    apiUrl: API_URL
-  });
+console.log('🔧 API Configuration:', {
+  envUrl: import.meta.env.VITE_API_URL || 'NOT SET',
+  apiBaseUrl: API_BASE_URL,
+  apiUrl: API_URL,
+  isProd: import.meta.env.PROD
+});
+
+// Warn if API_BASE_URL doesn't end with /api in production
+if (import.meta.env.PROD && !API_BASE_URL.endsWith('/api')) {
+  console.error('⚠️ WARNING: API_BASE_URL does not end with /api:', API_BASE_URL);
+  console.error('⚠️ Set VITE_API_URL in Vercel to: https://the-phoenix-project-back-end-production.up.railway.app/api');
 }
 
 const apiCall = async (endpoint, options = {}) => {
@@ -96,14 +101,23 @@ const apiCall = async (endpoint, options = {}) => {
       
       // Enhanced error logging for 405 errors
       if (response.status === 405) {
-        console.error('❌ 405 Method Not Allowed:', {
-          url: fullUrl,
+        console.error('❌ 405 Method Not Allowed Error Details:', {
+          attemptedUrl: fullUrl,
           method: options.method || 'GET',
           endpoint,
           apiBaseUrl: API_BASE_URL,
-          envUrl: import.meta.env.VITE_API_URL,
-          responseText: text
+          envUrl: import.meta.env.VITE_API_URL || 'NOT SET - Using fallback',
+          responseText: text,
+          fix: 'Set VITE_API_URL in Vercel to: https://the-phoenix-project-back-end-production.up.railway.app/api'
         });
+        
+        // If URL doesn't contain /api, suggest the fix
+        if (!fullUrl.includes('/api')) {
+          console.error('⚠️ URL is missing /api prefix!');
+          console.error('⚠️ Current URL:', fullUrl);
+          console.error('⚠️ Should be:', fullUrl.replace('railway.app/', 'railway.app/api/'));
+          console.error('⚠️ Fix: Set VITE_API_URL in Vercel environment variables');
+        }
       }
       
       console.log('API error payload:', data);
