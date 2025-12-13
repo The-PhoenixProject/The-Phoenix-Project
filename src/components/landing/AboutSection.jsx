@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-const aboutImage = "/public/assets/landingImgs/aboutImageresiezed.png";
+const aboutImage = "/assets/landingImgs/aboutImageresiezed.png";
 
 export default function AboutSection() {
   return (

@@ -2,7 +2,7 @@
   width: 100%;
   height: 60vh;
   /* !!! IMPORTANT: Update the image path below !!! */
-  background-image: url('/public/assets/landingImgs/Gemini2.png'); 
+  background-image: url('/assets/landingImgs/Gemini2.png'); 
   background-size: cover;
   background-position: center;
   /* This creates the classic parallax scrolling effect */

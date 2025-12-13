@@ -405,7 +405,7 @@ const Login = () => {
               className="login-center-logo-group"
               variants={centerLogoVariants}
             >
-              <img src="../../public/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="login-logo-image-center" />
+              <img src="/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="login-logo-image-center" />
               <h1 className="login-logo-title-center">Welcome Back</h1>
             </motion.div>
             
@@ -428,7 +428,7 @@ const Login = () => {
               initial="initial"
               animate="animate"
             >
-              <img src="../../public/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="login-logo-image-small" />
+              <img src="/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="login-logo-image-small" />
               <div className="login-logo-text-small">
                 <span className="login-logo-title-small">PHOENIX</span>
               </div>

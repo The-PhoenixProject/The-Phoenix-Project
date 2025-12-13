@@ -525,7 +525,7 @@ const Signup = () => {
               className="signup-center-logo-group"
               variants={centerLogoVariants}
             >
-              <img src="../../public/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="signup-logo-image-center" />
+              <img src="/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="signup-logo-image-center" />
               <h1 className="signup-logo-title-center">Welcome to Phoenix</h1>
             </motion.div>
             
@@ -548,7 +548,7 @@ const Signup = () => {
               initial="initial"
               animate="animate"
             >
-              <img src="../../public/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="signup-logo-image-small" />
+              <img src="/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="signup-logo-image-small" />
               <div className="signup-logo-text-small">
                 <span className="signup-logo-title-small">PHOENIX</span>
               </div>

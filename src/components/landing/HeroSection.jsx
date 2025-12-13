@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-const logoBig = '/public/assets/landingImgs/phoenix-removebg-preview.png';
+const logoBig = '/assets/landingImgs/phoenix-removebg-preview.png';
 
 
 export default function HeroSection({ onLearnMoreClick }) {

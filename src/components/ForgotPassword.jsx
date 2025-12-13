@@ -213,7 +213,7 @@ const ForgotPassword = () => {
               className="forgot-center-logo-group"
               variants={centerLogoVariants}
             >
-              <img src="../../public/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="forgot-logo-image-center" />
+              <img src="/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="forgot-logo-image-center" />
               <h1 className="forgot-logo-title-center">Password Recovery</h1>
             </motion.div>
             
@@ -236,7 +236,7 @@ const ForgotPassword = () => {
               initial="initial"
               animate="animate"
             >
-              <img src="../../public/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="forgot-logo-image-small" />
+              <img src="/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="forgot-logo-image-small" />
               <div className="forgot-logo-text-small">
                 <span className="forgot-logo-title-small">PHOENIX</span>
               </div>

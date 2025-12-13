@@ -18,7 +18,7 @@ import { MdContactSupport } from 'react-icons/md';
 // ✅ استيراد Context
 import { useUser } from '../../context/UserContext';
 
-const logoIcon = '/public/assets/landingImgs/phoenix-removebg-preview.png';
+const logoIcon = '/assets/landingImgs/phoenix-removebg-preview.png';
 
 export default function CustomNavbar() {
   const { pathname } = useLocation();

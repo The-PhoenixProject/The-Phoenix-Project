@@ -427,7 +427,7 @@ const ResetPassword = () => {
       {/* Logo in Top Left */}
       <div className="logo-header">
         <div className="logo-container">
-          <img src="../../public/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="logo" />
+          <img src="/assets/landingImgs/phoenix-removebg-preview.png" alt="Phoenix Logo" className="logo" />
           <h2 className="logo-title">Phoenix</h2>
         </div>
       </div>
